@@ -39,15 +39,24 @@ function checkAuth(req, res, next) {
   else res.redirect('/login');
 }
 
-// DÜZƏLDİLDİ: Timezone problemini həll edir
-function parseSheetDate(dateStr) {
-  if (!dateStr) return null;
+// YENİ: Tarixi YYYYMMDD rəqəminə çevirir
+function dateToNumber(dateStr) {
+  if (!dateStr) return 0;
   try {
     const datePart = dateStr.split(' ')[0];
     const [month, day, year] = datePart.split('/').map(Number);
-    if (!month ||!day ||!year) return null;
-    // UTC olaraq yaradırıq ki, server timezone-dan asılı olmasın
-    return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    if (!month ||!day ||!year) return 0;
+    return year * 10000 + month * 100 + day;
+  } catch {
+    return 0;
+  }
+}
+
+function inputDateToNumber(dateStr) {
+  if (!dateStr) return null;
+  try {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return year * 10000 + month * 100 + day;
   } catch {
     return null;
   }
@@ -56,16 +65,15 @@ function parseSheetDate(dateStr) {
 function filterByDateRange(customers, startDate, endDate) {
   if (!startDate &&!endDate) return customers;
 
-  // Input-dan gələn tarixləri UTC-ə çeviririk
-  const start = startDate? new Date(startDate + 'T00:00:00Z') : null;
-  const end = endDate? new Date(endDate + 'T23:59:59Z') : null;
+  const startNum = inputDateToNumber(startDate);
+  const endNum = inputDateToNumber(endDate);
 
   return customers.filter(c => {
-    const custDate = parseSheetDate(c['Timestamp']);
-    if (!custDate) return false;
+    const custNum = dateToNumber(c['Timestamp']);
+    if (custNum === 0) return false;
 
-    if (start && custDate < start) return false;
-    if (end && custDate > end) return false;
+    if (startNum && custNum < startNum) return false;
+    if (endNum && custNum > endNum) return false;
     return true;
   });
 }
@@ -73,9 +81,11 @@ function filterByDateRange(customers, startDate, endDate) {
 function getMonthlyStats(customers) {
   const stats = { total: {}, qosulma: {}, kocurme: {} };
   customers.forEach(c => {
-    const date = parseSheetDate(c['Timestamp']);
-    if (date) {
-      const key = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+    const num = dateToNumber(c['Timestamp']);
+    if (num > 0) {
+      const year = Math.floor(num / 10000);
+      const month = Math.floor((num % 10000) / 100);
+      const key = `${year}-${String(month).padStart(2, '0')}`;
       const qeyd = (c['Qeyd'] || '').toLowerCase();
       stats.total[key] = (stats.total[key] || 0) + 1;
       if (qeyd.includes('qoşulma')) {
@@ -309,7 +319,19 @@ app.get('/', checkAuth, async (req, res) => {
   try {
     let { data } = await getSheetData();
     totalCount = data.length;
+
+    // DEBUG
+    if (startDate || endDate) {
+      console.log('Filter input:', startDate, endDate);
+      console.log('İlk 3 timestamp:', data.slice(0,3).map(c => c['Timestamp']));
+    }
+
     data = filterByDateRange(data, startDate, endDate);
+
+    if (startDate || endDate) {
+      console.log('Filterdən sonra say:', data.length);
+    }
+
     monthlyStats = getMonthlyStats(data);
 
     if (q) {
@@ -322,11 +344,10 @@ app.get('/', checkAuth, async (req, res) => {
         return odemeKodu.includes(searchQuery) || telefon.includes(searchQuery) || unvan.includes(q.toLowerCase()) || ad.includes(q.toLowerCase());
       });
     } else {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const todayNum = dateToNumber(`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`);
       todayCustomers = data.filter(c => {
-        const custDate = parseSheetDate(c['Timestamp']);
-        return custDate >= today;
+        const custNum = dateToNumber(c['Timestamp']);
+        return custNum === todayNum;
       });
     }
   } catch (err) {
