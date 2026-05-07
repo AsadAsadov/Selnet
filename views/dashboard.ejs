@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b}
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b;--red:#ef4444}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .header{background:linear-gradient(90deg, #059669, #10b981);padding:15px 30px;display:flex;justify-content:space-between;align-items:center}
 .header h1{margin:0;font-size:20px}.header a{color:#fff;text-decoration:none;font-weight:500}
@@ -52,6 +52,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .not-found,.error{text-align:center;padding:40px;color:var(--muted);background:var(--card);border-radius:12px}
 .error{color:#f87171}
 .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#customerModal{z-index:1001}
 .modal-content{background:var(--card);border:1px solid var(--border);border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;animation:slideUp 0.3s}
 .modal-content.large{max-width:1000px}
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -66,6 +67,9 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .modal-body.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .btn-wa{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#25D366;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px}
 .btn-wa:hover{background:#1da851}
+.btn-edit,.btn-delete{padding:8px 14px;border:none;border-radius:6px;color:#fff;cursor:pointer;font-weight:500;font-size:14px}
+.btn-edit{background:var(--blue)}.btn-edit:hover{background:#2563eb}
+.btn-delete{background:var(--red)}.btn-delete:hover{background:#dc2626}
 .hidden{display:none}
 @media (max-width:600px){
 .card-body,.modal-body.grid,.stats{grid-template-columns:1fr}
@@ -77,7 +81,12 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 </style></head><body>
 <div class="header">
   <div class="logo"><h1><i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi</h1></div>
-  <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Çıxış</a>
+  <div style="display:flex;gap:15px;align-items:center">
+    <a href="/add" style="color:#fff;text-decoration:none;font-weight:500">
+      <i class="fa-solid fa-plus"></i> Əlavə Et
+    </a>
+    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Çıxış</a>
+  </div>
 </div>
 <div class="container">
   <div class="search-section">
@@ -115,6 +124,10 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
           <div class="card-header">
             <h2><%= result['Ad, Soyad, Ata adı'] || 'Adsız müştəri' %></h2>
             <span>Ödəniş kodu: <%= result['Ödəniş kodu'] %> | Qeydiyyat: <%= result['Timestamp'] %></span>
+            <div style="margin-top:15px;display:flex;gap:10px">
+              <a href="/edit/<%= result['Ödəniş kodu'] %>" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a>
+              <button class="btn-delete" onclick="deleteCustomer('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>)"><i class="fa-solid fa-trash"></i> Sil</button>
+            </div>
           </div>
           <div class="card-body">
             <%- include('card-content', {result: result}) %>
@@ -254,10 +267,8 @@ async function loadAllCustomers(page) {
   allCustomersPage = page;
   const body = document.getElementById('allCustomersBody');
   body.innerHTML = '<p style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin"></i> Yüklənir...</p>';
-
   const res = await fetch(`/api/all-customers?page=${page}`);
   const json = await res.json();
-
   if (json.success) {
     currentModalList = json.customers.map(c => c['Ödəniş kodu']);
     let html = '';
@@ -270,13 +281,11 @@ async function loadAllCustomers(page) {
         <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
       </div>`;
     });
-
     html += '<div class="pagination">';
     if (page > 1) html += `<a onclick="loadAllCustomers(${page - 1})">Əvvəlki</a>`;
     html += `<span style="padding:8px 15px">Səhifə ${page} / ${json.totalPages}</span>`;
     if (page < json.totalPages) html += `<a onclick="loadAllCustomers(${page + 1})">Növbəti</a>`;
     html += '</div>';
-
     body.innerHTML = html;
   }
 }
@@ -313,7 +322,6 @@ async function loadModalCustomer(odemeKodu) {
   if (json.success) {
     const r = json.data;
     modalTitle.innerHTML = `${r['Ad, Soyad, Ata adı'] || 'Adsız'}`;
-
     const fields = [
       { key: 'Ödəniş kodu', label: 'Ödəniş Kodu' },
       { key: 'Telefon nömrəsi', label: 'Telefon', type: 'tel' },
@@ -329,7 +337,6 @@ async function loadModalCustomer(odemeKodu) {
       { key: 'Qeyd', label: 'Qeyd', full: true },
       { key: 'Müqavilə və Modemin şəkli', label: 'Müqavilə Şəkli', type: 'link', full: true }
     ];
-
     let html = '';
     fields.forEach(f => {
       const val = r[f.key];
@@ -350,6 +357,10 @@ async function loadModalCustomer(odemeKodu) {
         html += `</p></div>`;
       }
     });
+    html += `<div class="info-item full-width" style="display:flex;gap:10px;margin-top:10px">
+      <a href="/edit/${r['Ödəniş kodu']}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a>
+      <button class="btn-delete" onclick="deleteCustomer('${r['Ödəniş kodu']}', ${r.rowIndex})"><i class="fa-solid fa-trash"></i> Sil</button>
+    </div>`;
     modalBody.innerHTML = html;
   } else {
     modalBody.innerHTML = '<p>Məlumat tapılmadı.</p>';
@@ -371,6 +382,22 @@ function closeModal(id) {
 function openChartModal() {
   document.getElementById('chartModal').style.display = 'flex';
   if (!modalChartInstance) initModalChart();
+}
+
+async function deleteCustomer(odemeKodu, rowIndex) {
+  if (!confirm(`"${odemeKodu}" ödəniş kodlu müştərini silmək istəyirsiniz?`)) return;
+  const res = await fetch(`/delete/${odemeKodu}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({rowIndex})
+  });
+  const json = await res.json();
+  if (json.success) {
+    alert('Müştəri silindi');
+    location.reload();
+  } else {
+    alert('Xəta: ' + json.error);
+  }
 }
 
 document.addEventListener('keydown', (e) => {
@@ -429,12 +456,10 @@ function updateChart(type) {
     qosulma: 'Qoşulma',
     kocurme: 'Köçürmə'
   };
-
   document.querySelectorAll('.chart-btn').forEach(b => {
     b.classList.remove('active');
     if (b.dataset.type === type) b.classList.add('active');
   });
-
   mainChart.data.datasets[0].label = labels[type];
   mainChart.data.datasets[0].data = chartData[type];
   mainChart.data.datasets[0].backgroundColor = colors[type].bg;
@@ -481,12 +506,10 @@ function updateModalChart(type) {
     qosulma: 'Qoşulma',
     kocurme: 'Köçürmə'
   };
-
   document.querySelectorAll('#chartModal.chart-btn').forEach(b => {
     b.classList.remove('active');
     if (b.dataset.type === type) b.classList.add('active');
   });
-
   modalChartInstance.data.datasets[0].label = labels[type];
   modalChartInstance.data.datasets[0].data = chartData[type];
   modalChartInstance.data.datasets[0].backgroundColor = colors[type].bg;
