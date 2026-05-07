@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6}
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .header{background:linear-gradient(90deg, #059669, #10b981);padding:15px 30px;display:flex;justify-content:space-between;align-items:center}
 .header h1{margin:0;font-size:20px}.header a{color:#fff;text-decoration:none;font-weight:500}
@@ -25,7 +25,15 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .stat-card h3{margin:0 0 5px 0;color:var(--muted);font-size:14px;font-weight:500}
 .stat-card p{margin:0;font-size:28px;font-weight:bold}
 .stat-card.blue{border-left:4px solid var(--blue)}.stat-card.green{border-left:4px solid var(--green)}.stat-card.purple{border-left:4px solid var(--purple)}
-.chart-container{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:25px}
+.chart-container{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:25px;position:relative}
+.chart-wrapper{height:300px;position:relative}
+.btn-expand{position:absolute;top:15px;right:15px;background:var(--border);border:none;color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px}
+.btn-expand:hover{background:var(--green)}
+.chart-buttons{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.chart-btn{padding:8px 16px;background:var(--border);border:none;border-radius:6px;color:var(--text);cursor:pointer;font-size:14px;font-weight:500}
+.chart-btn.active{background:var(--green)}
+.chart-btn.orange.active{background:var(--orange)}
+.chart-btn.blue.active{background:var(--blue)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
 .card-header{padding:20px;border-bottom:1px solid var(--border)}
 .card-header h2{margin:0 0 5px 0;font-size:22px}.card-header span{color:var(--muted);font-size:14px}
@@ -39,28 +47,32 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .list-item:hover{border-color:var(--green);background:#273549;transform:translateX(3px)}
 .list-item.name{font-weight:600}.list-item.meta{font-size:13px;color:var(--muted);margin-top:4px}
 .pagination{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
-.pagination a{padding:8px 15px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none}
+.pagination a{padding:8px 15px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;cursor:pointer}
 .pagination a.active{background:var(--green);border-color:var(--green)}
 .not-found,.error{text-align:center;padding:40px;color:var(--muted);background:var(--card);border-radius:12px}
 .error{color:#f87171}
 .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-content{background:var(--card);border:1px solid var(--border);border-radius:12px;width:90%;max-width:700px;max-height:90vh;overflow-y:auto;animation:slideUp 0.3s}
+.modal-content.large{max-width:1000px}
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-header{padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card);z-index:10}
-.modal-header h2{margin:0;font-size:20px}
-.modal-controls{display:flex;gap:10px;align-items:center}
+.modal-header{padding:20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card);z-index:10;gap:15px}
+.modal-header h2{margin:0;font-size:20px;flex:1}
+.modal-controls{display:flex;gap:10px;align-items:center;white-space:nowrap}
 .modal-controls button{background:var(--border);border:none;color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:16px}
 .modal-controls button:hover{background:var(--green)}
 .modal-controls button:disabled{opacity:0.3;cursor:not-allowed}
 .close-btn{font-size:28px;cursor:pointer;color:var(--muted);line-height:1}
-.modal-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.modal-body{padding:20px}
+.modal-body.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .btn-wa{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#25D366;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px}
 .btn-wa:hover{background:#1da851}
 .hidden{display:none}
 @media (max-width:600px){
- .card-body,.modal-body,.stats{grid-template-columns:1fr}
- .search-box{flex-direction:column}
- .date-filter{justify-content:space-between}
+.card-body,.modal-body.grid,.stats{grid-template-columns:1fr}
+.search-box{flex-direction:column}
+.date-filter{justify-content:space-between}
+.chart-wrapper{height:250px}
+.modal-controls{font-size:14px}
 }
 </style></head><body>
 <div class="header">
@@ -133,11 +145,11 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     <% } %>
 
   <% } else { %>
-    <!-- ANA SƏHİFƏ -->
     <div class="stats">
-      <div class="stat-card purple">
+      <div class="stat-card purple" onclick="openAllCustomersModal()">
         <h3>Ümumi Müştəri Sayı</h3>
         <p><%= totalCount %></p>
+        <span style="font-size:12px;color:var(--muted)">Kliklə hamısına bax</span>
       </div>
       <div class="stat-card green" onclick="showTodayList()">
         <h3>Bu gün əlavə olunanlar</h3>
@@ -147,8 +159,16 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     </div>
 
     <div class="chart-container">
+      <button class="btn-expand" onclick="openChartModal()"><i class="fa-solid fa-expand"></i> Böyüt</button>
       <h3 class="section-title" style="margin-top:0"><i class="fa-solid fa-chart-line"></i> Aylıq Qoşulma Statistikası</h3>
-      <canvas id="monthlyChart"></canvas>
+      <div class="chart-wrapper">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+      <div class="chart-buttons">
+        <button class="chart-btn active" data-type="total" onclick="updateChart('total')">Ümumi</button>
+        <button class="chart-btn green" data-type="qosulma" onclick="updateChart('qosulma')">Qoşulma</button>
+        <button class="chart-btn orange" data-type="kocurme" onclick="updateChart('kocurme')">Köçürmə</button>
+      </div>
     </div>
 
     <div id="todayList" class="hidden">
@@ -166,7 +186,6 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
   <% } %>
 </div>
 
-<!-- POPUP MODAL -->
 <div id="customerModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -175,10 +194,41 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
         <button onclick="navigateModal(-1)" id="prevBtn"><i class="fa-solid fa-chevron-left"></i></button>
         <span id="modalCounter" style="color:var(--muted);font-size:14px"></span>
         <button onclick="navigateModal(1)" id="nextBtn"><i class="fa-solid fa-chevron-right"></i></button>
-        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <span class="close-btn" onclick="closeModal('customerModal')">&times;</span>
       </div>
     </div>
-    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-body grid" id="modalBody"></div>
+  </div>
+</div>
+
+<div id="chartModal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h2>Aylıq Qoşulma Statistikası</h2>
+      <span class="close-btn" onclick="closeModal('chartModal')">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div style="height:500px">
+        <canvas id="modalChart"></canvas>
+      </div>
+      <div class="chart-buttons">
+        <button class="chart-btn active" data-type="total" onclick="updateModalChart('total')">Ümumi</button>
+        <button class="chart-btn green" data-type="qosulma" onclick="updateModalChart('qosulma')">Qoşulma</button>
+        <button class="chart-btn orange" data-type="kocurme" onclick="updateModalChart('kocurme')">Köçürmə</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="allCustomersModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Bütün Müştərilər</h2>
+      <span class="close-btn" onclick="closeModal('allCustomersModal')">&times;</span>
+    </div>
+    <div class="modal-body" id="allCustomersBody">
+      <p style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin"></i> Yüklənir...</p>
+    </div>
   </div>
 </div>
 
@@ -186,9 +236,49 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 let currentModalIndex = 0;
 let currentModalList = [];
 let currentModalType = '';
+let mainChart, modalChartInstance;
+let allCustomersPage = 1;
+
+const chartData = <%- JSON.stringify(monthlyStats) %>;
 
 function showTodayList() {
   document.getElementById('todayList').classList.toggle('hidden');
+}
+
+async function openAllCustomersModal() {
+  document.getElementById('allCustomersModal').style.display = 'flex';
+  await loadAllCustomers(1);
+}
+
+async function loadAllCustomers(page) {
+  allCustomersPage = page;
+  const body = document.getElementById('allCustomersBody');
+  body.innerHTML = '<p style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin"></i> Yüklənir...</p>';
+
+  const res = await fetch(`/api/all-customers?page=${page}`);
+  const json = await res.json();
+
+  if (json.success) {
+    currentModalList = json.customers.map(c => c['Ödəniş kodu']);
+    let html = '';
+    json.customers.forEach((item, index) => {
+      html += `<div class="list-item" onclick="openModal('${item['Ödəniş kodu']}', ${index}, 'all')">
+        <div>
+          <div class="name">${item['Ad, Soyad, Ata adı']}</div>
+          <div class="meta">Kod: ${item['Ödəniş kodu']} | Tel: ${item['Telefon nömrəsi']}</div>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
+      </div>`;
+    });
+
+    html += '<div class="pagination">';
+    if (page > 1) html += `<a onclick="loadAllCustomers(${page - 1})">Əvvəlki</a>`;
+    html += `<span style="padding:8px 15px">Səhifə ${page} / ${json.totalPages}</span>`;
+    if (page < json.totalPages) html += `<a onclick="loadAllCustomers(${page + 1})">Növbəti</a>`;
+    html += '</div>';
+
+    body.innerHTML = html;
+  }
 }
 
 function openModal(odemeKodu, index, type = 'search') {
@@ -274,49 +364,59 @@ function navigateModal(direction) {
   }
 }
 
-function closeModal() {
-  document.getElementById('customerModal').style.display = 'none';
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function openChartModal() {
+  document.getElementById('chartModal').style.display = 'flex';
+  if (!modalChartInstance) initModalChart();
 }
 
 document.addEventListener('keydown', (e) => {
   if (document.getElementById('customerModal').style.display === 'flex') {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') closeModal('customerModal');
     if (e.key === 'ArrowLeft') navigateModal(-1);
     if (e.key === 'ArrowRight') navigateModal(1);
+  }
+  if (e.key === 'Escape') {
+    closeModal('chartModal');
+    closeModal('allCustomersModal');
   }
 });
 
 window.onclick = function(e) {
-  if (e.target == document.getElementById('customerModal')) closeModal();
+  if (e.target.classList.contains('modal')) e.target.style.display = 'none';
 }
 
-// QRAFİK
 <% if (!q && monthlyStats.labels.length > 0) { %>
-const ctx = document.getElementById('monthlyChart');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: <%- JSON.stringify(monthlyStats.labels) %>,
-    datasets: [{
-      label: 'Yeni Müştəri',
-      data: <%- JSON.stringify(monthlyStats.data) %>,
-      backgroundColor: 'rgba(16, 185, 129, 0.5)',
-      borderColor: '#10b981',
-      borderWidth: 2
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { labels: { color: '#e2e8f0' } }
+function initChart() {
+  const ctx = document.getElementById('monthlyChart');
+  mainChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [{
+        label: 'Ümumi',
+        data: chartData.total,
+        backgroundColor: 'rgba(16, 185, 129, 0.5)',
+        borderColor: '#10b981',
+        borderWidth: 2
+      }]
     },
-    scales: {
-      y: { beginAtZero: true, ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: '#334155' } },
-      x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#e2e8f0' } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: '#334155' } },
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+      }
     }
-  }
-});
-<% } %>
-</script>
+  });
+}
 
-</body></html>
+function updateChart(type) {
+  document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('
