@@ -16,7 +16,7 @@ app.use(session({
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS;
 const SHEET_ID = process.env.SHEET_ID;
-const SHEET_TAB_NAME = process.env.SHEET_TAB_NAME || 'Müştəri'; // Sheet tab adını .env-dən oxu
+const SHEET_TAB_NAME = process.env.SHEET_TAB_NAME || 'Müştəri';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_CREDS),
@@ -61,20 +61,27 @@ app.get('/', checkAuth, async (req, res) => {
         errorMsg = 'Sheet boşdur və ya oxuna bilmədi.';
       } else {
         const headers = rows[0];
+        console.log('===== SHEET BAŞLIQLARI =====');
+        console.log(JSON.stringify(headers)); // DƏQİQ ADLARI GÖRƏCƏYİK
+        console.log('===========================');
         const data = rows.slice(1);
 
-        // Ödəniş kodu = index 1, Telefon = index 3
-        // includes() ilə axtar ki, nömrənin bir hissəsi ilə də tapsın
-        const foundRow = data.find(row => 
-          (row[1] && row[1].toString() === q) || 
-          (row[3] && row[3].toString().replace(/\s/g, '').includes(q.replace(/\s/g, '')))
-        );
+        // Şəkilə görə: Ödəniş kodu = 1, Telefon = 2
+        const foundRow = data.find(row => {
+          const odemeKodu = row[1] ? row[1].toString().trim() : '';
+          const telefon = row[2] ? row[2].toString().replace(/\s/g, '') : '';
+          const searchQuery = q.replace(/\s/g, '');
+          return odemeKodu === q || telefon.includes(searchQuery);
+        });
 
         if (foundRow) {
           result = headers.reduce((obj, header, i) => {
             obj[header] = foundRow[i] || '';
             return obj;
           }, {});
+          console.log('===== TAPILAN MÜŞTƏRİ OBYEKTİ =====');
+          console.log(JSON.stringify(result));
+          console.log('=================================');
         }
       }
     } catch (err) {
