@@ -30,15 +30,14 @@ function checkAuth(req, res, next) {
   else res.redirect('/login');
 }
 
-// DÜZGÜN TARİX PARSE - M/D/YYYY H:MM:SS formatı üçün
+// DÜZƏLDİLMİŞ: M/D/YYYY - 5/7/2026 = 7 May 2026
 function parseSheetDate(dateStr) {
   if (!dateStr) return null;
   try {
-    // "5/7/2026 9:52:41" → Date object
-    const [datePart, timePart] = dateStr.split(' ');
-    const [month, day, year] = datePart.split('/');
-    const [hour = 0, minute = 0, second = 0] = timePart? timePart.split(':') : [0,0,0];
-    return new Date(year, month - 1, day, hour, minute, second);
+    const datePart = dateStr.split(' ')[0];
+    const [month, day, year] = datePart.split('/').map(Number);
+    if (!month ||!day ||!year) return null;
+    return new Date(year, month - 1, day);
   } catch {
     return null;
   }
@@ -46,31 +45,48 @@ function parseSheetDate(dateStr) {
 
 function filterByDateRange(customers, startDate, endDate) {
   if (!startDate &&!endDate) return customers;
+  const start = startDate? new Date(startDate + 'T00:00:00') : null;
+  const end = endDate? new Date(endDate + 'T23:59:59') : null;
+
   return customers.filter(c => {
     const custDate = parseSheetDate(c['Timestamp']);
     if (!custDate) return false;
-    if (startDate && custDate < new Date(startDate + 'T00:00:00')) return false;
-    if (endDate && custDate > new Date(endDate + 'T23:59:59')) return false;
+    if (start && custDate < start) return false;
+    if (end && custDate > end) return false;
     return true;
   });
 }
 
 function getMonthlyStats(customers) {
-  const months = {};
+  const stats = { total: {}, qosulma: {}, kocurme: {} };
+
   customers.forEach(c => {
     const date = parseSheetDate(c['Timestamp']);
     if (date) {
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      months[key] = (months[key] || 0) + 1;
+      const qeyd = (c['Qeyd'] || '').toLowerCase();
+
+      stats.total[key] = (stats.total[key] || 0) + 1;
+
+      if (qeyd.includes('qoşulma')) {
+        stats.qosulma[key] = (stats.qosulma[key] || 0) + 1;
+      } else if (qeyd.includes('köçürmə') || qeyd.includes('kocurme')) {
+        stats.kocurme[key] = (stats.kocurme[key] || 0) + 1;
+      }
     }
   });
-  const sorted = Object.keys(months).sort().slice(-12);
+
+  const sorted = Object.keys(stats.total).sort().slice(-12);
+  const formatLabel = k => {
+    const [y, m] = k.split('-');
+    return `${m}/${y}`;
+  };
+
   return {
-    labels: sorted.map(k => {
-      const [y, m] = k.split('-');
-      return `${m}/${y}`;
-    }),
-    data: sorted.map(k => months[k])
+    labels: sorted.map(formatLabel),
+    total: sorted.map(k => stats.total[k] || 0),
+    qosulma: sorted.map(k => stats.qosulma[k] || 0),
+    kocurme: sorted.map(k => stats.kocurme[k] || 0)
   };
 }
 
@@ -115,11 +131,43 @@ app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
+app.get('/api/all-customers', checkAuth, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB_NAME}!A:N`,
+    });
+    const rows = response.data.values;
+    const headers = rows[0];
+    const data = rows.slice(1).reverse();
+
+    const allCustomers = data.map(row => headers.reduce((obj, header, i) => {
+      obj[header] = row[i] || '';
+      return obj;
+    }, {}));
+
+    const total = allCustomers.length;
+    const paginated = allCustomers.slice((page - 1) * limit, page * limit);
+
+    res.json({
+      success: true,
+      customers: paginated,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
 app.get('/', checkAuth, async (req, res) => {
   let results = [];
   let todayCustomers = [];
   let totalCount = 0;
-  let monthlyStats = { labels: [], data: [] };
+  let monthlyStats = { labels: [], total: [], qosulma: [], kocurme: [] };
   let errorMsg = null;
   const q = req.query.q? req.query.q.trim() : '';
   const startDate = req.query.startDate || '';
@@ -144,7 +192,7 @@ app.get('/', checkAuth, async (req, res) => {
         return obj;
       }, {}));
 
-      totalCount = allCustomers.length; // ÜMUMİ SAY
+      totalCount = allCustomers.length;
       allCustomers = filterByDateRange(allCustomers, startDate, endDate);
       monthlyStats = getMonthlyStats(allCustomers);
 
