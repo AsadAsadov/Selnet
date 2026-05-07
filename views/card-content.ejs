@@ -1,0 +1,36 @@
+<%
+const fields = [
+  { key: 'Telefon nömrəsi', label: 'Telefon', type: 'tel' },
+  { key: 'Aylıq ödəniş', label: 'Aylıq Ödəniş', suffix: ' AZN' },
+  { key: 'Ş/V FİN', label: 'Ş/V FİN' },
+  { key: 'Ş/V Seriya', label: 'Ş/V Seriya' },
+  { key: 'Modem S/N', label: 'Modem S/N' },
+  { key: 'Tv Box', label: 'TV Box' },
+  { key: 'Komendant', label: 'Komendant' },
+  { key: 'Şifrə:', label: 'Şifrə' },
+  { key: 'Ünvan', label: 'Ünvan', full: true },
+  { key: 'Qeyd', label: 'Qeyd', full: true },
+  { key: 'Müqavilə və Modemin şəkli', label: 'Müqavilə Şəkli', type: 'link', full: true }
+];
+%>
+
+<% fields.forEach(field => { %>
+  <% const value = result[field.key]; %>
+  <% if (value && value.toString().trim()!== '' && value.toString().toLowerCase()!== 'yox') { %>
+    <div class="info-item <%= field.full? 'full-width' : '' %>">
+      <label><%= field.label %></label>
+      <p>
+        <% if (field.type === 'tel') { %>
+          <a href="tel:<%= value %>"><%= value %></a>
+        <% } else if (field.type === 'link') { %>
+          <% const links = value.split(',').map(l => l.trim()); %>
+          <% links.forEach((link, i) => { %>
+            <a href="<%= link %>" target="_blank">Şəkil <%= i+1 %></a><%= i < links.length - 1? ' | ' : '' %>
+          <% }) %>
+        <% } else { %>
+          <%= value %><%= field.suffix || '' %>
+        <% } %>
+      </p>
+    </div>
+  <% } %>
+<% }) %>
