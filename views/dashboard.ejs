@@ -7,20 +7,21 @@
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .header{background:linear-gradient(90deg, #059669, #10b981);padding:15px 30px;display:flex;justify-content:space-between;align-items:center}
 .header h1{margin:0;font-size:20px}.header a{color:#fff;text-decoration:none;font-weight:500}
-.header.logo{display:flex;align-items:center;gap:10px}
 .container{padding:20px;max-width:1000px;margin:auto}
 .search-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
-.search-box{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap}
-.search-box input{flex:1;min-width:200px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px}
+.search-box{display:flex;gap:10px;margin-bottom:15px}
+.search-box input{flex:1;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px}
 .search-box button{padding:12px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer}
 .date-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.date-filter label{font-size:14px;color:var(--muted)}
-.date-filter input[type="date"]{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)}
-.btn-home,.btn-clear{display:inline-block;padding:10px 15px;background:var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:14px}
-.btn-home:hover,.btn-clear:hover{background:var(--green)}
+.date-filter label{font-size:14px;color:var(--muted);white-space:nowrap}
+.date-filter input[type="date"]{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);min-width:140px}
+.btn-filter{padding:10px 15px;background:var(--border);border:none;border-radius:8px;color:var(--text);cursor:pointer}
+.btn-filter:hover{background:var(--green)}
+.btn-clear{display:inline-block;padding:10px 15px;background:var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:14px}
 .search-info{color:var(--muted);font-size:14px;margin-bottom:20px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}
-.stat-card{background:var(--card);border:1px solid var(--border);padding:20px;border-radius:12px}
+.stat-card{background:var(--card);border:1px solid var(--border);padding:20px;border-radius:12px;cursor:pointer;transition:0.2s}
+.stat-card:hover{border-color:var(--green);transform:translateY(-2px)}
 .stat-card h3{margin:0 0 5px 0;color:var(--muted);font-size:14px;font-weight:500}
 .stat-card p{margin:0;font-size:28px;font-weight:bold}
 .stat-card.blue{border-left:4px solid var(--blue)}.stat-card.green{border-left:4px solid var(--green)}.stat-card.purple{border-left:4px solid var(--purple)}
@@ -30,7 +31,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .card-header h2{margin:0 0 5px 0;font-size:22px}.card-header span{color:var(--muted);font-size:14px}
 .card-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .info-item label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase}
-.info-item p{margin:0;font-size:16px;font-weight:500;word-break:break-word}
+.info-item p{margin:0;font-size:16px;font-weight:500;word-break:break-word;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .info-item a{color:var(--green);text-decoration:none;font-weight:bold}
 .full-width{grid-column:1 / -1}
 .section-title{font-size:18px;margin:25px 0 15px 0;color:var(--text);display:flex;align-items:center;gap:10px}
@@ -53,14 +54,17 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .modal-controls button:disabled{opacity:0.3;cursor:not-allowed}
 .close-btn{font-size:28px;cursor:pointer;color:var(--muted);line-height:1}
 .modal-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.btn-sms{display:inline-flex;align-items:center;gap:8px;padding:10px 15px;background:var(--green);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-top:10px}
-.btn-sms:hover{background:#059669}
-@media (max-width:600px){.card-body,.modal-body,.stats{grid-template-columns:1fr}.search-box{flex-direction:column}}
+.btn-wa{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#25D366;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px}
+.btn-wa:hover{background:#1da851}
+.hidden{display:none}
+@media (max-width:600px){
+ .card-body,.modal-body,.stats{grid-template-columns:1fr}
+ .search-box{flex-direction:column}
+ .date-filter{justify-content:space-between}
+}
 </style></head><body>
 <div class="header">
-  <div class="logo">
-    <h1><i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi</h1>
-  </div>
+  <div class="logo"><h1><i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi</h1></div>
   <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Çıxış</a>
 </div>
 <div class="container">
@@ -75,7 +79,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
       <input type="date" name="startDate" value="<%= startDate || '' %>">
       <span>-</span>
       <input type="date" name="endDate" value="<%= endDate || '' %>">
-      <button type="submit" class="btn-clear">Filter</button>
+      <button type="submit" class="btn-filter">Filter</button>
       <% if (q || startDate || endDate) { %>
         <a href="/" class="btn-clear"><i class="fa-solid fa-xmark"></i> Təmizlə</a>
       <% } %>
@@ -86,7 +90,6 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     <div class="error"><p><i class="fa-solid fa-triangle-exclamation"></i> <%= errorMsg %></p></div>
 
   <% } else if (q || startDate || endDate) { %>
-    <% if (q) { %><a href="/" class="btn-home"><i class="fa-solid fa-house"></i> Ana səhifəyə qayıt</a><% } %>
     <% if (results.length > 0) { %>
       <div class="search-info">
         <% if (q) { %>Axtarış: "<%= q %>" - <% } %>
@@ -106,9 +109,9 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
           </div>
         </div>
       <% } else { %>
-        <div class="result-list">
+        <div class="result-list" id="searchResults">
           <% results.forEach((item, index) => { %>
-            <div class="list-item" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>)">
+            <div class="list-item" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'search')">
               <div>
                 <div class="name"><%= item['Ad, Soyad, Ata adı'] %></div>
                 <div class="meta">Kod: <%= item['Ödəniş kodu'] %> | Tel: <%= item['Telefon nömrəsi'] %> | <%= item['Ünvan'] %></div>
@@ -132,17 +135,14 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
   <% } else { %>
     <!-- ANA SƏHİFƏ -->
     <div class="stats">
-      <div class="stat-card green">
+      <div class="stat-card purple">
+        <h3>Ümumi Müştəri Sayı</h3>
+        <p><%= totalCount %></p>
+      </div>
+      <div class="stat-card green" onclick="showTodayList()">
         <h3>Bu gün əlavə olunanlar</h3>
         <p><%= todayCustomers.length %></p>
-      </div>
-      <div class="stat-card blue">
-        <h3>Son 10 müştəri</h3>
-        <p><%= recentCustomers.length %></p>
-      </div>
-      <div class="stat-card purple">
-        <h3>Ümumi</h3>
-        <p><%= recentCustomers.length + todayCustomers.length %></p>
+        <span style="font-size:12px;color:var(--muted)">Kliklə siyahıya bax</span>
       </div>
     </div>
 
@@ -151,8 +151,8 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
       <canvas id="monthlyChart"></canvas>
     </div>
 
-    <% if (todayCustomers.length > 0) { %>
-      <h3 class="section-title"><i class="fa-solid fa-calendar-day"></i> Bu gün əlavə olunanlar</h3>
+    <div id="todayList" class="hidden">
+      <h3 class="section-title"><i class="fa-solid fa-calendar-day"></i> Bu gün əlavə olunanlar - <%= todayCustomers.length %> nəfər</h3>
       <% todayCustomers.forEach((item, index) => { %>
         <div class="list-item" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'today')">
           <div>
@@ -162,18 +162,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
           <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
         </div>
       <% }) %>
-    <% } %>
-
-    <h3 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Son əlavə olunan 10 müştəri</h3>
-    <% recentCustomers.forEach((item, index) => { %>
-      <div class="list-item" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'recent')">
-        <div>
-          <div class="name"><%= item['Ad, Soyad, Ata adı'] %></div>
-          <div class="meta">Kod: <%= item['Ödəniş kodu'] %> | <%= item['Timestamp'] %></div>
-        </div>
-        <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
-      </div>
-    <% }) %>
+    </div>
   <% } %>
 </div>
 
@@ -198,14 +187,16 @@ let currentModalIndex = 0;
 let currentModalList = [];
 let currentModalType = '';
 
+function showTodayList() {
+  document.getElementById('todayList').classList.toggle('hidden');
+}
+
 function openModal(odemeKodu, index, type = 'search') {
   currentModalType = type;
   if (type === 'search') {
-    currentModalList = <%= JSON.stringify(results.map(r => r['Ödəniş kodu'])) %>;
+    currentModalList = <%- JSON.stringify(results.map(r => r['Ödəniş kodu'])) %>;
   } else if (type === 'today') {
-    currentModalList = <%= JSON.stringify(todayCustomers.map(r => r['Ödəniş kodu'])) %>;
-  } else if (type === 'recent') {
-    currentModalList = <%= JSON.stringify(recentCustomers.map(r => r['Ödəniş kodu'])) %>;
+    currentModalList = <%- JSON.stringify(todayCustomers.map(r => r['Ödəniş kodu'])) %>;
   }
   currentModalIndex = currentModalList.indexOf(odemeKodu);
   loadModalCustomer(odemeKodu);
@@ -257,8 +248,9 @@ async function loadModalCustomer(odemeKodu) {
           <label>${f.label}</label><p>`;
         if (f.type === 'tel') {
           const cleanTel = val.toString().replace(/\s/g, '');
+          const waTel = '994' + cleanTel.replace(/^0/, '');
           html += `<a href="tel:${cleanTel}">${val}</a>
-                   <a href="https://wa.me/994${cleanTel.replace(/^0/, '')}" target="_blank" class="btn-sms">
+                   <a href="https://wa.me/${waTel}" target="_blank" class="btn-wa">
                      <i class="fa-brands fa-whatsapp"></i> WhatsApp
                    </a>`;
         } else if (f.type === 'link') {
@@ -302,16 +294,15 @@ window.onclick = function(e) {
 <% if (!q && monthlyStats.labels.length > 0) { %>
 const ctx = document.getElementById('monthlyChart');
 new Chart(ctx, {
-  type: 'line',
+  type: 'bar',
   data: {
     labels: <%- JSON.stringify(monthlyStats.labels) %>,
     datasets: [{
       label: 'Yeni Müştəri',
       data: <%- JSON.stringify(monthlyStats.data) %>,
+      backgroundColor: 'rgba(16, 185, 129, 0.5)',
       borderColor: '#10b981',
-      backgroundColor: 'rgba(16, 185, 129, 0.1)',
-      tension: 0.4,
-      fill: true
+      borderWidth: 2
     }]
   },
   options: {
@@ -320,7 +311,7 @@ new Chart(ctx, {
       legend: { labels: { color: '#e2e8f0' } }
     },
     scales: {
-      y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+      y: { beginAtZero: true, ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: '#334155' } },
       x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
     }
   }
