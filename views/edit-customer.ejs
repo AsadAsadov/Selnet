@@ -1,0 +1,134 @@
+<!DOCTYPE html><html><head>
+<title>Müştəri Redaktə</title><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--red:#ef4444;--blue:#3b82f6}
+body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
+.header{background:linear-gradient(90deg, #059669, #10b981);padding:15px 30px;display:flex;justify-content:space-between;align-items:center}
+.header h1{margin:0;font-size:20px}.header a{color:#fff;text-decoration:none;font-weight:500}
+.container{padding:20px;max-width:700px;margin:auto}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:30px}
+.form-card h2{margin:0 0 25px 0;font-size:24px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;margin-bottom:8px;font-size:14px;color:var(--muted);font-weight:500}
+.form-group input,.form-group textarea{width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;box-sizing:border-box}
+.form-group textarea{min-height:80px;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--green)}
+.form-group input[type="file"]{padding:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.btn-submit{width:100%;padding:14px;background:var(--blue);border:none;border-radius:8px;color:#fff;font-weight:bold;font-size:16px;cursor:pointer;margin-top:10px}
+.btn-submit:hover{background:#2563eb}
+.btn-back{display:inline-block;padding:10px 20px;background:var(--border);border-radius:8px;color:var(--text);text-decoration:none;margin-bottom:20px}
+.alert{padding:15px;border-radius:8px;margin-bottom:20px;font-weight:500}
+.alert.success{background:rgba(16,185,129,0.2);border:1px solid var(--green);color:var(--green)}
+.alert.error{background:rgba(239,68,68,0.2);border:1px solid var(--red);color:var(--red)}
+.required{color:var(--red)}
+.current-image{margin-top:10px}
+.current-image img{max-width:200px;border-radius:8px;border:1px solid var(--border)}
+@media (max-width:600px){.form-row{grid-template-columns:1fr}}
+</style></head><body>
+<div class="header">
+  <div class="logo"><h1><i class="fa-solid fa-pen-to-square"></i> Müştəri Redaktə</h1></div>
+  <a href="/"><i class="fa-solid fa-home"></i> Ana Səhifə</a>
+</div>
+<div class="container">
+  <a href="/" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Geri</a>
+
+  <div class="form-card">
+    <h2><i class="fa-solid fa-pen"></i> <%= customer['Ad, Soyad, Ata adı'] %></h2>
+
+    <% if (success) { %>
+      <div class="alert success"><i class="fa-solid fa-check-circle"></i> <%= success %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert error"><i class="fa-solid fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <form method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="rowIndex" value="<%= customer.rowIndex %>">
+      <input type="hidden" name="oldImageUrl" value="<%= customer['Müqavilə və Modemin şəkli'] || '' %>">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ödəniş kodu <span class="required">*</span></label>
+          <input type="text" name="odemeKodu" value="<%= customer['Ödəniş kodu'] %>" required readonly style="opacity:0.6">
+        </div>
+        <div class="form-group">
+          <label>Aylıq ödəniş (AZN) <span class="required">*</span></label>
+          <input type="number" name="aylıqOdenis" step="0.01" value="<%= customer['Aylıq ödəniş'] %>" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Ad, Soyad, Ata adı <span class="required">*</span></label>
+        <input type="text" name="adSoyad" value="<%= customer['Ad, Soyad, Ata adı'] %>" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Telefon nömrəsi <span class="required">*</span></label>
+          <input type="text" name="telefon" value="<%= customer['Telefon nömrəsi'] %>" required>
+        </div>
+        <div class="form-group">
+          <label>Şifrə</label>
+          <input type="text" name="sifre" value="<%= customer['Şifrə:'] %>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Ünvan <span class="required">*</span></label>
+        <input type="text" name="unvan" value="<%= customer['Ünvan'] %>" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ş/V FİN</label>
+          <input type="text" name="fin" value="<%= customer['Ş/V FİN'] %>">
+        </div>
+        <div class="form-group">
+          <label>Ş/V Seriya</label>
+          <input type="text" name="seriya" value="<%= customer['Ş/V Seriya'] %>">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Modem S/N</label>
+          <input type="text" name="modem" value="<%= customer['Modem S/N'] %>">
+        </div>
+        <div class="form-group">
+          <label>TV Box</label>
+          <input type="text" name="tvbox" value="<%= customer['Tv Box'] %>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Komendant</label>
+        <input type="text" name="komendant" value="<%= customer['Komendant'] %>">
+      </div>
+
+      <div class="form-group">
+        <label>Qeyd</label>
+        <textarea name="qeyd"><%= customer['Qeyd'] %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Müqavilə və Modemin şəkli</label>
+        <input type="file" name="muqavileSekli" accept="image/*">
+        <% if (customer['Müqavilə və Modemin şəkli']) { %>
+          <div class="current-image">
+            <p style="font-size:13px;color:var(--muted);margin:8px 0">Hazırkı şəkil:</p>
+            <a href="<%= customer['Müqavilə və Modemin şəkli'] %>" target="_blank">
+              <img src="<%= customer['Müqavilə və Modemin şəkli'] %>" alt="Müqavilə">
+            </a>
+          </div>
+        <% } %>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        <i class="fa-solid fa-floppy-disk"></i> Yenilə
+      </button>
+    </form>
+  </div>
+</div>
+</body></html>
