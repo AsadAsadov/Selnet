@@ -39,15 +39,15 @@ function checkAuth(req, res, next) {
   else res.redirect('/login');
 }
 
-// DÜZƏLDİLDİ: Tarix filteri - yalnız günü müqayisə edir
+// DÜZƏLDİLDİ: Timezone problemini həll edir
 function parseSheetDate(dateStr) {
   if (!dateStr) return null;
   try {
     const datePart = dateStr.split(' ')[0];
     const [month, day, year] = datePart.split('/').map(Number);
     if (!month ||!day ||!year) return null;
-    // Saatı sıfırlayırıq ki, yalnız gün müqayisə olunsun
-    return new Date(year, month - 1, day, 0, 0, 0, 0);
+    // UTC olaraq yaradırıq ki, server timezone-dan asılı olmasın
+    return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
   } catch {
     return null;
   }
@@ -55,12 +55,15 @@ function parseSheetDate(dateStr) {
 
 function filterByDateRange(customers, startDate, endDate) {
   if (!startDate &&!endDate) return customers;
-  const start = startDate? new Date(startDate + 'T00:00:00') : null;
-  const end = endDate? new Date(endDate + 'T23:59:59') : null;
+
+  // Input-dan gələn tarixləri UTC-ə çeviririk
+  const start = startDate? new Date(startDate + 'T00:00:00Z') : null;
+  const end = endDate? new Date(endDate + 'T23:59:59Z') : null;
 
   return customers.filter(c => {
     const custDate = parseSheetDate(c['Timestamp']);
     if (!custDate) return false;
+
     if (start && custDate < start) return false;
     if (end && custDate > end) return false;
     return true;
@@ -72,7 +75,7 @@ function getMonthlyStats(customers) {
   customers.forEach(c => {
     const date = parseSheetDate(c['Timestamp']);
     if (date) {
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const key = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
       const qeyd = (c['Qeyd'] || '').toLowerCase();
       stats.total[key] = (stats.total[key] || 0) + 1;
       if (qeyd.includes('qoşulma')) {
@@ -120,7 +123,6 @@ async function uploadToDrive(file) {
   return `https://drive.google.com/uc?id=${fileId}`;
 }
 
-// ÇOXLU ŞƏKİL YÜKLƏMƏ
 async function uploadMultipleToDrive(files) {
   if (!files || files.length === 0) return '';
   const urls = [];
@@ -128,7 +130,7 @@ async function uploadMultipleToDrive(files) {
     const url = await uploadToDrive(file);
     if (url) urls.push(url);
   }
-  return urls.join(','); // Vergüllə ayırırıq
+  return urls.join(',');
 }
 
 async function getSheetData() {
@@ -189,7 +191,6 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
   }
 });
 
-// ƏLAVƏ ET - ÇOXLU ŞƏKİL
 app.get('/add', checkAuth, (req, res) => {
   res.render('add-customer', { success: null, error: null });
 });
@@ -226,7 +227,6 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
   }
 });
 
-// REDAKTƏ ET - ÇOXLU ŞƏKİL
 app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
@@ -245,11 +245,11 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
     let imageUrl = oldImageUrl || '';
     if (req.files && req.files.length > 0) {
       const newUrls = await uploadMultipleToDrive(req.files);
-      imageUrl = imageUrl? `${imageUrl},${newUrls}` : newUrls; // Köhnələr + yenilər
+      imageUrl = imageUrl? `${imageUrl},${newUrls}` : newUrls;
     }
 
     const updatedRow = [
-      '', // Timestamp dəyişmir
+      '',
       odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl
     ];
 
@@ -270,7 +270,6 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
   }
 });
 
-// SİL
 app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { rowIndex } = req.body;
