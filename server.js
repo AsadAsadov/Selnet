@@ -30,46 +30,40 @@ function checkAuth(req, res, next) {
   else res.redirect('/login');
 }
 
-// M/D/YYYY H:MM:SS formatını Date-ə çevirir
-function parseDate(dateStr) {
+// DÜZGÜN TARİX PARSE - M/D/YYYY H:MM:SS formatı üçün
+function parseSheetDate(dateStr) {
   if (!dateStr) return null;
   try {
-    const parts = dateStr.split(' ');
-    const datePart = parts[0].split('/');
-    const timePart = parts[1]? parts[1].split(':') : [0,0,0];
-    return new Date(datePart[2], datePart[0] - 1, datePart[1], timePart[0], timePart[1], timePart[2]);
+    // "5/7/2026 9:52:41" → Date object
+    const [datePart, timePart] = dateStr.split(' ');
+    const [month, day, year] = datePart.split('/');
+    const [hour = 0, minute = 0, second = 0] = timePart? timePart.split(':') : [0,0,0];
+    return new Date(year, month - 1, day, hour, minute, second);
   } catch {
     return null;
   }
 }
 
-// Tarix aralığı filteri
 function filterByDateRange(customers, startDate, endDate) {
   if (!startDate &&!endDate) return customers;
   return customers.filter(c => {
-    const custDate = parseDate(c['Timestamp']);
+    const custDate = parseSheetDate(c['Timestamp']);
     if (!custDate) return false;
-    if (startDate && custDate < new Date(startDate)) return false;
-    if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      if (custDate > end) return false;
-    }
+    if (startDate && custDate < new Date(startDate + 'T00:00:00')) return false;
+    if (endDate && custDate > new Date(endDate + 'T23:59:59')) return false;
     return true;
   });
 }
 
-// Aylıq qrafik üçün data
 function getMonthlyStats(customers) {
   const months = {};
   customers.forEach(c => {
-    const date = parseDate(c['Timestamp']);
+    const date = parseSheetDate(c['Timestamp']);
     if (date) {
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       months[key] = (months[key] || 0) + 1;
     }
   });
-  // Son 12 ayı qaytar
   const sorted = Object.keys(months).sort().slice(-12);
   return {
     labels: sorted.map(k => {
@@ -123,8 +117,8 @@ app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
 
 app.get('/', checkAuth, async (req, res) => {
   let results = [];
-  let recentCustomers = [];
   let todayCustomers = [];
+  let totalCount = 0;
   let monthlyStats = { labels: [], data: [] };
   let errorMsg = null;
   const q = req.query.q? req.query.q.trim() : '';
@@ -150,12 +144,11 @@ app.get('/', checkAuth, async (req, res) => {
         return obj;
       }, {}));
 
-      // Tarix filteri tətbiq et
+      totalCount = allCustomers.length; // ÜMUMİ SAY
       allCustomers = filterByDateRange(allCustomers, startDate, endDate);
       monthlyStats = getMonthlyStats(allCustomers);
 
       if (q) {
-        // AXTARIŞ
         const searchQuery = q.toLowerCase().replace(/\s/g, '');
         results = allCustomers.filter(c => {
           const odemeKodu = c['Ödəniş kodu']? c['Ödəniş kodu'].toString().toLowerCase().trim() : '';
@@ -169,12 +162,10 @@ app.get('/', checkAuth, async (req, res) => {
                  ad.includes(q.toLowerCase());
         });
       } else {
-        // ANA SƏHİFƏ
-        recentCustomers = allCustomers.slice(0, 10);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         todayCustomers = allCustomers.filter(c => {
-          const custDate = parseDate(c['Timestamp']);
+          const custDate = parseSheetDate(c['Timestamp']);
           return custDate >= today;
         });
       }
@@ -197,8 +188,8 @@ app.get('/', checkAuth, async (req, res) => {
     totalResults,
     currentPage: page,
     totalPages,
-    recentCustomers,
     todayCustomers,
+    totalCount,
     monthlyStats
   });
 });
