@@ -315,6 +315,22 @@ let currentLightboxIndex = 0;
 
 const chartData = <%- JSON.stringify(monthlyStats) %>;
 
+// YENİ: Google Drive linkini birbaşa şəkil linkinə çevir
+function convertDriveLink(url) {
+  if (!url) return '';
+  // https://drive.google.com/file/d/FILE_ID/view -> https://drive.google.com/uc?id=FILE_ID
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match && match[1]) {
+    return `https://drive.google.com/uc?id=${match[1]}`;
+  }
+  // https://drive.google.com/open?id=FILE_ID formatı
+  const match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (match2 && match2[1]) {
+    return `https://drive.google.com/uc?id=${match2[1]}`;
+  }
+  return url; // artıq düz linkdirsə olduğu kimi qaytar
+}
+
 function showTodayList() {
   document.getElementById('todayList').classList.toggle('hidden');
 }
@@ -412,7 +428,8 @@ async function loadModalCustomer(odemeKodu) {
                      <i class="fa-brands fa-whatsapp"></i> WhatsApp
                    </a>`;
         } else if (f.type === 'image') {
-          const links = val.split(',').map(l => l.trim()).filter(l => l);
+          // DÜZƏLİŞ: Drive linklərini çevirib düymə yaradırıq
+          const links = val.split(',').map(l => l.trim()).filter(l => l).map(convertDriveLink);
           html += links.map((l,i) => `<button class="btn-image" onclick='openLightbox(${JSON.stringify(links)}, ${i})'><i class="fa-solid fa-image"></i> Şəkil ${i+1}</button>`).join(' ');
         } else html += `${val}${f.suffix || ''}`;
         html += `</p></div>`;
@@ -463,7 +480,8 @@ async function deleteCustomer(odemeKodu, rowIndex) {
 
 // YENİ: LIGHTBOX FUNKSİYALARI
 function openLightbox(images, startIndex = 0) {
-  lightboxImages = images;
+  // Hər şəkli çevir
+  lightboxImages = images.map(convertDriveLink);
   currentLightboxIndex = startIndex;
   updateLightboxImage();
   document.getElementById('lightboxModal').style.display = 'flex';
