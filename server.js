@@ -32,7 +32,6 @@ const auth = new google.auth.GoogleAuth({
 const sheets = google.sheets({ version: 'v4', auth });
 const drive = google.drive({ version: 'v3', auth });
 
-// Multer config - şəkil yaddaşda saxlanır
 const upload = multer({ storage: multer.memoryStorage() });
 
 function checkAuth(req, res, next) {
@@ -40,13 +39,15 @@ function checkAuth(req, res, next) {
   else res.redirect('/login');
 }
 
+// DÜZƏLDİLDİ: Tarix filteri - yalnız günü müqayisə edir
 function parseSheetDate(dateStr) {
   if (!dateStr) return null;
   try {
     const datePart = dateStr.split(' ')[0];
     const [month, day, year] = datePart.split('/').map(Number);
     if (!month ||!day ||!year) return null;
-    return new Date(year, month - 1, day);
+    // Saatı sıfırlayırıq ki, yalnız gün müqayisə olunsun
+    return new Date(year, month - 1, day, 0, 0, 0, 0);
   } catch {
     return null;
   }
@@ -56,6 +57,7 @@ function filterByDateRange(customers, startDate, endDate) {
   if (!startDate &&!endDate) return customers;
   const start = startDate? new Date(startDate + 'T00:00:00') : null;
   const end = endDate? new Date(endDate + 'T23:59:59') : null;
+
   return customers.filter(c => {
     const custDate = parseSheetDate(c['Timestamp']);
     if (!custDate) return false;
@@ -118,6 +120,17 @@ async function uploadToDrive(file) {
   return `https://drive.google.com/uc?id=${fileId}`;
 }
 
+// ÇOXLU ŞƏKİL YÜKLƏMƏ
+async function uploadMultipleToDrive(files) {
+  if (!files || files.length === 0) return '';
+  const urls = [];
+  for (const file of files) {
+    const url = await uploadToDrive(file);
+    if (url) urls.push(url);
+  }
+  return urls.join(','); // Vergüllə ayırırıq
+}
+
 async function getSheetData() {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -131,7 +144,7 @@ async function getSheetData() {
       o[h] = row[i] || '';
       return o;
     }, {});
-    obj.rowIndex = rows.length - idx; // Sheet-dəki real sətir nömrəsi
+    obj.rowIndex = rows.length - idx;
     return obj;
   });
   return { headers, data };
@@ -176,23 +189,24 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
   }
 });
 
-// ƏLAVƏ ET
+// ƏLAVƏ ET - ÇOXLU ŞƏKİL
 app.get('/add', checkAuth, (req, res) => {
   res.render('add-customer', { success: null, error: null });
 });
 
-app.post('/add', checkAuth, upload.single('muqavileSekli'), async (req, res) => {
+app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
 
-    // DUBLİKAT YOXLA
     const { data } = await getSheetData();
     if (data.some(r => r['Ödəniş kodu'].toString().trim() === odemeKodu.trim())) {
       return res.render('add-customer', { success: null, error: 'Bu ödəniş kodu artıq mövcuddur!' });
     }
 
     let imageUrl = '';
-    if (req.file) imageUrl = await uploadToDrive(req.file);
+    if (req.files && req.files.length > 0) {
+      imageUrl = await uploadMultipleToDrive(req.files);
+    }
 
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
@@ -212,7 +226,7 @@ app.post('/add', checkAuth, upload.single('muqavileSekli'), async (req, res) => 
   }
 });
 
-// REDAKTƏ ET
+// REDAKTƏ ET - ÇOXLU ŞƏKİL
 app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
@@ -224,19 +238,21 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
-app.post('/edit/:odemeKodu', checkAuth, upload.single('muqavileSekli'), async (req, res) => {
+app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl } = req.body;
 
     let imageUrl = oldImageUrl || '';
-    if (req.file) imageUrl = await uploadToDrive(req.file);
+    if (req.files && req.files.length > 0) {
+      const newUrls = await uploadMultipleToDrive(req.files);
+      imageUrl = imageUrl? `${imageUrl},${newUrls}` : newUrls; // Köhnələr + yenilər
+    }
 
     const updatedRow = [
       '', // Timestamp dəyişmir
       odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl
     ];
 
-    // A sütununu boş göndəririk ki, timestamp dəyişməsin
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!B${rowIndex}:N${rowIndex}`,
@@ -258,14 +274,13 @@ app.post('/edit/:odemeKodu', checkAuth, upload.single('muqavileSekli'), async (r
 app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { rowIndex } = req.body;
-    // Sheet API-də sətir silmək üçün batchUpdate lazımdır
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: SHEET_ID,
       resource: {
         requests: [{
           deleteDimension: {
             range: {
-              sheetId: 0, // İlk sheet-in ID-si adətən 0 olur
+              sheetId: 0,
               dimension: 'ROWS',
               startIndex: rowIndex - 1,
               endIndex: rowIndex
