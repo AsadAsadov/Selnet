@@ -22,8 +22,9 @@ const fields = [
       <p>
         <% if (field.type === 'tel') { %>
           <% const cleanTel = value.toString().replace(/\s/g, ''); %>
+          <% const waTel = '994' + cleanTel.replace(/^0/, ''); %>
           <a href="tel:<%= cleanTel %>"><%= value %></a>
-          <a href="https://wa.me/994<%= cleanTel.replace(/^0/, '') %>" target="_blank" class="btn-sms">
+          <a href="https://wa.me/<%= waTel %>" target="_blank" class="btn-wa">
             <i class="fa-brands fa-whatsapp"></i> WhatsApp
           </a>
         <% } else if (field.type === 'link') { %>
