@@ -28,10 +28,10 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .search-box button{padding:12px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer;white-space:nowrap;box-sizing:border-box}
 .search-box button:hover{background:#059669}
 
-/* DÜZƏLİŞ 3: DATE FILTER - min-width:0 və box-sizing əlavə olundu */
-.date-filter{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:center}
-.date-filter label{font-size:13px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px}
-.date-filter input[type="date"]{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box;font-size:14px;min-width:0}
+/* DÜZƏLİŞ 3: DATE FILTER - daşma düzəlişi */
+.date-filter{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:center;width:100%;box-sizing:border-box}
+.date-filter label{font-size:13px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.date-filter input[type="date"]{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box;font-size:14px;min-width:0;overflow:hidden}
 .date-filter .dash{text-align:center;color:var(--muted)}
 .btn-filter{padding:10px 15px;background:var(--green);border:none;border-radius:8px;color:#fff;cursor:pointer;font-weight:500;white-space:nowrap;box-sizing:border-box;width:100%}
 .btn-filter:hover{background:#059669}
@@ -40,7 +40,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .filter-actions{display:flex;flex-direction:column;gap:10px;grid-column:1/-1}
 @media (max-width:600px){
 .date-filter{grid-template-columns:1fr 1fr;gap:8px}
-.date-filter label{grid-column:1/-1;margin-bottom:-5px}
+.date-filter label{grid-column:1/-1;margin-bottom:0}
 .date-filter .dash{display:none}
 }
 
