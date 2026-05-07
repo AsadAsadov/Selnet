@@ -419,4 +419,83 @@ function initChart() {
 }
 
 function updateChart(type) {
-  document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('
+  const colors = {
+    total: { bg: 'rgba(16, 185, 129, 0.5)', border: '#10b981' },
+    qosulma: { bg: 'rgba(16, 185, 129, 0.5)', border: '#10b981' },
+    kocurme: { bg: 'rgba(245, 158, 11, 0.5)', border: '#f59e0b' }
+  };
+  const labels = {
+    total: 'Ümumi',
+    qosulma: 'Qoşulma',
+    kocurme: 'Köçürmə'
+  };
+
+  document.querySelectorAll('.chart-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.dataset.type === type) b.classList.add('active');
+  });
+
+  mainChart.data.datasets[0].label = labels[type];
+  mainChart.data.datasets[0].data = chartData[type];
+  mainChart.data.datasets[0].backgroundColor = colors[type].bg;
+  mainChart.data.datasets[0].borderColor = colors[type].border;
+  mainChart.update();
+}
+
+function initModalChart() {
+  const ctx = document.getElementById('modalChart');
+  modalChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [{
+        label: 'Ümumi',
+        data: chartData.total,
+        backgroundColor: 'rgba(16, 185, 129, 0.5)',
+        borderColor: '#10b981',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#e2e8f0' } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#94a3b8', stepSize: 1 }, grid: { color: '#334155' } },
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+      }
+    }
+  });
+}
+
+function updateModalChart(type) {
+  const colors = {
+    total: { bg: 'rgba(16, 185, 129, 0.5)', border: '#10b981' },
+    qosulma: { bg: 'rgba(16, 185, 129, 0.5)', border: '#10b981' },
+    kocurme: { bg: 'rgba(245, 158, 11, 0.5)', border: '#f59e0b' }
+  };
+  const labels = {
+    total: 'Ümumi',
+    qosulma: 'Qoşulma',
+    kocurme: 'Köçürmə'
+  };
+
+  document.querySelectorAll('#chartModal.chart-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.dataset.type === type) b.classList.add('active');
+  });
+
+  modalChartInstance.data.datasets[0].label = labels[type];
+  modalChartInstance.data.datasets[0].data = chartData[type];
+  modalChartInstance.data.datasets[0].backgroundColor = colors[type].bg;
+  modalChartInstance.data.datasets[0].borderColor = colors[type].border;
+  modalChartInstance.update();
+}
+
+initChart();
+<% } %>
+</script>
+
+</body></html>
