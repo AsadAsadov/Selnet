@@ -21,7 +21,11 @@ const fields = [
       <label><%= field.label %></label>
       <p>
         <% if (field.type === 'tel') { %>
-          <a href="tel:<%= value %>"><%= value %></a>
+          <% const cleanTel = value.toString().replace(/\s/g, ''); %>
+          <a href="tel:<%= cleanTel %>"><%= value %></a>
+          <a href="https://wa.me/994<%= cleanTel.replace(/^0/, '') %>" target="_blank" class="btn-sms">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+          </a>
         <% } else if (field.type === 'link') { %>
           <% const links = value.split(',').map(l => l.trim()); %>
           <% links.forEach((link, i) => { %>
