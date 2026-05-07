@@ -6,17 +6,23 @@
 :root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b;--red:#ef4444}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 
-/* DÜZƏLİŞ 1: HEADER - mobil üçün kompakt */
-.header{background:linear-gradient(90deg, #059669, #10b981);padding:12px 15px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.header .logo{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-.header h1{margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.header .actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.header .actions a{color:#fff;text-decoration:none;font-weight:500;font-size:13px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:4px}
+/* DÜZƏLİŞ 1: HEADER - font kiçildi, çıxış qırmızı oldu */
+.header{background:linear-gradient(90deg, #059669, #10b981);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.header .logo{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.header h1{margin:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.header .actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.header .actions a{color:#fff;text-decoration:none;font-weight:500;font-size:12px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:4px}
 .header .actions a:hover{background:rgba(255,255,255,0.25)}
+.header .actions a.btn-logout{background:rgba(239,68,0.9)}
+.header .actions a.btn-logout:hover{background:var(--red)}
 @media (max-width:380px){
-.header h1{font-size:14px}
-.header .actions a{font-size:12px;padding:5px 8px}
+.header{padding:8px 10px}
+.header h1{font-size:13px}
+.header .actions a{font-size:11px;padding:5px 8px}
 .header .actions a span{display:none}
+}
+@media (max-width:340px){
+.header h1{font-size:12px}
 }
 
 .container{padding:15px;max-width:1000px;margin:auto}
@@ -112,7 +118,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
   </div>
   <div class="actions">
     <a href="/add"><i class="fa-solid fa-plus"></i><span>Əlavə Et</span></a>
-    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i><span>Çıxış</span></a>
+    <a href="/logout" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i><span>Çıxış</span></a>
   </div>
 </div>
 
