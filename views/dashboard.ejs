@@ -5,19 +5,47 @@
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b;--red:#ef4444}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
-.header{background:linear-gradient(90deg, #059669, #10b981);padding:15px 30px;display:flex;justify-content:space-between;align-items:center}
-.header h1{margin:0;font-size:20px}.header a{color:#fff;text-decoration:none;font-weight:500}
-.container{padding:20px;max-width:1000px;margin:auto}
-.search-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
-.search-box{display:flex;gap:10px;margin-bottom:15px}
+
+/* DÜZƏLİŞ 1: HEADER - mobil üçün kompakt */
+.header{background:linear-gradient(90deg, #059669, #10b981);padding:12px 15px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.header.logo{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.header h1{margin:0;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header.actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.header.actions a{color:#fff;text-decoration:none;font-weight:500;font-size:13px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.header.actions a:hover{background:rgba(255,255,255,0.25)}
+@media (max-width:380px){
+.header h1{font-size:14px}
+.header.actions a{font-size:12px;padding:5px 8px}
+.header.actions a span{display:none}
+}
+
+.container{padding:15px;max-width:1000px;margin:auto}
+.search-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:20px}
+
+/* DÜZƏLİŞ 2: SEARCH BOX */
+.search-box{display:flex;gap:10px;margin-bottom:12px}
 .search-box input{flex:1;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px}
-.search-box button{padding:12px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer}
-.date-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.date-filter label{font-size:14px;color:var(--muted);white-space:nowrap}
-.date-filter input[type="date"]{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);min-width:140px}
-.btn-filter{padding:10px 15px;background:var(--border);border:none;border-radius:8px;color:var(--text);cursor:pointer}
-.btn-filter:hover{background:var(--green)}
-.btn-clear{display:inline-block;padding:10px 15px;background:var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:14px}
+.search-box button{padding:12px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer;white-space:nowrap}
+.search-box button:hover{background:#059669}
+
+/* DÜZƏLİŞ 3: DATE FILTER - mobil üçün grid */
+.date-filter{display:grid;grid-template-columns:auto 1fr 1fr;gap:10px;align-items:center}
+.date-filter label{font-size:13px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.date-filter input[type="date"]{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box;font-size:14px}
+.date-filter.dash{text-align:center;color:var(--muted)}
+.btn-filter{padding:10px 15px;background:var(--green);border:none;border-radius:8px;color:#fff;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn-filter:hover{background:#059669}
+.btn-clear{display:inline-flex;align-items:center;gap:6px;padding:10px 15px;background:var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:14px;white-space:nowrap}
+.btn-clear:hover{background:#475569}
+.filter-actions{display:flex;gap:10px;grid-column:1/-1}
+@media (max-width:600px){
+.date-filter{grid-template-columns:1fr 1fr}
+.date-filter label{grid-column:1/-1;margin-bottom:-5px}
+.date-filter.dash{display:none}
+.filter-actions{flex-direction:column}
+.btn-filter,.btn-clear{width:100%;justify-content:center}
+}
+
 .search-info{color:var(--muted);font-size:14px;margin-bottom:20px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}
 .stat-card{background:var(--card);border:1px solid var(--border);padding:20px;border-radius:12px;cursor:pointer;transition:0.2s}
@@ -74,36 +102,41 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 @media (max-width:600px){
 .card-body,.modal-body.grid,.stats{grid-template-columns:1fr}
 .search-box{flex-direction:column}
-.date-filter{justify-content:space-between}
 .chart-wrapper{height:250px}
 .modal-controls{font-size:14px}
 }
 </style></head><body>
+
+<!-- DÜZƏLİŞ 4: HEADER HTML -->
 <div class="header">
-  <div class="logo"><h1><i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi</h1></div>
-  <div style="display:flex;gap:15px;align-items:center">
-    <a href="/add" style="color:#fff;text-decoration:none;font-weight:500">
-      <i class="fa-solid fa-plus"></i> Əlavə Et
-    </a>
-    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Çıxış</a>
+  <div class="logo">
+    <h1><i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi</h1>
+  </div>
+  <div class="actions">
+    <a href="/add"><i class="fa-solid fa-plus"></i><span>Əlavə Et</span></a>
+    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i><span>Çıxış</span></a>
   </div>
 </div>
+
 <div class="container">
   <div class="search-section">
     <form class="search-box" method="GET">
       <input type="text" name="q" value="<%= q || '' %>" placeholder="Ödəniş kodu, Telefon, Ad və ya Ünvan...">
       <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Axtar</button>
     </form>
+
+    <!-- DÜZƏLİŞ 5: DATE FILTER HTML -->
     <form class="date-filter" method="GET">
       <input type="hidden" name="q" value="<%= q || '' %>">
-      <label><i class="fa-solid fa-calendar"></i> Tarix aralığı:</label>
+      <label><i class="fa-solid fa-calendar"></i> Tarix:</label>
       <input type="date" name="startDate" value="<%= startDate || '' %>">
-      <span>-</span>
       <input type="date" name="endDate" value="<%= endDate || '' %>">
-      <button type="submit" class="btn-filter">Filter</button>
-      <% if (q || startDate || endDate) { %>
-        <a href="/" class="btn-clear"><i class="fa-solid fa-xmark"></i> Təmizlə</a>
-      <% } %>
+      <div class="filter-actions">
+        <button type="submit" class="btn-filter"><i class="fa-solid fa-filter"></i> Filter</button>
+        <% if (q || startDate || endDate) { %>
+          <a href="/" class="btn-clear"><i class="fa-solid fa-xmark"></i> Təmizlə</a>
+        <% } %>
+      </div>
     </form>
   </div>
 
