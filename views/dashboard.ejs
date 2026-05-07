@@ -5,19 +5,22 @@
 :root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .header{background:linear-gradient(90deg, #059669, #10b981);padding:15px 30px;display:flex;justify-content:space-between;align-items:center}
-.header h1{margin:0;font-size:20px}.header a{color:#fff;text-decoration:none}
-.container{padding:30px;max-width:900px;margin:auto}
-.search-box{display:flex;gap:10px;margin-bottom:30px}
+.header h1{margin:0;font-size:20px}.header a{color:#fff;text-decoration:none;font-weight:500}
+.container{padding:20px;max-width:900px;margin:auto}
+.search-box{display:flex;gap:10px;margin-bottom:25px}
 .search-box input{flex:1;padding:15px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:16px}
 .search-box button{padding:15px 25px;background:var(--green);border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 .card-header{padding:20px;border-bottom:1px solid var(--border)}
-.card-header h2{margin:0;font-size:22px}.card-header span{color:var(--muted);font-size:14px}
+.card-header h2{margin:0 0 5px 0;font-size:22px}.card-header span{color:var(--muted);font-size:14px}
 .card-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.info-item label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}
-.info-item p{margin:0;font-size:16px;font-weight:500}
+.info-item label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase}
+.info-item p{margin:0;font-size:16px;font-weight:500;word-break:break-word}
+.info-item a{color:var(--green);text-decoration:none;font-weight:bold}
 .full-width{grid-column:1 / -1}
-.not-found{text-align:center;padding:40px;color:var(--muted)}
+.not-found,.error{text-align:center;padding:40px;color:var(--muted);background:var(--card);border-radius:12px}
+.error{color:#f87171}
+@media (max-width:600px){.card-body{grid-template-columns:1fr}}
 </style></head><body>
 <div class="header">
   <h1><i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi</h1>
@@ -29,25 +32,58 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Axtar</button>
   </form>
 
-  <% if (result) { %>
+  <% if (errorMsg) { %>
+    <div class="error"><p><i class="fa-solid fa-triangle-exclamation"></i> <%= errorMsg %></p></div>
+  <% } else if (result) { %>
   <div class="card">
     <div class="card-header">
-      <h2><%= result['Ad soyad ata adı'] %></h2>
+      <h2><%= result['Ad, Soyad, Ata adı'] || 'Adsız müştəri' %></h2>
       <span>Ödəniş kodu: <%= result['Ödəniş kodu'] %> | Qeydiyyat: <%= result['Timestamp'] %></span>
     </div>
     <div class="card-body">
-      <div class="info-item"><label>Telefon</label><p><%= result['Telefon nömrəsi'] %></p></div>
-      <div class="info-item"><label>Aylıq Ödəniş</label><p><%= result['Aylıq ödəniş'] %> AZN</p></div>
-      <div class="info-item"><label>Ş/V Fin</label><p><%= result['Ş/V Fin'] %></p></div>
-      <div class="info-item"><label>Modem S/N</label><p><%= result['Modem S/N'] %></p></div>
-      <div class="info-item"><label>TV Box</label><p><%= result['Tv box'] %></p></div>
-      <div class="info-item"><label>Komendant</label><p><%= result['komendant'] %></p></div>
-      <div class="info-item full-width"><label>Ünvan</label><p><%= result['Ünvan'] %></p></div>
-      <div class="info-item full-width"><label>Qeyd</label><p><%= result['qeyd'] || 'Yoxdur' %></p></div>
-      <div class="info-item full-width"><label>Müqavilə Şəkli</label><p><a href="<%= result['Müqavilə və modemin şəkli'] %>" target="_blank" style="color:var(--green)">Şəkilə bax</a></p></div>
+      <%
+        // DİQQƏT: Açar adları sənin Sheet-dəki ilə 100% eyni olmalıdır
+        const fields = [
+          { key: 'Telefon nömrəsi', label: 'Telefon', type: 'tel' },
+          { key: 'Aylıq ödəniş', label: 'Aylıq Ödəniş', suffix: ' AZN' },
+          { key: 'Ş/V FİN', label: 'Ş/V FİN' },
+          { key: 'Ş/V Seriya', label: 'Ş/V Seriya' },
+          { key: 'Modem S/N', label: 'Modem S/N' },
+          { key: 'Tv Box', label: 'TV Box' },
+          { key: 'Komendant', label: 'Komendant' },
+          { key: 'Şifrə', label: 'Şifrə' },
+          { key: 'Ünvan', label: 'Ünvan', full: true },
+          { key: 'Qeyd', label: 'Qeyd', full: true }
+        ];
+      %>
+
+      <% fields.forEach(field => { %>
+        <%
+          const value = result[field.key];
+          const isEmpty =!value || value.toString().trim() === '' || value.toString().toLowerCase() === 'yox';
+        %>
+        <% if (!isEmpty) { %>
+          <div class="info-item <%= field.full? 'full-width' : '' %>">
+            <label><%= field.label %></label>
+            <p>
+              <% if (field.type === 'tel') { %>
+                <a href="tel:<%= value %>"><%= value %></a>
+              <% } else { %>
+                <%= value %><%= field.suffix || '' %>
+              <% } %>
+            </p>
+          </div>
+        <% } %>
+      <% }) %>
+
+      <% if (result['Müqavilə və modemin şəkli'] && result['Müqavilə və modemin şəkli'].trim()!== '') { %>
+        <div class="info-item full-width">
+          <label>Müqavilə Şəkli</label>
+          <p><a href="<%= result['Müqavilə və modemin şəkli'] %>" target="_blank">Şəkilə bax <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+        </div>
+      <% } %>
     </div>
-  </div>
   <% } else if (q) { %>
-  <div class="card not-found"><p><i class="fa-solid fa-circle-xmark"></i> "<%= q %>" üzrə nəticə tapılmadı</p></div>
+    <div class="not-found"><p><i class="fa-solid fa-circle-xmark"></i> "<%= q %>" üzrə nəticə tapılmadı</p></div>
   <% } %>
 </div></body></html>
