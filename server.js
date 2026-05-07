@@ -6,6 +6,7 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -45,10 +46,38 @@ app.get('/logout', (req, res) => {
   res.redirect('/login');
 });
 
+// MÜŞTƏRİ DETALLARINI JSON KİMİ QAYTARIR - POPUP ÜÇÜN
+app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB_NAME}!A:N`,
+    });
+    const rows = response.data.values;
+    const headers = rows[0];
+    const data = rows.slice(1);
+    const foundRow = data.find(row => row[1] && row[1].toString().trim() === req.params.odemeKodu);
+
+    if (foundRow) {
+      const result = headers.reduce((obj, header, i) => {
+        obj[header] = foundRow[i] || '';
+        return obj;
+      }, {});
+      res.json({ success: true, data: result });
+    } else {
+      res.json({ success: false });
+    }
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
 app.get('/', checkAuth, async (req, res) => {
-  let result = null;
+  let results = [];
   let errorMsg = null;
-  const q = req.query.q ? req.query.q.trim() : '';
+  const q = req.query.q? req.query.q.trim() : '';
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
 
   if (q) {
     try {
@@ -61,35 +90,45 @@ app.get('/', checkAuth, async (req, res) => {
         errorMsg = 'Sheet boşdur və ya oxuna bilmədi.';
       } else {
         const headers = rows[0];
-        console.log('===== SHEET BAŞLIQLARI =====');
-        console.log(JSON.stringify(headers)); // DƏQİQ ADLARI GÖRƏCƏYİK
-        console.log('===========================');
         const data = rows.slice(1);
+        const searchQuery = q.toLowerCase().replace(/\s/g, '');
 
-        // Şəkilə görə: Ödəniş kodu = 1, Telefon = 2
-        const foundRow = data.find(row => {
-          const odemeKodu = row[1] ? row[1].toString().trim() : '';
-          const telefon = row[2] ? row[2].toString().replace(/\s/g, '') : '';
-          const searchQuery = q.replace(/\s/g, '');
-          return odemeKodu === q || telefon.includes(searchQuery);
+        const filteredRows = data.filter(row => {
+          const odemeKodu = row[1]? row[1].toString().toLowerCase().trim() : '';
+          const telefon = row[3]? row[3].toString().toLowerCase().replace(/\s/g, '') : '';
+          const unvan = row[6]? row[6].toString().toLowerCase() : '';
+          const ad = row[2]? row[2].toString().toLowerCase() : '';
+
+          return odemeKodu.includes(searchQuery) ||
+                 telefon.includes(searchQuery) ||
+                 unvan.includes(q.toLowerCase()) ||
+                 ad.includes(q.toLowerCase());
         });
 
-        if (foundRow) {
-          result = headers.reduce((obj, header, i) => {
-            obj[header] = foundRow[i] || '';
-            return obj;
-          }, {});
-          console.log('===== TAPILAN MÜŞTƏRİ OBYEKTİ =====');
-          console.log(JSON.stringify(result));
-          console.log('=================================');
-        }
+        results = filteredRows.map(row => headers.reduce((obj, header, i) => {
+          obj[header] = row[i] || '';
+          return obj;
+        }, {}));
       }
     } catch (err) {
       console.log('Sheet xətası:', err.message);
       errorMsg = 'Server xətası. Sheet ID və ya icazələri yoxlayın.';
     }
   }
-  res.render('dashboard', { result, q, errorMsg });
+
+  // Səhifələmə
+  const totalResults = results.length;
+  const totalPages = Math.ceil(totalResults / limit);
+  const paginatedResults = results.slice((page - 1) * limit, page * limit);
+
+  res.render('dashboard', {
+    results: paginatedResults,
+    q,
+    errorMsg,
+    totalResults,
+    currentPage: page,
+    totalPages
+  });
 });
 
 const PORT = process.env.PORT || 3000;
