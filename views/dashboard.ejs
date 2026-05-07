@@ -35,20 +35,15 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .search-box button:hover{background:#059669}
 
 /* DÜZƏLİŞ 3: DATE FILTER - daşma düzəlişi */
-.date-filter{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:center;width:100%;box-sizing:border-box}
-.date-filter label{font-size:13px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.date-filter input[type="date"]{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box;font-size:14px;min-width:0;overflow:hidden}
-.date-filter .dash{text-align:center;color:var(--muted)}
+.date-filter{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;width:100%;box-sizing:border-box}
+.date-filter label{font-size:13px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px;grid-column:1/-1;margin-bottom:2px}
+.date-filter input[type="date"]{padding:9px 8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box;font-size:13px;min-width:0;overflow:hidden}
+.date-filter .dash{display:none}
 .btn-filter{padding:10px 15px;background:var(--green);border:none;border-radius:8px;color:#fff;cursor:pointer;font-weight:500;white-space:nowrap;box-sizing:border-box;width:100%}
 .btn-filter:hover{background:#059669}
 .btn-clear{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 15px;background:var(--border);border-radius:8px;color:var(--text);text-decoration:none;font-size:14px;white-space:nowrap;box-sizing:border-box;width:100%}
 .btn-clear:hover{background:#475569}
-.filter-actions{display:flex;flex-direction:column;gap:10px;grid-column:1/-1}
-@media (max-width:600px){
-.date-filter{grid-template-columns:1fr 1fr;gap:8px}
-.date-filter label{grid-column:1/-1;margin-bottom:0}
-.date-filter .dash{display:none}
-}
+.filter-actions{display:flex;flex-direction:column;gap:10px;grid-column:1/-1;margin-top:4px}
 
 .search-info{color:var(--muted);font-size:14px;margin-bottom:20px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}
