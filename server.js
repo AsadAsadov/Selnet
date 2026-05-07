@@ -39,7 +39,7 @@ function checkAuth(req, res, next) {
   else res.redirect('/login');
 }
 
-// YENİ: Tarixi YYYYMMDD rəqəminə çevirir
+// DÜZƏLDİLDİ: Tarixi YYYYMMDD rəqəminə çevirir - timezone problemi yoxdur
 function dateToNumber(dateStr) {
   if (!dateStr) return 0;
   try {
@@ -320,7 +320,6 @@ app.get('/', checkAuth, async (req, res) => {
     let { data } = await getSheetData();
     totalCount = data.length;
 
-    // DEBUG
     if (startDate || endDate) {
       console.log('Filter input:', startDate, endDate);
       console.log('İlk 3 timestamp:', data.slice(0,3).map(c => c['Timestamp']));
@@ -334,6 +333,7 @@ app.get('/', checkAuth, async (req, res) => {
 
     monthlyStats = getMonthlyStats(data);
 
+    // DÜZƏLİŞ: Tarix filteri varsa results doldur
     if (q) {
       const searchQuery = q.toLowerCase().replace(/\s/g, '');
       results = data.filter(c => {
@@ -343,6 +343,8 @@ app.get('/', checkAuth, async (req, res) => {
         const ad = c['Ad, Soyad, Ata adı']? c['Ad, Soyad, Ata adı'].toString().toLowerCase() : '';
         return odemeKodu.includes(searchQuery) || telefon.includes(searchQuery) || unvan.includes(q.toLowerCase()) || ad.includes(q.toLowerCase());
       });
+    } else if (startDate || endDate) {
+      results = data;
     } else {
       const todayNum = dateToNumber(`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`);
       todayCustomers = data.filter(c => {
