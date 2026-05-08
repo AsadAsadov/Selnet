@@ -2,8 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const { google } = require('googleapis');
-const multer = require('multer');
-const stream = require('stream');
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -21,19 +19,14 @@ const ADMIN_USER = 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS;
 const SHEET_ID = process.env.SHEET_ID;
 const SHEET_TAB_NAME = process.env.SHEET_TAB_NAME || 'Müştəri';
-const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || '';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_CREDS),
   scopes: [
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/drive.file'
+    'https://www.googleapis.com/auth/spreadsheets'
   ],
 });
 const sheets = google.sheets({ version: 'v4', auth });
-const drive = google.drive({ version: 'v3', auth });
-
-const upload = multer({ storage: multer.memoryStorage() });
 
 function checkAuth(req, res, next) {
   if (req.session.loggedIn) return next();
@@ -134,33 +127,6 @@ function getMonthlyStats(customers) {
   };
 }
 
-// DRIVE FUNKSİYALARI
-async function uploadToDrive(file) {
-  if (!file || !DRIVE_FOLDER_ID) return '';
-  try {
-    const bufferStream = new stream.PassThrough();
-    bufferStream.end(file.buffer);
-    const response = await drive.files.create({
-      requestBody: { name: `${Date.now()}_${file.originalname}`, parents: [DRIVE_FOLDER_ID] },
-      media: { mimeType: file.mimetype, body: bufferStream },
-      fields: 'id'
-    });
-    const fileId = response.data.id;
-    await drive.permissions.create({ fileId, requestBody: { role: 'reader', type: 'anyone' } });
-    return `https://drive.google.com/uc?id=${fileId}`;
-  } catch (err) { return ''; }
-}
-
-async function uploadMultipleToDrive(files) {
-  if (!files || files.length === 0) return '';
-  const urls = [];
-  for (const file of files) {
-    const url = await uploadToDrive(file);
-    if (url) urls.push(url);
-  }
-  return urls.join(',');
-}
-
 // DATA GET
 async function getSheetData() {
   const response = await sheets.spreadsheets.values.get({
@@ -180,6 +146,15 @@ async function getSheetData() {
 
 function cleanSheetValue(val) {
   return val ? val.toString().replace(/^'/, '').trim() : '';
+}
+
+function normalizeDriveLinks(value) {
+  return (value || '')
+    .toString()
+    .split(/[\n,]+/)
+    .map(link => link.trim())
+    .filter(Boolean)
+    .join(',');
 }
 
 function isArchivedCustomer(customer) {
@@ -225,7 +200,7 @@ app.post('/login', (req, res) => {
     req.session.loggedIn = true;
     res.redirect('/');
   } else {
-    res.render('login', { error: 'İstifadəçi adı və ya şifrə yanlışdır' });
+    res.render('login', { error: 'İstifadəçi adı və ya parol yanlışdır' });
   }
 });
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/login'); });
@@ -298,17 +273,16 @@ app.get('/api/archive-customers', checkAuth, async (req, res) => {
 
 // ADD CUSTOMER
 app.get('/add', checkAuth, (req, res) => res.render('add-customer', { success: null, error: null }));
-app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
+app.post('/add', checkAuth, async (req, res) => {
   try {
-    const { odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
+    const { odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd } = req.body;
     const ayliqOdenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
-    
-    let imageUrl = await uploadMultipleToDrive(req.files);
+    const driveLinks = normalizeDriveLinks(req.body.driveLinks);
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 
     const newRow = [
-      timestamp, `'${odemeKodu}`, adSoyad, `'${telefon}`, seriya, fin, unvan, modem, tvbox, ayliqOdenis, sifre, komendant, qeyd, imageUrl, ''
+      timestamp, `'${odemeKodu}`, adSoyad, `'${telefon}`, seriya, fin, unvan, modem, tvbox, ayliqOdenis, '', komendant, qeyd, driveLinks, ''
     ];
 
     await sheets.spreadsheets.values.append({
@@ -322,16 +296,11 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
 });
 
 // EDIT CUSTOMER (POST)
-app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
+app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const { rowIndex, odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd, oldImageUrl } = req.body;
+    const { rowIndex, odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd } = req.body;
     const ayliq = req.body.ayliqOdenis || req.body.aylıqOdenis || "";
-
-    let imageUrl = oldImageUrl || '';
-    if (req.files && req.files.length > 0) {
-      const newUrls = await uploadMultipleToDrive(req.files);
-      imageUrl = imageUrl ? `${imageUrl},${newUrls}` : newUrls;
-    }
+    const driveLinks = normalizeDriveLinks(req.body.driveLinks);
 
     const updatedRow = [
       `'${odemeKodu}`, // B
@@ -343,10 +312,10 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       modem,           // H
       tvbox,           // I
       ayliq,           // J (Aylıq ödəniş)
-      sifre,           // K
+      '',              // K (köhnə müştəri parolu sütunu boş saxlanılır)
       komendant,       // L
       qeyd,            // M
-      imageUrl         // N
+      driveLinks       // N
     ];
 
     await sheets.spreadsheets.values.update({
