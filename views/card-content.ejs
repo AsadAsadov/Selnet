@@ -20,7 +20,7 @@ const fields = [
   <% if (value && value.toString().trim()!== '' && value.toString().toLowerCase()!== 'yox') { %>
     <div class="info-item <%= field.full? 'full-width' : '' %>">
       <label><%= field.label %></label>
-      <p>
+      <p class="info-value <%= field.type === 'tel' ? 'info-value--contact' : (field.type === 'link' ? 'info-value--links' : '') %>">
         <% if (field.type === 'tel') { %>
           <% const cleanTel = value.toString().replace(/\s/g, ''); %>
           <% const waTel = '994' + cleanTel.replace(/^0/, ''); %>
@@ -31,10 +31,10 @@ const fields = [
         <% } else if (field.type === 'link') { %>
           <% const links = value.split(',').map(l => l.trim()); %>
           <% links.forEach((link, i) => { %>
-            <a href="<%= link %>" target="_blank">Şəkil <%= i+1 %></a><%= i < links.length - 1? ' | ' : '' %>
+            <a href="<%= link %>" target="_blank">Şəkil <%= i+1 %></a>
           <% }) %>
         <% } else { %>
-          <%= value %><%= field.suffix || '' %>
+          <span class="info-text"><%= value %><%= field.suffix || '' %></span>
         <% } %>
       </p>
     </div>
