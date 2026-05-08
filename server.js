@@ -159,6 +159,9 @@ app.post('/login', (req, res) => {
 });
 app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/login'); });
 
+// --- API ROUTES ---
+
+// Tək müştəri datası (JSON)
 app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
@@ -166,6 +169,18 @@ app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
     res.json({ success: !!found, data: found || null });
   } catch (err) { res.json({ success: false, error: err.message }); }
 });
+
+// Bütün müştəriləri JSON olaraq qaytaran yeni route (DASHBOARD ÜÇÜN)
+app.get('/api/all-customers', checkAuth, async (req, res) => {
+  try {
+    const { data } = await getSheetData();
+    res.json({ success: true, data: data });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
+// --- MÜŞTƏRİ ƏMƏLİYYATLARI ---
 
 // ADD CUSTOMER
 app.get('/add', checkAuth, (req, res) => res.render('add-customer', { success: null, error: null }));
@@ -196,8 +211,6 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
 app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { rowIndex, odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd, oldImageUrl } = req.body;
-    
-    // Front-end-dən gələn hər iki mümkün name variantını yoxla
     const ayliq = req.body.ayliqOdenis || req.body.aylıqOdenis || "";
 
     let imageUrl = oldImageUrl || '';
@@ -206,7 +219,6 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       imageUrl = imageUrl ? `${imageUrl},${newUrls}` : newUrls;
     }
 
-    // ARDICILLIQ (B-dən N-ə qədər tam 13 sütun):
     const updatedRow = [
       `'${odemeKodu}`, // B
       adSoyad,         // C
@@ -242,10 +254,7 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
     const { data } = await getSheetData();
     const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === req.params.odemeKodu.trim());
     if(!customer) return res.redirect('/');
-    
-    // EJS-də işləməsi üçün sığorta
     customer.ayliqOdenis = customer['Aylıq ödəniş'] || customer['ayliqOdenis'] || "";
-    
     res.render('edit-customer', { customer, success: req.query.success ? 'Yeniləndi' : null, error: null });
   } catch (err) { res.redirect('/'); }
 });
