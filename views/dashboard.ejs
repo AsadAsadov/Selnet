@@ -6,82 +6,27 @@
 :root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b;--red:#ef4444}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 
-/* MODERN HEADER DÜZƏLİŞİ - Köhnəni silib bunu yapışdır */
-.header {
-    background: linear-gradient(90deg, #059669, #10b981);
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
+/* DÜZƏLİŞ 1: HEADER - font kiçildi, çıxış qırmızı oldu */
+.header{background:linear-gradient(90deg, #059669, #10b981);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.header.logo{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.header h1{margin:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.header.actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.header.actions a{color:#fff;text-decoration:none;font-weight:500;font-size:12px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.header.actions a:hover{background:rgba(255,255,255,0.25)}
+.header.actions a.btn-logout{background:rgba(239,68,68,0.9)}
+.header.actions a.btn-logout:hover{background:var(--red)}
+@media (max-width:380px){
+.header{padding:8px 10px}
+.header h1{font-size:13px}
+.header.actions a{font-size:11px;padding:5px 8px}
+.header.actions a span{display:none}
+}
+@media (max-width:340px){
+.header h1{font-size:12px}
 }
 
-.header .logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #fff;
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.header .actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.header .actions a {
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 13px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #fff;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.header .actions a:first-child {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.header .actions a:first-child:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
-}
-
-.header .actions a.btn-logout {
-    background: #ef4444; 
-    border: 1px solid #dc2626;
-}
-
-.header .actions a.btn-logout:hover {
-    background: #dc2626;
-    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
-    transform: translateY(-1px);
-}
-
-@media (max-width: 400px) {
-    .header h1 { font-size: 14px; }
-    .header .actions a { padding: 6px 10px; font-size: 12px; }
-    .header .actions a span { display: none; } 
-}
-
-/* BUNLAR OLDUĞU KİMİ QALSIN */
 .container{padding:15px;max-width:1000px;margin:auto}
 .search-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:20px}
-
-/* DÜZƏLİŞ 2: SEARCH BOX... və s. */
 
 /* DÜZƏLİŞ 2: SEARCH BOX - box-sizing əlavə olundu */
 .search-box{display:flex;gap:10px;margin-bottom:12px}
@@ -162,7 +107,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 /* YENİ: LIGHTBOX SLIDER CSS */
 #lightboxModal{z-index:2000}
 .lightbox-content{position:relative;width:95%;height:95%;max-width:1200px;display:flex;align-items:center;justify-content:center}
-.lightbox-image{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;user-select:none}
+.lightbox-image{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;user-select:none;transition:opacity 0.3s}
 .lightbox-close{position:absolute;top:15px;right:15px;font-size:35px;color:#fff;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:45px;height:45px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2001}
 .lightbox-close:hover{background:rgba(239,68,68,0.8)}
 .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);font-size:30px;color:#fff;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:50px;height:50px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2001}
@@ -174,6 +119,14 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .lightbox-download:hover{background:rgba(16,185,129,0.8)}
 .btn-image{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--blue);color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;cursor:pointer;border:none}
 .btn-image:hover{background:#2563eb}
+
+/* YENİ: Qoşulma / Köçürmə rəngləri */
+.list-item.qosulma{border-left:4px solid var(--green)}
+.list-item.kocurme{border-left:4px solid var(--orange)}
+.list-item.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
+.badge.qosulma{background:rgba(16,185,129,0.2);color:var(--green)}
+.badge.kocurme{background:rgba(245,158,11,0.2);color:var(--orange)}
+.list-item-name{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
 </style></head><body>
 
 <div class="header">
@@ -236,9 +189,17 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
       <% } else { %>
         <div class="result-list" id="searchResults">
           <% results.forEach((item, index) => { %>
-            <div class="list-item" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'search')">
+            <% const qeydText = (item['Qeyd'] || '').toLowerCase(); %>
+            <% const typeClass = qeydText.includes('köç')? 'kocurme' : 'qosulma'; %>
+            <% const typeLabel = qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma'; %>
+            <div class="list-item <%= typeClass %>" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'search')">
               <div>
-                <div class="name"><%= item['Ad, Soyad, Ata adı'] %></div>
+                <div class="name list-item-name">
+                  <%= item['Ad, Soyad, Ata adı'] %>
+                  <span class="badge <%= typeClass %>">
+                    <i class="fa-solid <%= typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug' %>"></i> <%= typeLabel %>
+                  </span>
+                </div>
                 <div class="meta">Kod: <%= item['Ödəniş kodu'] %> | Tel: <%= item['Telefon nömrəsi'] %> | <%= item['Ünvan'] %></div>
               </div>
               <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
@@ -287,9 +248,17 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     <div id="todayList" class="hidden">
       <h3 class="section-title"><i class="fa-solid fa-calendar-day"></i> Bu gün əlavə olunanlar - <%= todayCustomers.length %> nəfər</h3>
       <% todayCustomers.forEach((item, index) => { %>
-        <div class="list-item" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'today')">
+        <% const qeydText = (item['Qeyd'] || '').toLowerCase(); %>
+        <% const typeClass = qeydText.includes('köç')? 'kocurme' : 'qosulma'; %>
+        <% const typeLabel = qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma'; %>
+        <div class="list-item <%= typeClass %>" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'today')">
           <div>
-            <div class="name"><%= item['Ad, Soyad, Ata adı'] %></div>
+            <div class="name list-item-name">
+              <%= item['Ad, Soyad, Ata adı'] %>
+              <span class="badge <%= typeClass %>">
+                <i class="fa-solid <%= typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug' %>"></i> <%= typeLabel %>
+              </span>
+            </div>
             <div class="meta">Kod: <%= item['Ödəniş kodu'] %> | Tel: <%= item['Telefon nömrəsi'] %></div>
           </div>
           <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
@@ -370,18 +339,18 @@ let currentLightboxIndex = 0;
 
 const chartData = <%- JSON.stringify(monthlyStats) %>;
 
-// DÜZƏLİŞ: Google Drive linkini işləyən formata çevir - lh3.googleusercontent.com
+// DÜZƏLİŞ: Google Drive linkini işləyən formata çevir - export=view ən stabil variant
 function convertDriveLink(url) {
   if (!url) return '';
   // https://drive.google.com/file/d/FILE_ID/view
   let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (match && match[1]) {
-    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
   }
   // https://drive.google.com/open?id=FILE_ID
   match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if (match && match[1]) {
-    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
   }
   return url;
 }
@@ -405,9 +374,17 @@ async function loadAllCustomers(page) {
     currentModalList = json.customers.map(c => c['Ödəniş kodu']);
     let html = '';
     json.customers.forEach((item, index) => {
-      html += `<div class="list-item" onclick="openModal('${item['Ödəniş kodu']}', ${index}, 'all')">
+      const qeydText = (item['Qeyd'] || '').toLowerCase();
+      const typeClass = qeydText.includes('köç')? 'kocurme' : 'qosulma';
+      const typeLabel = qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma';
+      html += `<div class="list-item ${typeClass}" onclick="openModal('${item['Ödəniş kodu']}', ${index}, 'all')">
         <div>
-          <div class="name">${item['Ad, Soyad, Ata adı']}</div>
+          <div class="name list-item-name">
+            ${item['Ad, Soyad, Ata adı']}
+            <span class="badge ${typeClass}">
+              <i class="fa-solid ${typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug'}"></i> ${typeLabel}
+            </span>
+          </div>
           <div class="meta">Kod: ${item['Ödəniş kodu']} | Tel: ${item['Telefon nömrəsi']}</div>
         </div>
         <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
@@ -491,7 +468,9 @@ async function loadModalCustomer(odemeKodu) {
     });
     html += `<div class="info-item full-width" style="display:flex;gap:10px;margin-top:10px">
       <a href="/edit/${r['Ödəniş kodu']}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a>
-      <button class="btn-delete" onclick="deleteCustomer('${r['Ödəniş kodu']}', ${r.rowIndex})"><i class="fa-solid fa-trash"></i> Sil</button>
+      <button class="btn-delete" onclick="deleteCustomer('${
+
+r['Ödəniş kodu']}', ${r.rowIndex})"><i class="fa-solid fa-trash"></i> Sil</button>
     </div>`;
     modalBody.innerHTML = html;
   } else {
@@ -559,23 +538,25 @@ function updateLightboxImage() {
   const download = document.getElementById('lightboxDownload');
   const url = lightboxImages[currentLightboxIndex];
   
-  img.src = '';
+  img.style.opacity = '0.3';
   img.alt = 'Yüklənir...';
+  img.src = url;
   
-  const tempImg = new Image();
-  tempImg.onload = function() {
-    img.src = url;
-        img.alt = 'Müqavilə şəkli';
+  img.onload = function() {
+    img.style.opacity = '1';
+    img.alt = 'Müqavilə şəkli';
   };
-  tempImg.onerror = function() {
-    img.alt = 'Şəkil yüklənmədi. Drive-da "Linki olan hər kəs baxa bilər" icazəsi verin.';
-    console.error('Şəkil yüklənmədi:', url);
+  
+  img.onerror = function() {
+    img.style.opacity = '1';
+    img.alt = 'Şəkil yüklənmədi';
+    img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23334155" width="200" height="200"/%3E%3Ctext fill="%2394a3b8" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EŞəkil tapılmadı%3C/text%3E%3C/svg%3E';
+    console.error('Drive şəkli yüklənmədi:', url);
   };
-  tempImg.src = url;
-
+  
   download.href = url;
   counter.textContent = `${currentLightboxIndex + 1} / ${lightboxImages.length}`;
-
+  
   const prevBtn = document.querySelector('.lightbox-prev');
   const nextBtn = document.querySelector('.lightbox-next');
   if (lightboxImages.length <= 1) {
