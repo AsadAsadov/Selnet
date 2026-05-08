@@ -8,6 +8,7 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(express.static('public'));
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -143,10 +144,11 @@ async function uploadMultipleToDrive(files) {
   return urls.join(',');
 }
 
+// YENİLƏNDİ: A:O aralığı - Arxiv sütunu əlavə olundu
 async function getSheetData() {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_TAB_NAME}!A:N`,
+    range: `${SHEET_TAB_NAME}!A:O`,
   });
   const rows = response.data.values || [];
   if (rows.length === 0) return { headers: [], data: [] };
@@ -193,8 +195,10 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const { data } = await getSheetData();
-    const total = data.length;
-    const paginated = data.slice((page - 1) * limit, page * limit);
+    // Arxivdə olmayanları göstər
+    const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase()!== 'hə');
+    const total = activeData.length;
+    const paginated = activeData.slice((page - 1) * limit, page * limit);
     res.json({ success: true, customers: paginated, total, page, totalPages: Math.ceil(total / limit) });
   } catch (err) {
     res.json({ success: false, error: err.message });
@@ -222,11 +226,12 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-    const newRow = [timestamp, odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl];
+    // Arxiv sütunu əlavə olundu - boş olaraq
+    const newRow = [timestamp, odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl, ''];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!A:N`,
+      range: `${SHEET_TAB_NAME}!A:O`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [newRow] }
     });
@@ -304,9 +309,32 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
+// YENİ: ARXIV FUNKSİYASI
+app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
+  try {
+    const { rowIndex, archive } = req.body;
+    const odemeKodu = req.params.odemeKodu;
+    
+    // M sütunu - Arxiv
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB_NAME}!O${rowIndex}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [[archive? 'Hə' : '']]
+      }
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
 app.get('/', checkAuth, async (req, res) => {
   let results = [];
   let todayCustomers = [];
+  let archivedCustomers = [];
   let totalCount = 0;
   let monthlyStats = { labels: [], total: [], qosulma: [], kocurme: [] };
   let errorMsg = null;
@@ -331,9 +359,12 @@ app.get('/', checkAuth, async (req, res) => {
       console.log('Filterdən sonra say:', data.length);
     }
 
-    monthlyStats = getMonthlyStats(data);
+    // Arxivdə olanları ayır
+    const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase()!== 'hə');
+    archivedCustomers = data.filter(r => (r['Arxiv'] || '').toLowerCase() === 'hə');
 
-    // DÜZƏLİŞ: Tarix filteri varsa results doldur
+    monthlyStats = getMonthlyStats(activeData);
+
     if (q) {
       const searchQuery = q.toLowerCase().replace(/\s/g, '');
       results = data.filter(c => {
@@ -347,7 +378,7 @@ app.get('/', checkAuth, async (req, res) => {
       results = data;
     } else {
       const todayNum = dateToNumber(`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`);
-      todayCustomers = data.filter(c => {
+      todayCustomers = activeData.filter(c => {
         const custNum = dateToNumber(c['Timestamp']);
         return custNum === todayNum;
       });
@@ -363,7 +394,7 @@ app.get('/', checkAuth, async (req, res) => {
 
   res.render('dashboard', {
     results: paginatedResults, q, startDate, endDate, errorMsg,
-    totalResults, currentPage: page, totalPages, todayCustomers, totalCount, monthlyStats
+    totalResults, currentPage: page, totalPages, todayCustomers, archivedCustomers, totalCount, monthlyStats
   });
 });
 
