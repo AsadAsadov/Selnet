@@ -265,13 +265,20 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
 
 app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
+    console.log('Gələn body:', req.body); // DEBUG üçün - sonra silərsən
+
     const {
-      odemeKodu, adSoyad, telefon, aylıqOdenis, ayliqOdenis,
-      fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd,
-      rowIndex, oldImageUrl
+      odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox,
+      komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl
     } = req.body;
 
-    const finalAyliqOdenis = aylıqOdenis || ayliqOdenis || '';
+    // Aylıq ödənişi bütün mümkün adlardan tut
+    const finalAyliqOdenis = req.body.aylıqOdenis ||
+                             req.body.ayliqOdenis ||
+                             req.body.aylikOdenis ||
+                             req.body['Aylıq ödəniş'] ||
+                             req.body['ayliq_odenis'] ||
+                             '';
 
     let imageUrl = oldImageUrl || '';
     if (req.files && req.files.length > 0) {
@@ -281,6 +288,7 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       }
     }
 
+    // B-dən N-ə qədər - Sənin sıran
     const updatedRow = [
       `'${odemeKodu}`, // B
       adSoyad, // C
