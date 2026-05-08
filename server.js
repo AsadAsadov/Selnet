@@ -210,7 +210,26 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
     }
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-    const newRow = [timestamp, odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl, ''];
+
+    // Sənin sırana görə: A B C D E F G H I J K L M N O
+    const newRow = [
+      timestamp, // A
+      odemeKodu, // B
+      adSoyad, // C
+      telefon, // D
+      seriya, // E
+      fin, // F
+      unvan, // G
+      modem, // H
+      tvbox, // I
+      aylıqOdenis, // J
+      sifre, // K
+      komendant, // L
+      qeyd, // M
+      imageUrl, // N
+      '' // O: Arxiv boş
+    ];
+
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!A:O`,
@@ -239,7 +258,7 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
-// DÜZƏLDİLDİ: Sütunlar artıq sürüşmür
+// DÜZƏLDİ: Sənin Sheet sırana görə B:N yazır
 app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl } = req.body;
@@ -252,16 +271,28 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       }
     }
 
-    // DİQQƏT: Timestamp sütununu yazmırıq, B-dən başlayırıq
+    // B-dən N-ə qədər - sənin sıran: B C D E F G H I J K L M N
     const updatedRow = [
-      odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl
+      odemeKodu, // B
+      adSoyad, // C
+      telefon, // D
+      seriya, // E
+      fin, // F
+      unvan, // G
+      modem, // H
+      tvbox, // I
+      aylıqOdenis, // J
+      sifre, // K
+      komendant, // L
+      qeyd, // M
+      imageUrl // N
     ];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!B${rowIndex}:N${rowIndex}`, // B-dən N-ə qədər 13 sütun
+      range: `${SHEET_TAB_NAME}!B${rowIndex}:N${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
-      resource: { values: [updatedRow] } // slice yoxdur artıq
+      resource: { values: [updatedRow] }
     });
 
     const { data } = await getSheetData();
