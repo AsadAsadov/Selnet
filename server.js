@@ -101,30 +101,78 @@ function filterByDateRange(customers, startDate, endDate) {
   });
 }
 
+const MONTHLY_STATS_START_YEAR = 2026;
+const MONTHLY_STATS_START_MONTH = 5;
+const AZ_MONTH_NAMES = [
+  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+  'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+];
+
+function monthIndex(year, month) {
+  return year * 12 + (month - 1);
+}
+
+function monthKey(year, month) {
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+function monthLabelFromKey(key) {
+  const [year, month] = key.split('-').map(Number);
+  return `${AZ_MONTH_NAMES[month - 1]} ${year}`;
+}
+
+function getCurrentMonthIndex() {
+  const now = new Date();
+  return monthIndex(now.getFullYear(), now.getMonth() + 1);
+}
+
 function getMonthlyStats(customers) {
-  const stats = { total: {}, qosulma: {}, kocurme: {} };
-  customers.forEach(c => {
-    const num = dateToNumber(c['Timestamp']);
-    if (num > 0) {
-      const year = Math.floor(num / 10000);
-      const month = Math.floor((num % 10000) / 100);
-      const key = `${year}-${String(month).padStart(2, '0')}`;
-      const qeyd = (c['Qeyd'] || '').toLowerCase();
-      stats.total[key] = (stats.total[key] || 0) + 1;
-      if (qeyd.includes('qoşulma')) {
-        stats.qosulma[key] = (stats.qosulma[key] || 0) + 1;
-      } else if (qeyd.includes('köçürmə') || qeyd.includes('kocurme')) {
-        stats.kocurme[key] = (stats.kocurme[key] || 0) + 1;
-      }
+  const startIndex = monthIndex(MONTHLY_STATS_START_YEAR, MONTHLY_STATS_START_MONTH);
+  const statsByMonth = new Map();
+  let maxMonthIndex = Math.max(startIndex, getCurrentMonthIndex());
+
+  for (const customer of customers) {
+    if (isArchivedCustomer(customer)) continue;
+
+    const parts = parseTimestampParts(customer?.['Timestamp']);
+    if (!parts) continue;
+
+    const currentIndex = monthIndex(parts.year, parts.month);
+    if (currentIndex < startIndex) continue;
+
+    const key = monthKey(parts.year, parts.month);
+    const monthStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
+    const qeyd = (customer['Qeyd'] || '').toLowerCase();
+
+    monthStats.total += 1;
+    if (qeyd.includes('qoşulma')) {
+      monthStats.qosulma += 1;
+    } else if (qeyd.includes('köçürmə') || qeyd.includes('kocurme')) {
+      monthStats.kocurme += 1;
     }
-  });
-  const sorted = Object.keys(stats.total).sort().slice(-12);
-  return {
-    labels: sorted.map(k => { const [y, m] = k.split('-'); return `${m}/${y}`; }),
-    total: sorted.map(k => stats.total[k] || 0),
-    qosulma: sorted.map(k => stats.qosulma[k] || 0),
-    kocurme: sorted.map(k => stats.kocurme[k] || 0)
-  };
+
+    statsByMonth.set(key, monthStats);
+    maxMonthIndex = Math.max(maxMonthIndex, currentIndex);
+  }
+
+  const labels = [];
+  const total = [];
+  const qosulma = [];
+  const kocurme = [];
+
+  for (let index = startIndex; index <= maxMonthIndex; index += 1) {
+    const year = Math.floor(index / 12);
+    const month = (index % 12) + 1;
+    const key = monthKey(year, month);
+    const monthStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
+
+    labels.push(monthLabelFromKey(key));
+    total.push(monthStats.total);
+    qosulma.push(monthStats.qosulma);
+    kocurme.push(monthStats.kocurme);
+  }
+
+  return { labels, total, qosulma, kocurme };
 }
 
 // DATA GET
@@ -384,11 +432,12 @@ app.get('/', checkAuth, async (req, res) => {
   try {
     let { data } = await getSheetData();
     totalCount = data.length;
+    monthlyStats = getMonthlyStats(data);
+
     data = filterByDateRange(data, startDate, endDate);
-    
+
     const activeData = data.filter(r => !isArchivedCustomer(r));
     archivedCustomers = data.filter(isArchivedCustomer);
-    monthlyStats = getMonthlyStats(activeData);
 
     if (q) {
       const sq = q.toLowerCase().replace(/\s/g, '');
