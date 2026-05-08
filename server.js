@@ -108,7 +108,7 @@ function getMonthlyStats(customers) {
   };
 }
 
-// YENİLƏNDİ: DRIVE_FOLDER_ID yoxlaması əlavə olundu
+// YENİLƏNDİ: Shared Drive dəstəyi üçün supportsAllDrives əlavə olundu
 async function uploadToDrive(file) {
   if (!file) return '';
   if (!DRIVE_FOLDER_ID) {
@@ -128,13 +128,16 @@ async function uploadToDrive(file) {
       media: {
         mimeType: file.mimetype,
         body: bufferStream
-      }
+      },
+      supportsAllDrives: true, // SHARED DRIVE ÜÇÜN VACİBDİR
+      fields: 'id'
     });
 
     const fileId = response.data.id;
     await drive.permissions.create({
       fileId,
-      requestBody: { role: 'reader', type: 'anyone' }
+      requestBody: { role: 'reader', type: 'anyone' },
+      supportsAllDrives: true // SHARED DRIVE ÜÇÜN VACİBDİR
     });
 
     return `https://drive.google.com/uc?id=${fileId}`;
