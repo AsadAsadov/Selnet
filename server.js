@@ -40,7 +40,6 @@ function checkAuth(req, res, next) {
   else res.redirect('/login');
 }
 
-// DÜZƏLDİLDİ: Tarixi YYYYMMDD rəqəminə çevirir - timezone problemi yoxdur
 function dateToNumber(dateStr) {
   if (!dateStr) return 0;
   try {
@@ -144,7 +143,7 @@ async function uploadMultipleToDrive(files) {
   return urls.join(',');
 }
 
-// YENİLƏNDİ: A:O aralığı - Arxiv sütunu əlavə olundu
+// YENİLƏNDİ: A:O aralığı - O sütunu Arxiv
 async function getSheetData() {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -195,7 +194,6 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const { data } = await getSheetData();
-    // Arxivdə olmayanları göstər
     const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase()!== 'hə');
     const total = activeData.length;
     const paginated = activeData.slice((page - 1) * limit, page * limit);
@@ -226,7 +224,7 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-    // Arxiv sütunu əlavə olundu - boş olaraq
+    // A:M sütunları + O boş - Arxiv
     const newRow = [timestamp, odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl, ''];
 
     await sheets.spreadsheets.values.append({
@@ -309,13 +307,11 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
-// YENİ: ARXIV FUNKSİYASI
+// YENİ: ARXIV FUNKSİYASI - O sütununa yazır
 app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { rowIndex, archive } = req.body;
-    const odemeKodu = req.params.odemeKodu;
-    
-    // M sütunu - Arxiv
+
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!O${rowIndex}`,
@@ -324,7 +320,7 @@ app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
         values: [[archive? 'Hə' : '']]
       }
     });
-    
+
     res.json({ success: true });
   } catch (error) {
     res.json({ success: false, error: error.message });
@@ -348,18 +344,8 @@ app.get('/', checkAuth, async (req, res) => {
     let { data } = await getSheetData();
     totalCount = data.length;
 
-    if (startDate || endDate) {
-      console.log('Filter input:', startDate, endDate);
-      console.log('İlk 3 timestamp:', data.slice(0,3).map(c => c['Timestamp']));
-    }
-
     data = filterByDateRange(data, startDate, endDate);
 
-    if (startDate || endDate) {
-      console.log('Filterdən sonra say:', data.length);
-    }
-
-    // Arxivdə olanları ayır
     const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase()!== 'hə');
     archivedCustomers = data.filter(r => (r['Arxiv'] || '').toLowerCase() === 'hə');
 
