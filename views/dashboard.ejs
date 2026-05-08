@@ -414,43 +414,125 @@ function showArchiveList() {
 }
 
 async function openAllCustomersModal() {
-  document.getElementById('allCustomersModal').style.display = 'flex';
+  const modal = document.getElementById('allCustomersModal');
+  if (!modal) {
+    console.error('[all-customers] Modal elementi tapılmadı');
+    return;
+  }
+
+  modal.style.display = 'flex';
   await loadAllCustomers(1);
 }
 
-async function loadAllCustomers(page) {
-  allCustomersPage = page;
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function showAllCustomersError(message) {
   const body = document.getElementById('allCustomersBody');
+  if (!body) return;
+
+  body.innerHTML = `<div class="not-found" style="margin:0">
+    <p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(message || 'Müştərilər yüklənmədi.')}</p>
+    <button class="btn-edit" type="button" onclick="loadAllCustomers(${Number(allCustomersPage) || 1})">
+      <i class="fa-solid fa-rotate-right"></i> Yenidən cəhd et
+    </button>
+  </div>`;
+}
+
+async function loadAllCustomers(page = 1) {
+  const requestedPage = Number.parseInt(page, 10) || 1;
+  allCustomersPage = requestedPage;
+  const body = document.getElementById('allCustomersBody');
+  if (!body) {
+    console.error('[all-customers] allCustomersBody elementi tapılmadı');
+    return;
+  }
+
   body.innerHTML = '<p style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin"></i> Yüklənir...</p>';
-  const res = await fetch(`/api/all-customers?page=${page}`);
-  const json = await res.json();
-  if (json.success) {
-    currentModalList = json.customers.map(c => c['Ödəniş kodu']);
-    let html = '';
-    json.customers.forEach((item, index) => {
-      const qeydText = (item['Qeyd'] || '').toLowerCase();
-      const isArchived = (item['Arxiv'] || '').toLowerCase() === 'hə';
-      const typeClass = isArchived? 'archived-item' : (qeydText.includes('köç')? 'kocurme' : 'qosulma');
-      const typeLabel = isArchived? 'Arxivdə' : (qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma');
-      html += `<div class="list-item ${typeClass}" onclick="openModal('${item['Ödəniş kodu']}', ${index}, 'all')">
+
+  try {
+    const url = `/api/all-customers?page=${encodeURIComponent(requestedPage)}`;
+    console.log('[all-customers] Fetch başladı:', url);
+
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin'
+    });
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await res.text();
+      console.error('[all-customers] JSON olmayan cavab:', { status: res.status, preview: text.slice(0, 200) });
+      throw new Error(res.status === 401 ? 'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.' : 'Server JSON formatında cavab qaytarmadı.');
+    }
+
+    const json = await res.json();
+    console.log('[all-customers] API cavabı:', json);
+
+    if (!res.ok || json.success !== true) {
+      throw new Error(json.error || `Server xətası (${res.status})`);
+    }
+
+    const customers = Array.isArray(json.customers)
+      ? json.customers
+      : (Array.isArray(json.data) ? json.data : []);
+    const totalPages = Math.max(1, Number.parseInt(json.totalPages, 10) || 1);
+    const currentPage = Math.min(Math.max(1, Number.parseInt(json.currentPage, 10) || requestedPage), totalPages);
+    const totalCustomers = Number.parseInt(json.totalCustomers, 10) || customers.length;
+
+    currentModalList = customers
+      .map(c => c && c['Ödəniş kodu'])
+      .filter(code => code !== undefined && code !== null && String(code).trim() !== '')
+      .map(String);
+
+    if (customers.length === 0) {
+      body.innerHTML = '<div class="not-found" style="margin:0"><p><i class="fa-solid fa-circle-info"></i> Müştəri tapılmadı.</p></div>';
+      return;
+    }
+
+    let html = customers.map((item, index) => {
+      const odemeKodu = String(item?.['Ödəniş kodu'] ?? '');
+      const adSoyad = item?.['Ad, Soyad, Ata adı'] || 'Adsız müştəri';
+      const telefon = item?.['Telefon nömrəsi'] || '-';
+      const qeydText = String(item?.['Qeyd'] || '').toLowerCase();
+      const isArchived = String(item?.['Arxiv'] || '').toLowerCase() === 'hə';
+      const typeClass = isArchived ? 'archived-item' : (qeydText.includes('köç') ? 'kocurme' : 'qosulma');
+      const badgeClass = isArchived ? 'archived' : typeClass;
+      const typeLabel = isArchived ? 'Arxivdə' : (qeydText.includes('köç') ? 'Köçürmə' : 'Qoşulma');
+      const iconClass = isArchived ? 'fa-box-archive' : (typeClass === 'kocurme' ? 'fa-truck-moving' : 'fa-plug');
+      const safeCodeArg = JSON.stringify(odemeKodu).replace(/'/g, '\\u0027');
+
+      return `<div class="list-item ${typeClass}" onclick='openModal(${safeCodeArg}, ${index}, "all")'>
         <div>
           <div class="name list-item-name">
-            ${item['Ad, Soyad, Ata adı']}
-            <span class="badge ${isArchived? 'archived' : typeClass}">
-              <i class="fa-solid ${isArchived? 'fa-box-archive' : (typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug')}"></i> ${typeLabel}
+            ${escapeHtml(adSoyad)}
+            <span class="badge ${badgeClass}">
+              <i class="fa-solid ${iconClass}"></i> ${escapeHtml(typeLabel)}
             </span>
           </div>
-          <div class="meta">Kod: ${item['Ödəniş kodu']} | Tel: ${item['Telefon nömrəsi']}</div>
+          <div class="meta">Kod: ${escapeHtml(odemeKodu || '-')} | Tel: ${escapeHtml(telefon)}</div>
         </div>
         <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
       </div>`;
-    });
+    }).join('');
+
     html += '<div class="pagination">';
-    if (page > 1) html += `<a onclick="loadAllCustomers(${page - 1})">Əvvəlki</a>`;
-    html += `<span style="padding:8px 15px">Səhifə ${page} / ${json.totalPages}</span>`;
-    if (page < json.totalPages) html += `<a onclick="loadAllCustomers(${page + 1})">Növbəti</a>`;
+    if (currentPage > 1) html += `<a onclick="loadAllCustomers(${currentPage - 1})">Əvvəlki</a>`;
+    html += `<span style="padding:8px 15px">Səhifə ${currentPage} / ${totalPages} (${totalCustomers} müştəri)</span>`;
+    if (currentPage < totalPages) html += `<a onclick="loadAllCustomers(${currentPage + 1})">Növbəti</a>`;
     html += '</div>';
+
+    allCustomersPage = currentPage;
     body.innerHTML = html;
+  } catch (error) {
+    console.error('[all-customers] Müştərilər yüklənmədi:', error);
+    showAllCustomersError(error.message);
   }
 }
 
@@ -463,7 +545,8 @@ function openModal(odemeKodu, index, type = 'search') {
   } else if (type === 'archive') {
     currentModalList = <%- JSON.stringify(archivedCustomers.map(r => r['Ödəniş kodu'])) %>;
   }
-  currentModalIndex = currentModalList.indexOf(odemeKodu);
+  currentModalIndex = currentModalList.map(String).indexOf(String(odemeKodu));
+  if (currentModalIndex < 0) currentModalIndex = Number.isInteger(index) ? index : 0;
   loadModalCustomer(odemeKodu);
 }
 
@@ -479,16 +562,35 @@ async function loadModalCustomer(odemeKodu) {
   modal.style.display = 'flex';
 
   counter.textContent = `${currentModalIndex + 1} / ${currentModalList.length}`;
-  prevBtn.disabled = currentModalIndex === 0;
-  nextBtn.disabled = currentModalIndex === currentModalList.length - 1;
+  prevBtn.disabled = currentModalIndex <= 0;
+  nextBtn.disabled = currentModalIndex >= currentModalList.length - 1;
 
-  const res = await fetch(`/customer/${odemeKodu}`);
-  const json = await res.json();
+  try {
+    const url = `/customer/${encodeURIComponent(odemeKodu)}`;
+    console.log('[customer-modal] Fetch başladı:', url);
 
-  if (json.success) {
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin'
+    });
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await res.text();
+      console.error('[customer-modal] JSON olmayan cavab:', { status: res.status, preview: text.slice(0, 200) });
+      throw new Error(res.status === 401 ? 'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.' : 'Server JSON formatında cavab qaytarmadı.');
+    }
+
+    const json = await res.json();
+    console.log('[customer-modal] API cavabı:', json);
+
+    if (!res.ok || json.success !== true || !json.data) {
+      throw new Error(json.error || 'Məlumat tapılmadı.');
+    }
+
     const r = json.data;
     const isArchived = (r['Arxiv'] || '').toLowerCase() === 'hə';
-    modalTitle.innerHTML = `${r['Ad, Soyad, Ata adı'] || 'Adsız'} ${isArchived? '<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>' : ''}`;
+    modalTitle.innerHTML = `${escapeHtml(r['Ad, Soyad, Ata adı'] || 'Adsız')} ${isArchived? '<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>' : ''}`;
     const fields = [
       { key: 'Ödəniş kodu', label: 'Ödəniş Kodu' },
       { key: 'Telefon nömrəsi', label: 'Telefon', type: 'tel' },
@@ -509,33 +611,36 @@ async function loadModalCustomer(odemeKodu) {
       const val = r[f.key];
       if (val && val.toString().trim()!== '' && val.toString().toLowerCase()!== 'yox') {
         html += `<div class="info-item ${f.full? 'full-width' : ''}">
-          <label>${f.label}</label><p>`;
+          <label>${escapeHtml(f.label)}</label><p>`;
         if (f.type === 'tel') {
           const cleanTel = val.toString().replace(/\s/g, '');
           const waTel = '994' + cleanTel.replace(/^0/, '');
-          html += `<a href="tel:${cleanTel}">${val}</a>
-                   <a href="https://wa.me/${waTel}" target="_blank" class="btn-wa">
+          html += `<a href="tel:${encodeURIComponent(cleanTel)}">${escapeHtml(val)}</a>
+                   <a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" class="btn-wa">
                      <i class="fa-brands fa-whatsapp"></i> WhatsApp
                    </a>`;
         } else if (f.type === 'image') {
           const links = val.split(',').map(l => l.trim()).filter(l => l);
-          html += links.map((l,i) => `<a class="btn-image" href="${l}" target="_blank"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join(' ');
-        } else html += `${val}${f.suffix || ''}`;
+          html += links.map((l,i) => `<a class="btn-image" href="${escapeHtml(l)}" target="_blank"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join(' ');
+        } else html += `${escapeHtml(val)}${f.suffix || ''}`;
         html += `</p></div>`;
       }
     });
+    const codeArg = JSON.stringify(String(r['Ödəniş kodu'] || '')).replace(/'/g, '\\u0027');
     html += `<div class="info-item full-width" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-      <a href="/edit/${r['Ödəniş kodu']}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a>
-      <button class="btn-delete" onclick="deleteCustomer('${r['Ödəniş kodu']}', ${r.rowIndex})"><i class="fa-solid fa-trash"></i> Sil</button>`;
+      <a href="/edit/${encodeURIComponent(r['Ödəniş kodu'])}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a>
+      <button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${Number(r.rowIndex) || 0})'><i class="fa-solid fa-trash"></i> Sil</button>`;
     if (isArchived) {
-      html += `<button class="btn-unarchive" onclick="toggleArchive('${r['Ödəniş kodu']}', ${r.rowIndex}, false)"><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`;
+      html += `<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex) || 0}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`;
     } else {
-      html += `<button class="btn-archive" onclick="toggleArchive('${r['Ödəniş kodu']}', ${r.rowIndex}, true)"><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`;
+      html += `<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex) || 0}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`;
     }
     html += `</div>`;
     modalBody.innerHTML = html;
-  } else {
-    modalBody.innerHTML = '<p>Məlumat tapılmadı.</p>';
+  } catch (error) {
+    console.error('[customer-modal] Müştəri yüklənmədi:', error);
+    modalTitle.textContent = 'Xəta';
+    modalBody.innerHTML = `<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message || 'Məlumat yüklənmədi.')}</p></div>`;
   }
 }
 
