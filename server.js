@@ -36,8 +36,14 @@ const drive = google.drive({ version: 'v3', auth });
 const upload = multer({ storage: multer.memoryStorage() });
 
 function checkAuth(req, res, next) {
-  if (req.session.loggedIn) next();
-  else res.redirect('/login');
+  if (req.session.loggedIn) return next();
+
+  const wantsJson = req.path.startsWith('/api/') || req.path.startsWith('/customer/') || req.xhr;
+  if (wantsJson) {
+    return res.status(401).json({ success: false, error: 'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.' });
+  }
+
+  return res.redirect('/login');
 }
 
 // TARİX VƏ STATİSTİKA FUNKSİYALARI
@@ -165,18 +171,50 @@ app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/login')
 app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
-    const found = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === req.params.odemeKodu);
-    res.json({ success: !!found, data: found || null });
-  } catch (err) { res.json({ success: false, error: err.message }); }
+    const requestedCode = cleanSheetValue(req.params.odemeKodu);
+    const found = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === requestedCode);
+    if (!found) return res.status(404).json({ success: false, data: null, error: 'Müştəri tapılmadı.' });
+    res.json({ success: true, data: found });
+  } catch (err) {
+    console.error('GET /customer/:odemeKodu failed:', err);
+    res.status(500).json({ success: false, data: null, error: err.message });
+  }
 });
 
-// Bütün müştəriləri JSON olaraq qaytaran yeni route (DASHBOARD ÜÇÜN)
+function parsePositiveInteger(value, fallback, max = Number.MAX_SAFE_INTEGER) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+  return Math.min(parsed, max);
+}
+
+// Bütün müştəriləri JSON olaraq qaytaran route (DASHBOARD ÜÇÜN)
 app.get('/api/all-customers', checkAuth, async (req, res) => {
+  const page = parsePositiveInteger(req.query.page, 1);
+  const limit = parsePositiveInteger(req.query.limit, 10, 100);
+
   try {
     const { data } = await getSheetData();
-    res.json({ success: true, data: data });
+    const customers = Array.isArray(data) ? data : [];
+    const totalCustomers = customers.length;
+    const totalPages = Math.max(1, Math.ceil(totalCustomers / limit));
+    const currentPage = Math.min(page, totalPages);
+    const start = (currentPage - 1) * limit;
+    const paginatedCustomers = customers.slice(start, start + limit);
+
+    res.json({
+      success: true,
+      customers: paginatedCustomers,
+      data: paginatedCustomers,
+      currentPage,
+      totalPages,
+      totalCustomers,
+      limit,
+      hasPrevPage: currentPage > 1,
+      hasNextPage: currentPage < totalPages
+    });
   } catch (err) {
-    res.json({ success: false, error: err.message });
+    console.error('GET /api/all-customers failed:', err);
+    res.status(500).json({ success: false, customers: [], totalPages: 1, totalCustomers: 0, error: err.message });
   }
 });
 
