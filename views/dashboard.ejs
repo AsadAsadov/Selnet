@@ -3,91 +3,35 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b;--red:#ef4444}
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b;--red:#ef4444;--gray:#6b7280}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 
-/* MODERN HEADER DÜZƏLİŞİ - Köhnəni silib bunu yapışdır */
-.header {
-    background: linear-gradient(90deg, #059669, #10b981);
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
+.header{background:linear-gradient(90deg, #059669, #10b981);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.header.logo{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.header h1{margin:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.header.actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.header.actions a{color:#fff;text-decoration:none;font-weight:500;font-size:12px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.header.actions a:hover{background:rgba(255,255,255,0.25)}
+.header.actions a.btn-logout{background:rgba(239,68,68,0.9)}
+.header.actions a.btn-logout:hover{background:var(--red)}
+@media (max-width:380px){
+.header{padding:8px 10px}
+.header h1{font-size:13px}
+.header.actions a{font-size:11px;padding:5px 8px}
+.header.actions a span{display:none}
+}
+@media (max-width:340px){
+.header h1{font-size:12px}
 }
 
-.header .logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #fff;
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.header .actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.header .actions a {
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 13px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #fff;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.header .actions a:first-child {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.header .actions a:first-child:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
-}
-
-.header .actions a.btn-logout {
-    background: #ef4444; 
-    border: 1px solid #dc2626;
-}
-
-.header .actions a.btn-logout:hover {
-    background: #dc2626;
-    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
-    transform: translateY(-1px);
-}
-
-@media (max-width: 400px) {
-    .header h1 { font-size: 14px; }
-    .header .actions a { padding: 6px 10px; font-size: 12px; }
-    .header .actions a span { display: none; } 
-}
-
-/* BUNLAR OLDUĞU KİMİ QALSIN */
 .container{padding:15px;max-width:1000px;margin:auto}
 .search-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:20px}
 
-/* DÜZƏLİŞ 2: SEARCH BOX - box-sizing əlavə olundu */
 .search-box{display:flex;gap:10px;margin-bottom:12px}
 .search-box input{flex:1;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;min-width:0;box-sizing:border-box}
 .search-box button{padding:12px 20px;background:var(--green);border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer;white-space:nowrap;box-sizing:border-box}
 .search-box button:hover{background:#059669}
 
-/* DÜZƏLİŞ 3: DATE FILTER - Tam mərkəzləşdirilmiş və sığdırılmış versiya */
 .date-filter{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px;align-items:center;width:100%;box-sizing:border-box}
 .date-filter label{font-size:13px;color:var(--muted);grid-column:1 / -1;margin-bottom:2px;display:flex;align-items:center;gap:6px}
 .date-filter input[type="date"]{padding:10px 5px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;width:100%;box-sizing:border-box;text-align:center;min-width:0}
@@ -103,7 +47,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .stat-card:hover{border-color:var(--green);transform:translateY(-2px)}
 .stat-card h3{margin:0 0 5px 0;color:var(--muted);font-size:14px;font-weight:500}
 .stat-card p{margin:0;font-size:28px;font-weight:bold}
-.stat-card.blue{border-left:4px solid var(--blue)}.stat-card.green{border-left:4px solid var(--green)}.stat-card.purple{border-left:4px solid var(--purple)}
+.stat-card.blue{border-left:4px solid var(--blue)}.stat-card.green{border-left:4px solid var(--green)}.stat-card.purple{border-left:4px solid var(--purple)}.stat-card.gray{border-left:4px solid var(--gray)}
 .chart-container{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:25px;position:relative}
 .chart-wrapper{height:300px;position:relative}
 .btn-expand{position:absolute;top:15px;right:15px;background:var(--border);border:none;color:var(--text);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px}
@@ -125,6 +69,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .list-item{background:var(--card);border:1px solid var(--border);padding:15px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:0.2s}
 .list-item:hover{border-color:var(--green);background:#273549;transform:translateX(3px)}
 .list-item.name{font-weight:600}.list-item.meta{font-size:13px;color:var(--muted);margin-top:4px}
+.list-item.archived{opacity:0.6}
 .pagination{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
 .pagination a{padding:8px 15px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);text-decoration:none;cursor:pointer}
 .pagination a.active{background:var(--green);border-color:var(--green)}
@@ -146,9 +91,11 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .modal-body.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .btn-wa{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#25D366;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px}
 .btn-wa:hover{background:#1da851}
-.btn-edit,.btn-delete{padding:8px 14px;border:none;border-radius:6px;color:#fff;cursor:pointer;font-weight:500;font-size:14px}
+.btn-edit,.btn-delete,.btn-archive{padding:8px 14px;border:none;border-radius:6px;color:#fff;cursor:pointer;font-weight:500;font-size:14px}
 .btn-edit{background:var(--blue)}.btn-edit:hover{background:#2563eb}
 .btn-delete{background:var(--red)}.btn-delete:hover{background:#dc2626}
+.btn-archive{background:var(--gray)}.btn-archive:hover{background:#4b5563}
+.btn-unarchive{background:var(--green)}.btn-unarchive:hover{background:#059669}
 .hidden{display:none}
 @media (max-width:600px){
 .card-body,.modal-body.grid,.stats{grid-template-columns:1fr}
@@ -157,7 +104,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .modal-controls{font-size:14px}
 }
 
-/* YENİ: LIGHTBOX SLIDER CSS */
+/* LIGHTBOX SLIDER CSS */
 #lightboxModal{z-index:2000}
 .lightbox-content{position:relative;width:95%;height:95%;max-width:1200px;display:flex;align-items:center;justify-content:center}
 .lightbox-image{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;user-select:none;transition:opacity 0.3s}
@@ -173,13 +120,16 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 .btn-image{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--blue);color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;cursor:pointer;border:none}
 .btn-image:hover{background:#2563eb}
 
-/* YENİ: Qoşulma / Köçürmə rəngləri */
+/* YENİ: Qoşulma / Köçürmə / Arxiv rəngləri */
 .list-item.qosulma{border-left:4px solid var(--green)}
 .list-item.kocurme{border-left:4px solid var(--orange)}
-.list-item.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
+.list-item.archived-item{border-left:4px solid var(--gray);opacity:0.7}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
 .badge.qosulma{background:rgba(16,185,129,0.2);color:var(--green)}
 .badge.kocurme{background:rgba(245,158,11,0.2);color:var(--orange)}
+.badge.archived{background:rgba(107,114,128,0.2);color:var(--gray)}
 .list-item-name{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.archive-notice{background:rgba(107,114,128,0.15);border:1px solid var(--gray);padding:10px 15px;border-radius:8px;margin-bottom:15px;display:flex;align-items:center;gap:10px;color:var(--muted)}
 </style></head><body>
 
 <div class="header">
@@ -226,13 +176,25 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 
       <% if (results.length === 1) { %>
         <% const result = results[0]; %>
+        <% const isArchived = (result['Arxiv'] || '').toLowerCase() === 'hə'; %>
+        <% if (isArchived) { %>
+          <div class="archive-notice">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Bu müştəri arxivdədir</span>
+          </div>
+        <% } %>
         <div class="card">
           <div class="card-header">
             <h2><%= result['Ad, Soyad, Ata adı'] || 'Adsız müştəri' %></h2>
             <span>Ödəniş kodu: <%= result['Ödəniş kodu'] %> | Qeydiyyat: <%= result['Timestamp'] %></span>
-            <div style="margin-top:15px;display:flex;gap:10px">
+            <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap">
               <a href="/edit/<%= result['Ödəniş kodu'] %>" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a>
               <button class="btn-delete" onclick="deleteCustomer('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>)"><i class="fa-solid fa-trash"></i> Sil</button>
+              <% if (isArchived) { %>
+                <button class="btn-unarchive" onclick="toggleArchive('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>, false)"><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>
+              <% } else { %>
+                <button class="btn-archive" onclick="toggleArchive('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>, true)"><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>
+              <% } %>
             </div>
           </div>
           <div class="card-body">
@@ -243,14 +205,15 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
         <div class="result-list" id="searchResults">
           <% results.forEach((item, index) => { %>
             <% const qeydText = (item['Qeyd'] || '').toLowerCase(); %>
-            <% const typeClass = qeydText.includes('köç')? 'kocurme' : 'qosulma'; %>
-            <% const typeLabel = qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma'; %>
+            <% const isArchived = (item['Arxiv'] || '').toLowerCase() === 'hə'; %>
+            <% const typeClass = isArchived? 'archived-item' : (qeydText.includes('köç')? 'kocurme' : 'qosulma'); %>
+            <% const typeLabel = isArchived? 'Arxivdə' : (qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma'); %>
             <div class="list-item <%= typeClass %>" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'search')">
               <div>
                 <div class="name list-item-name">
                   <%= item['Ad, Soyad, Ata adı'] %>
-                  <span class="badge <%= typeClass %>">
-                    <i class="fa-solid <%= typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug' %>"></i> <%= typeLabel %>
+                  <span class="badge <%= isArchived? 'archived' : typeClass %>">
+                    <i class="fa-solid <%= isArchived? 'fa-box-archive' : (typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug') %>"></i> <%= typeLabel %>
                   </span>
                 </div>
                 <div class="meta">Kod: <%= item['Ödəniş kodu'] %> | Tel: <%= item['Telefon nömrəsi'] %> | <%= item['Ünvan'] %></div>
@@ -283,6 +246,11 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
         <p><%= todayCustomers.length %></p>
         <span style="font-size:12px;color:var(--muted)">Kliklə siyahıya bax</span>
       </div>
+      <div class="stat-card gray" onclick="showArchiveList()">
+        <h3>Arxivdə olanlar</h3>
+        <p><%= archivedCustomers.length %></p>
+        <span style="font-size:12px;color:var(--muted)">Kliklə arxivə bax</span>
+      </div>
     </div>
 
     <div class="chart-container">
@@ -310,6 +278,24 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
               <%= item['Ad, Soyad, Ata adı'] %>
               <span class="badge <%= typeClass %>">
                 <i class="fa-solid <%= typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug' %>"></i> <%= typeLabel %>
+              </span>
+            </div>
+            <div class="meta">Kod: <%= item['Ödəniş kodu'] %> | Tel: <%= item['Telefon nömrəsi'] %></div>
+          </div>
+          <i class="fa-solid fa-chevron-right" style="color:var(--muted)"></i>
+        </div>
+      <% }) %>
+    </div>
+
+    <div id="archiveList" class="hidden">
+      <h3 class="section-title"><i class="fa-solid fa-box-archive"></i> Arxivdə olanlar - <%= archivedCustomers.length %> nəfər</h3>
+      <% archivedCustomers.forEach((item, index) => { %>
+        <div class="list-item archived-item" onclick="openModal('<%= item['Ödəniş kodu'] %>', <%= index %>, 'archive')">
+          <div>
+            <div class="name list-item-name">
+              <%= item['Ad, Soyad, Ata adı'] %>
+              <span class="badge archived">
+                <i class="fa-solid fa-box-archive"></i> Arxivdə
               </span>
             </div>
             <div class="meta">Kod: <%= item['Ödəniş kodu'] %> | Tel: <%= item['Telefon nömrəsi'] %></div>
@@ -367,7 +353,6 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
   </div>
 </div>
 
-<!-- YENİ: LIGHTBOX MODAL -->
 <div id="lightboxModal" class="modal">
   <div class="lightbox-content">
     <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
@@ -386,21 +371,17 @@ let currentModalType = '';
 let mainChart, modalChartInstance;
 let allCustomersPage = 1;
 
-// YENİ: LIGHTBOX DƏYİŞƏNLƏRİ
 let lightboxImages = [];
 let currentLightboxIndex = 0;
 
 const chartData = <%- JSON.stringify(monthlyStats) %>;
 
-// DÜZƏLİŞ: Google Drive linkini işləyən formata çevir - export=view ən stabil variant
 function convertDriveLink(url) {
   if (!url) return '';
-  // https://drive.google.com/file/d/FILE_ID/view
   let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   if (match && match[1]) {
     return `https://drive.google.com/uc?export=view&id=${match[1]}`;
   }
-  // https://drive.google.com/open?id=FILE_ID
   match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if (match && match[1]) {
     return `https://drive.google.com/uc?export=view&id=${match[1]}`;
@@ -410,6 +391,12 @@ function convertDriveLink(url) {
 
 function showTodayList() {
   document.getElementById('todayList').classList.toggle('hidden');
+  document.getElementById('archiveList').classList.add('hidden');
+}
+
+function showArchiveList() {
+  document.getElementById('archiveList').classList.toggle('hidden');
+  document.getElementById('todayList').classList.add('hidden');
 }
 
 async function openAllCustomersModal() {
@@ -428,14 +415,15 @@ async function loadAllCustomers(page) {
     let html = '';
     json.customers.forEach((item, index) => {
       const qeydText = (item['Qeyd'] || '').toLowerCase();
-      const typeClass = qeydText.includes('köç')? 'kocurme' : 'qosulma';
-      const typeLabel = qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma';
+      const isArchived = (item['Arxiv'] || '').toLowerCase() === 'hə';
+      const typeClass = isArchived? 'archived-item' : (qeydText.includes('köç')? 'kocurme' : 'qosulma');
+      const typeLabel = isArchived? 'Arxivdə' : (qeydText.includes('köç')? 'Köçürmə' : 'Qoşulma');
       html += `<div class="list-item ${typeClass}" onclick="openModal('${item['Ödəniş kodu']}', ${index}, 'all')">
         <div>
           <div class="name list-item-name">
             ${item['Ad, Soyad, Ata adı']}
-            <span class="badge ${typeClass}">
-              <i class="fa-solid ${typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug'}"></i> ${typeLabel}
+            <span class="badge ${isArchived? 'archived' : typeClass}">
+              <i class="fa-solid ${isArchived? 'fa-box-archive' : (typeClass === 'kocurme'? 'fa-truck-moving' : 'fa-plug')}"></i> ${typeLabel}
             </span>
           </div>
           <div class="meta">Kod: ${item['Ödəniş kodu']} | Tel: ${item['Telefon nömrəsi']}</div>
@@ -458,6 +446,8 @@ function openModal(odemeKodu, index, type = 'search') {
     currentModalList = <%- JSON.stringify(results.map(r => r['Ödəniş kodu'])) %>;
   } else if (type === 'today') {
     currentModalList = <%- JSON.stringify(todayCustomers.map(r => r['Ödəniş kodu'])) %>;
+  } else if (type === 'archive') {
+    currentModalList = <%- JSON.stringify(archivedCustomers.map(r => r['Ödəniş kodu'])) %>;
   }
   currentModalIndex = currentModalList.indexOf(odemeKodu);
   loadModalCustomer(odemeKodu);
@@ -474,7 +464,8 @@ async function loadModalCustomer(odemeKodu) {
   modalBody.innerHTML = '<p style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin"></i> Yüklənir...</p>';
   modal.style.display = 'flex';
 
-  counter.textContent = `${currentModalIndex + 1} / ${currentModalList.length}`;
+  counter.textContent = `${currentModalIndex + 1} / ${currentModalList.length}`
+
   prevBtn.disabled = currentModalIndex === 0;
   nextBtn.disabled = currentModalIndex === currentModalList.length - 1;
 
@@ -483,7 +474,8 @@ async function loadModalCustomer(odemeKodu) {
 
   if (json.success) {
     const r = json.data;
-    modalTitle.innerHTML = `${r['Ad, Soyad, Ata adı'] || 'Adsız'}`;
+    const isArchived = (r['Arxiv'] || '').toLowerCase() === 'hə';
+    modalTitle.innerHTML = `${r['Ad, Soyad, Ata adı'] || 'Adsız'} ${isArchived? '<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>' : ''}`;
     const fields = [
       { key: 'Ödəniş kodu', label: 'Ödəniş Kodu' },
       { key: 'Telefon nömrəsi', label: 'Telefon', type: 'tel' },
@@ -519,12 +511,15 @@ async function loadModalCustomer(odemeKodu) {
         html += `</p></div>`;
       }
     });
-    html += `<div class="info-item full-width" style="display:flex;gap:10px;margin-top:10px">
+    html += `<div class="info-item full-width" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
       <a href="/edit/${r['Ödəniş kodu']}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a>
-      <button class="btn-delete" onclick="deleteCustomer('${
-
-r['Ödəniş kodu']}', ${r.rowIndex})"><i class="fa-solid fa-trash"></i> Sil</button>
-    </div>`;
+      <button class="btn-delete" onclick="deleteCustomer('${r['Ödəniş kodu']}', ${r.rowIndex})"><i class="fa-solid fa-trash"></i> Sil</button>`;
+    if (isArchived) {
+      html += `<button class="btn-unarchive" onclick="toggleArchive('${r['Ödəniş kodu']}', ${r.rowIndex}, false)"><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`;
+    } else {
+      html += `<button class="btn-archive" onclick="toggleArchive('${r['Ödəniş kodu']}', ${r.rowIndex}, true)"><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`;
+    }
+    html += `</div>`;
     modalBody.innerHTML = html;
   } else {
     modalBody.innerHTML = '<p>Məlumat tapılmadı.</p>';
@@ -558,6 +553,25 @@ async function deleteCustomer(odemeKodu, rowIndex) {
   const json = await res.json();
   if (json.success) {
     alert('Müştəri silindi');
+    location.reload();
+  } else {
+    alert('Xəta: ' + json.error);
+  }
+}
+
+// YENİ: ARXIV FUNKSİYASI
+async function toggleArchive(odemeKodu, rowIndex, archive) {
+  const action = archive? 'arxivə göndərmək' : 'arxivdən çıxartmaq';
+  if (!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`)) return;
+  
+  const res = await fetch(`/archive/${odemeKodu}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({rowIndex, archive})
+  });
+  const json = await res.json();
+  if (json.success) {
+    alert(archive? 'Müştəri arxivə göndərildi' : 'Müştəri arxivdən çıxarıldı');
     location.reload();
   } else {
     alert('Xəta: ' + json.error);
