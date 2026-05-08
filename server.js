@@ -153,7 +153,6 @@ async function getSheetData() {
   return { headers, data };
 }
 
-// Sheet-dəki ' simvolunu təmizləyir
 function cleanSheetValue(val) {
   return val? val.toString().replace(/^'/, '').trim() : '';
 }
@@ -204,7 +203,9 @@ app.get('/add', checkAuth, (req, res) => {
 
 app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
-    const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
+    const { odemeKodu, adSoyad, telefon, aylıqOdenis, ayliqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
+    const finalAyliqOdenis = aylıqOdenis || ayliqOdenis || '';
+
     const { data } = await getSheetData();
     if (data.some(r => cleanSheetValue(r['Ödəniş kodu']) === odemeKodu.trim())) {
       return res.render('add-customer', { success: null, error: 'Bu ödəniş kodu artıq mövcuddur!' });
@@ -216,18 +217,17 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-    // A B C D E F G H I J K L M N O
     const newRow = [
       timestamp, // A
-      `'${odemeKodu}`, // B - ' qoyduq ki sıfır silinməsin
+      `'${odemeKodu}`, // B
       adSoyad, // C
-      `'${telefon}`, // D - ' qoyduq ki sıfır silinməsin
+      `'${telefon}`, // D
       seriya, // E
       fin, // F
       unvan, // G
       modem, // H
       tvbox, // I
-      aylıqOdenis, // J
+      finalAyliqOdenis, // J
       sifre, // K
       komendant, // L
       qeyd, // M
@@ -265,7 +265,13 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
 
 app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
-    const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl } = req.body;
+    const {
+      odemeKodu, adSoyad, telefon, aylıqOdenis, ayliqOdenis,
+      fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd,
+      rowIndex, oldImageUrl
+    } = req.body;
+
+    const finalAyliqOdenis = aylıqOdenis || ayliqOdenis || '';
 
     let imageUrl = oldImageUrl || '';
     if (req.files && req.files.length > 0) {
@@ -275,7 +281,6 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       }
     }
 
-    // B-dən N-ə qədər - Sənin sıran
     const updatedRow = [
       `'${odemeKodu}`, // B
       adSoyad, // C
@@ -285,7 +290,7 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       unvan, // G
       modem, // H
       tvbox, // I
-      aylıqOdenis, // J
+      finalAyliqOdenis, // J
       sifre, // K
       komendant, // L
       qeyd, // M
