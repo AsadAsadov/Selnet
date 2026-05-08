@@ -108,29 +108,40 @@ function getMonthlyStats(customers) {
   };
 }
 
+// YENİLƏNDİ: DRIVE_FOLDER_ID yoxlaması əlavə olundu
 async function uploadToDrive(file) {
   if (!file) return '';
-  const bufferStream = new stream.PassThrough();
-  bufferStream.end(file.buffer);
+  if (!DRIVE_FOLDER_ID) {
+    console.log('DRIVE_FOLDER_ID təyin edilməyib, şəkil yüklənmədi');
+    return '';
+  }
+  
+  try {
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(file.buffer);
 
-  const response = await drive.files.create({
-    requestBody: {
-      name: `${Date.now()}_${file.originalname}`,
-      parents: [DRIVE_FOLDER_ID]
-    },
-    media: {
-      mimeType: file.mimetype,
-      body: bufferStream
-    }
-  });
+    const response = await drive.files.create({
+      requestBody: {
+        name: `${Date.now()}_${file.originalname}`,
+        parents: [DRIVE_FOLDER_ID]
+      },
+      media: {
+        mimeType: file.mimetype,
+        body: bufferStream
+      }
+    });
 
-  const fileId = response.data.id;
-  await drive.permissions.create({
-    fileId,
-    requestBody: { role: 'reader', type: 'anyone' }
-  });
+    const fileId = response.data.id;
+    await drive.permissions.create({
+      fileId,
+      requestBody: { role: 'reader', type: 'anyone' }
+    });
 
-  return `https://drive.google.com/uc?id=${fileId}`;
+    return `https://drive.google.com/uc?id=${fileId}`;
+  } catch (err) {
+    console.error('Drive upload xətası:', err.message);
+    throw new Error('Şəkil yüklənə bilmədi: ' + err.message);
+  }
 }
 
 async function uploadMultipleToDrive(files) {
@@ -143,7 +154,6 @@ async function uploadMultipleToDrive(files) {
   return urls.join(',');
 }
 
-// YENİLƏNDİ: A:O aralığı - O sütunu Arxiv
 async function getSheetData() {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
@@ -224,7 +234,6 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-    // A:M sütunları + O boş - Arxiv
     const newRow = [timestamp, odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl, ''];
 
     await sheets.spreadsheets.values.append({
@@ -307,7 +316,6 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
-// YENİ: ARXIV FUNKSİYASI - O sütununa yazır
 app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { rowIndex, archive } = req.body;
