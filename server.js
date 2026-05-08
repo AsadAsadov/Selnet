@@ -182,6 +182,41 @@ function cleanSheetValue(val) {
   return val ? val.toString().replace(/^'/, '').trim() : '';
 }
 
+function isArchivedCustomer(customer) {
+  return String(customer?.['Arxiv'] || '').trim().toLowerCase() === 'hə';
+}
+
+function isTodayCustomer(customer) {
+  const todayNum = dateToNumber(new Date().toLocaleDateString('en-US'));
+  return dateToNumber(customer?.['Timestamp']) === todayNum;
+}
+
+function paginateCustomers(customers, page, limit) {
+  const totalCustomers = customers.length;
+  const totalPages = Math.max(1, Math.ceil(totalCustomers / limit));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * limit;
+  const paginatedCustomers = customers.slice(start, start + limit);
+
+  return {
+    customers: paginatedCustomers,
+    data: paginatedCustomers,
+    currentPage,
+    totalPages,
+    totalCustomers,
+    limit,
+    hasPrevPage: currentPage > 1,
+    hasNextPage: currentPage < totalPages
+  };
+}
+
+function sendCustomerList(res, customers, page, limit) {
+  res.json({
+    success: true,
+    ...paginateCustomers(customers, page, limit)
+  });
+}
+
 // --- ROUTES ---
 
 app.get('/login', (req, res) => res.render('login', { error: null }));
@@ -224,26 +259,37 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
 
   try {
     const { data } = await getSheetData();
-    const customers = Array.isArray(data) ? data : [];
-    const totalCustomers = customers.length;
-    const totalPages = Math.max(1, Math.ceil(totalCustomers / limit));
-    const currentPage = Math.min(page, totalPages);
-    const start = (currentPage - 1) * limit;
-    const paginatedCustomers = customers.slice(start, start + limit);
-
-    res.json({
-      success: true,
-      customers: paginatedCustomers,
-      data: paginatedCustomers,
-      currentPage,
-      totalPages,
-      totalCustomers,
-      limit,
-      hasPrevPage: currentPage > 1,
-      hasNextPage: currentPage < totalPages
-    });
+    sendCustomerList(res, Array.isArray(data) ? data : [], page, limit);
   } catch (err) {
     console.error('GET /api/all-customers failed:', err);
+    res.status(500).json({ success: false, customers: [], totalPages: 1, totalCustomers: 0, error: err.message });
+  }
+});
+
+app.get('/api/today-customers', checkAuth, async (req, res) => {
+  const page = parsePositiveInteger(req.query.page, 1);
+  const limit = parsePositiveInteger(req.query.limit, 10, 100);
+
+  try {
+    const { data } = await getSheetData();
+    const customers = (Array.isArray(data) ? data : []).filter(customer => !isArchivedCustomer(customer) && isTodayCustomer(customer));
+    sendCustomerList(res, customers, page, limit);
+  } catch (err) {
+    console.error('GET /api/today-customers failed:', err);
+    res.status(500).json({ success: false, customers: [], totalPages: 1, totalCustomers: 0, error: err.message });
+  }
+});
+
+app.get('/api/archive-customers', checkAuth, async (req, res) => {
+  const page = parsePositiveInteger(req.query.page, 1);
+  const limit = parsePositiveInteger(req.query.limit, 10, 100);
+
+  try {
+    const { data } = await getSheetData();
+    const customers = (Array.isArray(data) ? data : []).filter(isArchivedCustomer);
+    sendCustomerList(res, customers, page, limit);
+  } catch (err) {
+    console.error('GET /api/archive-customers failed:', err);
     res.status(500).json({ success: false, customers: [], totalPages: 1, totalCustomers: 0, error: err.message });
   }
 });
@@ -371,8 +417,8 @@ app.get('/', checkAuth, async (req, res) => {
     totalCount = data.length;
     data = filterByDateRange(data, startDate, endDate);
     
-    const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase() !== 'hə');
-    archivedCustomers = data.filter(r => (r['Arxiv'] || '').toLowerCase() === 'hə');
+    const activeData = data.filter(r => !isArchivedCustomer(r));
+    archivedCustomers = data.filter(isArchivedCustomer);
     monthlyStats = getMonthlyStats(activeData);
 
     if (q) {
@@ -386,8 +432,7 @@ app.get('/', checkAuth, async (req, res) => {
     } else if (startDate || endDate) {
       results = data;
     } else {
-      const todayNum = dateToNumber(new Date().toLocaleDateString('en-US'));
-      todayCustomers = activeData.filter(c => dateToNumber(c['Timestamp']) === todayNum);
+      todayCustomers = activeData.filter(isTodayCustomer);
       results = activeData;
     }
   } catch (err) { 
