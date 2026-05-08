@@ -47,14 +47,44 @@ function checkAuth(req, res, next) {
 }
 
 // TARİX VƏ STATİSTİKA FUNKSİYALARI
+function parseTimestampParts(timestamp) {
+  if (!timestamp) return null;
+  const raw = timestamp.toString().trim();
+
+  let match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (match) {
+    const month = Number(match[1]);
+    const day = Number(match[2]);
+    const year = Number(match[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return { year, month, day };
+  }
+
+  match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (match) {
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return { year, month, day };
+  }
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) {
+    return { year: parsed.getFullYear(), month: parsed.getMonth() + 1, day: parsed.getDate() };
+  }
+
+  return null;
+}
+
+function formatDate(timestamp) {
+  const parts = parseTimestampParts(timestamp);
+  if (!parts) return 'Tarix yoxdur';
+  return `${String(parts.day).padStart(2, '0')}.${String(parts.month).padStart(2, '0')}.${parts.year}`;
+}
+
 function dateToNumber(dateStr) {
-  if (!dateStr) return 0;
-  try {
-    const datePart = dateStr.split(' ')[0];
-    const [month, day, year] = datePart.split('/').map(Number);
-    if (!month || !day || !year) return 0;
-    return year * 10000 + month * 100 + day;
-  } catch { return 0; }
+  const parts = parseTimestampParts(dateStr);
+  if (!parts) return 0;
+  return parts.year * 10000 + parts.month * 100 + parts.day;
 }
 
 function inputDateToNumber(dateStr) {
@@ -371,7 +401,7 @@ app.get('/', checkAuth, async (req, res) => {
 
   res.render('dashboard', {
     results: paginatedResults, q, startDate, endDate, errorMsg,
-    totalResults, currentPage: page, totalPages, todayCustomers, archivedCustomers, totalCount, monthlyStats
+    totalResults, currentPage: page, totalPages, todayCustomers, archivedCustomers, totalCount, monthlyStats, formatDate
   });
 });
 

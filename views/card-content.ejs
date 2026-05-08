@@ -8,6 +8,7 @@ const fields = [
   { key: 'Tv Box', label: 'TV Box' },
   { key: 'Komendant', label: 'Komendant' },
   { key: 'Şifrə:', label: 'Şifrə' },
+  { key: 'Timestamp', label: 'Qeydiyyat tarixi', type: 'date' },
   { key: 'Ünvan', label: 'Ünvan', full: true },
   { key: 'Qeyd', label: 'Qeyd', full: true },
   { key: 'Müqavilə və Modemin şəkli', label: 'Müqavilə Şəkli', type: 'link', full: true }
@@ -15,7 +16,8 @@ const fields = [
 %>
 
 <% fields.forEach(field => { %>
-  <% const value = result[field.key]; %>
+  <% const rawValue = result[field.key]; %>
+  <% const value = field.type === 'date' ? formatDate(rawValue) : rawValue; %>
   <% if (value && value.toString().trim()!== '' && value.toString().toLowerCase()!== 'yox') { %>
     <div class="info-item <%= field.full? 'full-width' : '' %>">
       <label><%= field.label %></label>
