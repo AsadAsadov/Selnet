@@ -21,7 +21,7 @@ const ADMIN_USER = 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS;
 const SHEET_ID = process.env.SHEET_ID;
 const SHEET_TAB_NAME = process.env.SHEET_TAB_NAME || 'Müştəri';
-const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || ''; // BOŞDIRSA '' OLACAQ
+const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || '';
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_CREDS),
@@ -108,7 +108,6 @@ function getMonthlyStats(customers) {
   };
 }
 
-// YENİLƏNDİ: DRIVE_FOLDER_ID yoxdursa xəta vermir
 async function uploadToDrive(file) {
   if (!file ||!DRIVE_FOLDER_ID) {
     if (file) console.log('DRIVE_FOLDER_ID təyin edilməyib, şəkil yüklənmədi');
@@ -140,7 +139,7 @@ async function uploadToDrive(file) {
     return `https://drive.google.com/uc?id=${fileId}`;
   } catch (err) {
     console.error('Drive upload xətası:', err.message);
-    return ''; // Xəta olsa da saytı çökdürmə
+    return '';
   }
 }
 
@@ -252,11 +251,17 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
 app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
-    const customer = data.find(r => r['Ödəniş kodu'].toString().trim() === req.params.odemeKodu);
-    if (!customer) return res.redirect('/');
+    const odemeKoduParam = req.params.odemeKodu.toString().trim();
+    const customer = data.find(r => r['Ödəniş kodu'] && r['Ödəniş kodu'].toString().trim() === odemeKoduParam);
+
+    if (!customer) {
+      console.log('Müştəri tapılmadı:', odemeKoduParam);
+      return res.redirect('/?error=Müştəri tapılmadı');
+    }
     res.render('edit-customer', { customer, success: null, error: null });
   } catch (err) {
-    res.redirect('/');
+    console.log('Edit GET xətası:', err.message);
+    res.redirect('/?error=Server xətası');
   }
 });
 
@@ -286,11 +291,22 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
 
     const { data } = await getSheetData();
     const customer = data.find(r => r['Ödəniş kodu'].toString().trim() === odemeKodu);
+    if (!customer) {
+      return res.redirect('/?error=Yeniləmədən sonra müştəri tapılmadı');
+    }
     res.render('edit-customer', { customer, success: 'Məlumatlar yeniləndi!', error: null });
   } catch (err) {
-    const { data } = await getSheetData();
-    const customer = data.find(r => r['Ödəniş kodu'].toString().trim() === req.params.odemeKodu);
-    res.render('edit-customer', { customer, success: null, error: 'Xəta: ' + err.message });
+    console.log('Edit POST xətası:', err.message);
+    try {
+      const { data } = await getSheetData();
+      const customer = data.find(r => r['Ödəniş kodu'].toString().trim() === req.params.odemeKodu);
+      if (!customer) {
+        return res.redirect('/?error=Müştəri tapılmadı');
+      }
+      res.render('edit-customer', { customer, success: null, error: 'Xəta: ' + err.message });
+    } catch {
+      res.redirect('/?error=Xəta baş verdi');
+    }
   }
 });
 
@@ -343,7 +359,7 @@ app.get('/', checkAuth, async (req, res) => {
   let archivedCustomers = [];
   let totalCount = 0;
   let monthlyStats = { labels: [], total: [], qosulma: [], kocurme: [] };
-  let errorMsg = null;
+  let errorMsg = req.query.error || null;
   const q = req.query.q? req.query.q.trim() : '';
   const startDate = req.query.startDate || '';
   const endDate = req.query.endDate || '';
