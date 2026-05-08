@@ -153,6 +153,11 @@ async function getSheetData() {
   return { headers, data };
 }
 
+// Sheet-dəki ' simvolunu təmizləyir
+function cleanSheetValue(val) {
+  return val? val.toString().replace(/^'/, '').trim() : '';
+}
+
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/login', (req, res) => {
@@ -172,7 +177,7 @@ app.get('/logout', (req, res) => {
 app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
-    const found = data.find(r => r['Ödəniş kodu'] && r['Ödəniş kodu'].toString().trim() === req.params.odemeKodu);
+    const found = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === req.params.odemeKodu);
     res.json({ success:!!found, data: found || null });
   } catch (err) {
     res.json({ success: false, error: err.message });
@@ -201,7 +206,7 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
   try {
     const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
     const { data } = await getSheetData();
-    if (data.some(r => r['Ödəniş kodu'].toString().trim() === odemeKodu.trim())) {
+    if (data.some(r => cleanSheetValue(r['Ödəniş kodu']) === odemeKodu.trim())) {
       return res.render('add-customer', { success: null, error: 'Bu ödəniş kodu artıq mövcuddur!' });
     }
     let imageUrl = '';
@@ -211,12 +216,12 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
-    // Sənin sırana görə: A B C D E F G H I J K L M N O
+    // A B C D E F G H I J K L M N O
     const newRow = [
       timestamp, // A
-      odemeKodu, // B
+      `'${odemeKodu}`, // B - ' qoyduq ki sıfır silinməsin
       adSoyad, // C
-      telefon, // D
+      `'${telefon}`, // D - ' qoyduq ki sıfır silinməsin
       seriya, // E
       fin, // F
       unvan, // G
@@ -227,7 +232,7 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
       komendant, // L
       qeyd, // M
       imageUrl, // N
-      '' // O: Arxiv boş
+      '' // O
     ];
 
     await sheets.spreadsheets.values.append({
@@ -246,7 +251,7 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
     const odemeKoduParam = req.params.odemeKodu.toString().trim();
-    const customer = data.find(r => r['Ödəniş kodu'] && r['Ödəniş kodu'].toString().trim() === odemeKoduParam);
+    const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === odemeKoduParam);
     if (!customer) {
       console.log('Müştəri tapılmadı:', odemeKoduParam);
       return res.redirect('/?error=Müştəri tapılmadı');
@@ -258,7 +263,6 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
-// DÜZƏLDİ: Sənin Sheet sırana görə B:N yazır
 app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl } = req.body;
@@ -271,11 +275,11 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       }
     }
 
-    // B-dən N-ə qədər - sənin sıran: B C D E F G H I J K L M N
+    // B-dən N-ə qədər - Sənin sıran
     const updatedRow = [
-      odemeKodu, // B
+      `'${odemeKodu}`, // B
       adSoyad, // C
-      telefon, // D
+      `'${telefon}`, // D
       seriya, // E
       fin, // F
       unvan, // G
@@ -296,7 +300,9 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
     });
 
     const { data } = await getSheetData();
-    const customer = data.find(r => r['Ödəniş kodu'].toString().trim() === odemeKodu);
+    const originalCode = req.params.odemeKodu.toString().trim();
+    const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === originalCode);
+
     if (!customer) {
       return res.redirect('/?error=Yeniləmədən sonra müştəri tapılmadı');
     }
@@ -305,7 +311,8 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
     console.log('Edit POST xətası:', err.message);
     try {
       const { data } = await getSheetData();
-      const customer = data.find(r => r['Ödəniş kodu'].toString().trim() === req.params.odemeKodu);
+      const originalCode = req.params.odemeKodu.toString().trim();
+      const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === originalCode);
       if (!customer) return res.redirect('/?error=Müştəri tapılmadı');
       res.render('edit-customer', { customer, success: null, error: 'Xəta: ' + err.message });
     } catch {
@@ -371,8 +378,8 @@ app.get('/', checkAuth, async (req, res) => {
     if (q) {
       const searchQuery = q.toLowerCase().replace(/\s/g, '');
       results = data.filter(c => {
-        const odemeKodu = c['Ödəniş kodu']? c['Ödəniş kodu'].toString().toLowerCase().trim() : '';
-        const telefon = c['Telefon nömrəsi']? c['Telefon nömrəsi'].toString().toLowerCase().replace(/\s/g, '') : '';
+        const odemeKodu = cleanSheetValue(c['Ödəniş kodu']).toLowerCase();
+        const telefon = cleanSheetValue(c['Telefon nömrəsi']).toLowerCase().replace(/\s/g, '');
         const unvan = c['Ünvan']? c['Ünvan'].toString().toLowerCase() : '';
         const ad = c['Ad, Soyad, Ata adı']? c['Ad, Soyad, Ata adı'].toString().toLowerCase() : '';
         return odemeKodu.includes(searchQuery) || telefon.includes(searchQuery) || unvan.includes(q.toLowerCase()) || ad.includes(q.toLowerCase());
