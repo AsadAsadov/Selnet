@@ -64,14 +64,11 @@ function inputDateToNumber(dateStr) {
 
 function filterByDateRange(customers, startDate, endDate) {
   if (!startDate &&!endDate) return customers;
-
   const startNum = inputDateToNumber(startDate);
   const endNum = inputDateToNumber(endDate);
-
   return customers.filter(c => {
     const custNum = dateToNumber(c['Timestamp']);
     if (custNum === 0) return false;
-
     if (startNum && custNum < startNum) return false;
     if (endNum && custNum > endNum) return false;
     return true;
@@ -109,33 +106,17 @@ function getMonthlyStats(customers) {
 }
 
 async function uploadToDrive(file) {
-  if (!file ||!DRIVE_FOLDER_ID) {
-    if (file) console.log('DRIVE_FOLDER_ID təyin edilməyib, şəkil yüklənmədi');
-    return '';
-  }
-
+  if (!file ||!DRIVE_FOLDER_ID) return '';
   try {
     const bufferStream = new stream.PassThrough();
     bufferStream.end(file.buffer);
-
     const response = await drive.files.create({
-      requestBody: {
-        name: `${Date.now()}_${file.originalname}`,
-        parents: [DRIVE_FOLDER_ID]
-      },
-      media: {
-        mimeType: file.mimetype,
-        body: bufferStream
-      },
+      requestBody: { name: `${Date.now()}_${file.originalname}`, parents: [DRIVE_FOLDER_ID] },
+      media: { mimeType: file.mimetype, body: bufferStream },
       fields: 'id'
     });
-
     const fileId = response.data.id;
-    await drive.permissions.create({
-      fileId,
-      requestBody: { role: 'reader', type: 'anyone' }
-    });
-
+    await drive.permissions.create({ fileId, requestBody: { role: 'reader', type: 'anyone' } });
     return `https://drive.google.com/uc?id=${fileId}`;
   } catch (err) {
     console.error('Drive upload xətası:', err.message);
@@ -219,29 +200,23 @@ app.get('/add', checkAuth, (req, res) => {
 app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
-
     const { data } = await getSheetData();
     if (data.some(r => r['Ödəniş kodu'].toString().trim() === odemeKodu.trim())) {
       return res.render('add-customer', { success: null, error: 'Bu ödəniş kodu artıq mövcuddur!' });
     }
-
     let imageUrl = '';
     if (req.files && req.files.length > 0) {
       imageUrl = await uploadMultipleToDrive(req.files);
     }
-
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-
     const newRow = [timestamp, odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl, ''];
-
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!A:O`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [newRow] }
     });
-
     res.render('add-customer', { success: 'Müştəri uğurla əlavə edildi!', error: null });
   } catch (err) {
     res.render('add-customer', { success: null, error: 'Xəta: ' + err.message });
@@ -253,7 +228,6 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
     const { data } = await getSheetData();
     const odemeKoduParam = req.params.odemeKodu.toString().trim();
     const customer = data.find(r => r['Ödəniş kodu'] && r['Ödəniş kodu'].toString().trim() === odemeKoduParam);
-
     if (!customer) {
       console.log('Müştəri tapılmadı:', odemeKoduParam);
       return res.redirect('/?error=Müştəri tapılmadı');
@@ -265,6 +239,7 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
+// DÜZƏLDİLDİ: Sütunlar artıq sürüşmür
 app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { odemeKodu, adSoyad, telefon, aylıqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl } = req.body;
@@ -277,16 +252,16 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       }
     }
 
+    // DİQQƏT: Timestamp sütununu yazmırıq, B-dən başlayırıq
     const updatedRow = [
-      '',
       odemeKodu, adSoyad, telefon, unvan, modem, tvbox, sifre, seriya, fin, komendant, qeyd, aylıqOdenis, imageUrl
     ];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!B${rowIndex}:N${rowIndex}`,
+      range: `${SHEET_TAB_NAME}!B${rowIndex}:N${rowIndex}`, // B-dən N-ə qədər 13 sütun
       valueInputOption: 'USER_ENTERED',
-      resource: { values: [updatedRow.slice(1)] }
+      resource: { values: [updatedRow] } // slice yoxdur artıq
     });
 
     const { data } = await getSheetData();
@@ -300,9 +275,7 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
     try {
       const { data } = await getSheetData();
       const customer = data.find(r => r['Ödəniş kodu'].toString().trim() === req.params.odemeKodu);
-      if (!customer) {
-        return res.redirect('/?error=Müştəri tapılmadı');
-      }
+      if (!customer) return res.redirect('/?error=Müştəri tapılmadı');
       res.render('edit-customer', { customer, success: null, error: 'Xəta: ' + err.message });
     } catch {
       res.redirect('/?error=Xəta baş verdi');
@@ -318,12 +291,7 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
       resource: {
         requests: [{
           deleteDimension: {
-            range: {
-              sheetId: 0,
-              dimension: 'ROWS',
-              startIndex: rowIndex - 1,
-              endIndex: rowIndex
-            }
+            range: { sheetId: 0, dimension: 'ROWS', startIndex: rowIndex - 1, endIndex: rowIndex }
           }
         }]
       }
@@ -337,16 +305,12 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
 app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { rowIndex, archive } = req.body;
-
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!O${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
-      resource: {
-        values: [[archive? 'Hə' : '']]
-      }
+      resource: { values: [[archive? 'Hə' : '']] }
     });
-
     res.json({ success: true });
   } catch (error) {
     res.json({ success: false, error: error.message });
@@ -369,14 +333,10 @@ app.get('/', checkAuth, async (req, res) => {
   try {
     let { data } = await getSheetData();
     totalCount = data.length;
-
     data = filterByDateRange(data, startDate, endDate);
-
     const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase()!== 'hə');
     archivedCustomers = data.filter(r => (r['Arxiv'] || '').toLowerCase() === 'hə');
-
     monthlyStats = getMonthlyStats(activeData);
-
     if (q) {
       const searchQuery = q.toLowerCase().replace(/\s/g, '');
       results = data.filter(c => {
@@ -390,10 +350,7 @@ app.get('/', checkAuth, async (req, res) => {
       results = data;
     } else {
       const todayNum = dateToNumber(`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`);
-      todayCustomers = activeData.filter(c => {
-        const custNum = dateToNumber(c['Timestamp']);
-        return custNum === todayNum;
-      });
+      todayCustomers = activeData.filter(c => dateToNumber(c['Timestamp']) === todayNum);
     }
   } catch (err) {
     console.log('Sheet xətası:', err.message);
