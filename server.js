@@ -45,11 +45,9 @@ function dateToNumber(dateStr) {
   try {
     const datePart = dateStr.split(' ')[0];
     const [month, day, year] = datePart.split('/').map(Number);
-    if (!month ||!day ||!year) return 0;
+    if (!month || !day || !year) return 0;
     return year * 10000 + month * 100 + day;
-  } catch {
-    return 0;
-  }
+  } catch { return 0; }
 }
 
 function inputDateToNumber(dateStr) {
@@ -57,13 +55,11 @@ function inputDateToNumber(dateStr) {
   try {
     const [year, month, day] = dateStr.split('-').map(Number);
     return year * 10000 + month * 100 + day;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 function filterByDateRange(customers, startDate, endDate) {
-  if (!startDate &&!endDate) return customers;
+  if (!startDate && !endDate) return customers;
   const startNum = inputDateToNumber(startDate);
   const endNum = inputDateToNumber(endDate);
   return customers.filter(c => {
@@ -106,7 +102,7 @@ function getMonthlyStats(customers) {
 }
 
 async function uploadToDrive(file) {
-  if (!file ||!DRIVE_FOLDER_ID) return '';
+  if (!file || !DRIVE_FOLDER_ID) return '';
   try {
     const bufferStream = new stream.PassThrough();
     bufferStream.end(file.buffer);
@@ -154,9 +150,10 @@ async function getSheetData() {
 }
 
 function cleanSheetValue(val) {
-  return val? val.toString().replace(/^'/, '').trim() : '';
+  return val ? val.toString().replace(/^'/, '').trim() : '';
 }
 
+// ROUTES
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/login', (req, res) => {
@@ -177,21 +174,7 @@ app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
   try {
     const { data } = await getSheetData();
     const found = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === req.params.odemeKodu);
-    res.json({ success:!!found, data: found || null });
-  } catch (err) {
-    res.json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/all-customers', checkAuth, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
-    const { data } = await getSheetData();
-    const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase()!== 'hə');
-    const total = activeData.length;
-    const paginated = activeData.slice((page - 1) * limit, page * limit);
-    res.json({ success: true, customers: paginated, total, page, totalPages: Math.ceil(total / limit) });
+    res.json({ success: !!found, data: found || null });
   } catch (err) {
     res.json({ success: false, error: err.message });
   }
@@ -204,14 +187,7 @@ app.get('/add', checkAuth, (req, res) => {
 app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
     const { odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
-
-    // DÜZƏLDİ: yalnız 1 dəfə elan edirik
-    const finalAyliqOdenis = req.body.aylıqOdenis ||
-                             req.body.ayliqOdenis ||
-                             req.body.aylikOdenis ||
-                             req.body['Aylıq ödəniş'] ||
-                             req.body['ayliq_odenis'] ||
-                             '';
+    const ayliqOdenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
 
     const { data } = await getSheetData();
     if (data.some(r => cleanSheetValue(r['Ödəniş kodu']) === odemeKodu.trim())) {
@@ -225,21 +201,21 @@ app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) 
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
 
     const newRow = [
-      timestamp, // A
-      `'${odemeKodu}`, // B
-      adSoyad, // C
-      `'${telefon}`, // D
-      seriya, // E
-      fin, // F
-      unvan, // G
-      modem, // H
-      tvbox, // I
-      finalAyliqOdenis, // J
-      sifre, // K
-      komendant, // L
-      qeyd, // M
-      imageUrl, // N
-      '' // O
+      timestamp,      // A
+      `'${odemeKodu}`,// B
+      adSoyad,        // C
+      `'${telefon}`,  // D
+      seriya,         // E
+      fin,            // F
+      unvan,          // G
+      modem,          // H
+      tvbox,          // I
+      ayliqOdenis,    // J
+      sifre,          // K
+      komendant,      // L
+      qeyd,           // M
+      imageUrl,       // N
+      ''              // O (Arxiv)
     ];
 
     await sheets.spreadsheets.values.append({
@@ -259,13 +235,9 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
     const { data } = await getSheetData();
     const odemeKoduParam = req.params.odemeKodu.toString().trim();
     const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === odemeKoduParam);
-    if (!customer) {
-      console.log('Müştəri tapılmadı:', odemeKoduParam);
-      return res.redirect('/?error=Müştəri tapılmadı');
-    }
+    if (!customer) return res.redirect('/?error=Müştəri tapılmadı');
     res.render('edit-customer', { customer, success: null, error: null });
   } catch (err) {
-    console.log('Edit GET xətası:', err.message);
     res.redirect('/?error=Server xətası');
   }
 });
@@ -277,36 +249,30 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl
     } = req.body;
 
-    // DÜZƏLDİ: bütün variantları yoxlayır
-    const finalAyliqOdenis = req.body.aylıqOdenis ||
-                             req.body.ayliqOdenis ||
-                             req.body.aylikOdenis ||
-                             req.body['Aylıq ödəniş'] ||
-                             req.body['ayliq_odenis'] ||
-                             '';
+    // Aylıq ödənişi dəqiq tuturuq
+    const ayliqOdenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
 
     let imageUrl = oldImageUrl || '';
     if (req.files && req.files.length > 0) {
       const newUrls = await uploadMultipleToDrive(req.files);
-      if (newUrls) {
-        imageUrl = imageUrl? `${imageUrl},${newUrls}` : newUrls;
-      }
+      if (newUrls) imageUrl = imageUrl ? `${imageUrl},${newUrls}` : newUrls;
     }
 
+    // B-dən N-ə qədər olan sıra (Cəmi 13 sütun)
     const updatedRow = [
       `'${odemeKodu}`, // B
-      adSoyad, // C
-      `'${telefon}`, // D
-      seriya, // E
-      fin, // F
-      unvan, // G
-      modem, // H
-      tvbox, // I
-      finalAyliqOdenis, // J
-      sifre, // K
-      komendant, // L
-      qeyd, // M
-      imageUrl // N
+      adSoyad,        // C
+      `'${telefon}`,  // D
+      seriya,         // E
+      fin,            // F
+      unvan,          // G
+      modem,          // H
+      tvbox,          // I
+      ayliqOdenis,    // J (DÜZƏLDİ: Artıq dəqiq J sütununa düşür)
+      sifre,          // K
+      komendant,      // L
+      qeyd,           // M
+      imageUrl        // N
     ];
 
     await sheets.spreadsheets.values.update({
@@ -317,24 +283,10 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
     });
 
     const { data } = await getSheetData();
-    const originalCode = req.params.odemeKodu.toString().trim();
-    const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === originalCode);
-
-    if (!customer) {
-      return res.redirect('/?error=Yeniləmədən sonra müştəri tapılmadı');
-    }
+    const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === odemeKodu.trim());
     res.render('edit-customer', { customer, success: 'Məlumatlar yeniləndi!', error: null });
   } catch (err) {
-    console.log('Edit POST xətası:', err.message);
-    try {
-      const { data } = await getSheetData();
-      const originalCode = req.params.odemeKodu.toString().trim();
-      const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === originalCode);
-      if (!customer) return res.redirect('/?error=Müştəri tapılmadı');
-      res.render('edit-customer', { customer, success: null, error: 'Xəta: ' + err.message });
-    } catch {
-      res.redirect('/?error=Xəta baş verdi');
-    }
+    res.redirect('/?error=Xəta: ' + err.message);
   }
 });
 
@@ -352,9 +304,7 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
       }
     });
     res.json({ success: true });
-  } catch (err) {
-    res.json({ success: false, error: err.message });
-  }
+  } catch (err) { res.json({ success: false, error: err.message }); }
 });
 
 app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
@@ -364,12 +314,10 @@ app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!O${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
-      resource: { values: [[archive? 'Hə' : '']] }
+      resource: { values: [[archive ? 'Hə' : '']] }
     });
     res.json({ success: true });
-  } catch (error) {
-    res.json({ success: false, error: error.message });
-  }
+  } catch (error) { res.json({ success: false, error: error.message }); }
 });
 
 app.get('/', checkAuth, async (req, res) => {
@@ -379,7 +327,7 @@ app.get('/', checkAuth, async (req, res) => {
   let totalCount = 0;
   let monthlyStats = { labels: [], total: [], qosulma: [], kocurme: [] };
   let errorMsg = req.query.error || null;
-  const q = req.query.q? req.query.q.trim() : '';
+  const q = req.query.q ? req.query.q.trim() : '';
   const startDate = req.query.startDate || '';
   const endDate = req.query.endDate || '';
   const page = parseInt(req.query.page) || 1;
@@ -389,28 +337,26 @@ app.get('/', checkAuth, async (req, res) => {
     let { data } = await getSheetData();
     totalCount = data.length;
     data = filterByDateRange(data, startDate, endDate);
-    const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase()!== 'hə');
+    const activeData = data.filter(r => (r['Arxiv'] || '').toLowerCase() !== 'hə');
     archivedCustomers = data.filter(r => (r['Arxiv'] || '').toLowerCase() === 'hə');
     monthlyStats = getMonthlyStats(activeData);
     if (q) {
       const searchQuery = q.toLowerCase().replace(/\s/g, '');
       results = data.filter(c => {
-        const odemeKodu = cleanSheetValue(c['Ödəniş kodu']).toLowerCase();
-        const telefon = cleanSheetValue(c['Telefon nömrəsi']).toLowerCase().replace(/\s/g, '');
-        const unvan = c['Ünvan']? c['Ünvan'].toString().toLowerCase() : '';
-        const ad = c['Ad, Soyad, Ata adı']? c['Ad, Soyad, Ata adı'].toString().toLowerCase() : '';
-        return odemeKodu.includes(searchQuery) || telefon.includes(searchQuery) || unvan.includes(q.toLowerCase()) || ad.includes(q.toLowerCase());
+        const ok = cleanSheetValue(c['Ödəniş kodu']).toLowerCase();
+        const tel = cleanSheetValue(c['Telefon nömrəsi']).toLowerCase().replace(/\s/g, '');
+        const unv = (c['Ünvan'] || '').toString().toLowerCase();
+        const ad = (c['Ad, Soyad, Ata adı'] || '').toString().toLowerCase();
+        return ok.includes(searchQuery) || tel.includes(searchQuery) || unv.includes(q.toLowerCase()) || ad.includes(q.toLowerCase());
       });
     } else if (startDate || endDate) {
       results = data;
     } else {
-      const todayNum = dateToNumber(`${new Date().getMonth() + 1}/${new Date().getDate()}/${new Date().getFullYear()}`);
+      const d = new Date();
+      const todayNum = dateToNumber(`${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`);
       todayCustomers = activeData.filter(c => dateToNumber(c['Timestamp']) === todayNum);
     }
-  } catch (err) {
-    console.log('Sheet xətası:', err.message);
-    errorMsg = 'Server xətası. Sheet ID və ya icazələri yoxlayın.';
-  }
+  } catch (err) { errorMsg = 'Server xətası yaranıb.'; }
 
   const totalResults = results.length;
   const totalPages = Math.ceil(totalResults / limit);
