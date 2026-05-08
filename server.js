@@ -21,7 +21,7 @@ const ADMIN_USER = 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS;
 const SHEET_ID = process.env.SHEET_ID;
 const SHEET_TAB_NAME = process.env.SHEET_TAB_NAME || 'Müştəri';
-const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID;
+const DRIVE_FOLDER_ID = process.env.DRIVE_FOLDER_ID || ''; // BOŞDIRSA '' OLACAQ
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_CREDS),
@@ -108,14 +108,13 @@ function getMonthlyStats(customers) {
   };
 }
 
-// YENİLƏNDİ: Shared Drive dəstəyi üçün supportsAllDrives əlavə olundu
+// YENİLƏNDİ: DRIVE_FOLDER_ID yoxdursa xəta vermir
 async function uploadToDrive(file) {
-  if (!file) return '';
-  if (!DRIVE_FOLDER_ID) {
-    console.log('DRIVE_FOLDER_ID təyin edilməyib, şəkil yüklənmədi');
+  if (!file ||!DRIVE_FOLDER_ID) {
+    if (file) console.log('DRIVE_FOLDER_ID təyin edilməyib, şəkil yüklənmədi');
     return '';
   }
-  
+
   try {
     const bufferStream = new stream.PassThrough();
     bufferStream.end(file.buffer);
@@ -129,21 +128,19 @@ async function uploadToDrive(file) {
         mimeType: file.mimetype,
         body: bufferStream
       },
-      supportsAllDrives: true, // SHARED DRIVE ÜÇÜN VACİBDİR
       fields: 'id'
     });
 
     const fileId = response.data.id;
     await drive.permissions.create({
       fileId,
-      requestBody: { role: 'reader', type: 'anyone' },
-      supportsAllDrives: true // SHARED DRIVE ÜÇÜN VACİBDİR
+      requestBody: { role: 'reader', type: 'anyone' }
     });
 
     return `https://drive.google.com/uc?id=${fileId}`;
   } catch (err) {
     console.error('Drive upload xətası:', err.message);
-    throw new Error('Şəkil yüklənə bilmədi: ' + err.message);
+    return ''; // Xəta olsa da saytı çökdürmə
   }
 }
 
@@ -270,7 +267,9 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
     let imageUrl = oldImageUrl || '';
     if (req.files && req.files.length > 0) {
       const newUrls = await uploadMultipleToDrive(req.files);
-      imageUrl = imageUrl? `${imageUrl},${newUrls}` : newUrls;
+      if (newUrls) {
+        imageUrl = imageUrl? `${imageUrl},${newUrls}` : newUrls;
+      }
     }
 
     const updatedRow = [
