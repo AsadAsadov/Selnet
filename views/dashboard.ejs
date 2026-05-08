@@ -16,7 +16,7 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     gap: 10px;
 }
 
-.header.logo {
+.header .logo {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -30,13 +30,13 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     letter-spacing: 0.5px;
 }
 
-.header.actions {
+.header .actions {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.header.actions a {
+.header .actions a {
     text-decoration: none;
     font-weight: 600;
     font-size: 13px;
@@ -50,33 +50,34 @@ body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.header.actions a:first-child {
+.header .actions a:first-child {
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.header.actions a:first-child:hover {
+.header .actions a:first-child:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
-.header.actions a.btn-logout {
+.header .actions a.btn-logout {
     background: #ef4444; 
     border: 1px solid #dc2626;
 }
 
-.header.actions a.btn-logout:hover {
+.header .actions a.btn-logout:hover {
     background: #dc2626;
     box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
     transform: translateY(-1px);
 }
 
 @media (max-width: 400px) {
-   .header h1 { font-size: 14px; }
-   .header.actions a { padding: 6px 10px; font-size: 12px; }
-   .header.actions a span { display: none; } 
+    .header h1 { font-size: 14px; }
+    .header .actions a { padding: 6px 10px; font-size: 12px; }
+    .header .actions a span { display: none; } 
 }
 
+/* BUNLAR OLDUĞU KİMİ QALSIN */
 .container{padding:15px;max-width:1000px;margin:auto}
 .search-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:20px}
 
