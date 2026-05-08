@@ -203,8 +203,15 @@ app.get('/add', checkAuth, (req, res) => {
 
 app.post('/add', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
-    const { odemeKodu, adSoyad, telefon, aylıqOdenis, ayliqOdenis, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
-    const finalAyliqOdenis = aylıqOdenis || ayliqOdenis || '';
+    const { odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, sifre, unvan, qeyd } = req.body;
+
+    // DÜZƏLDİ: yalnız 1 dəfə elan edirik
+    const finalAyliqOdenis = req.body.aylıqOdenis ||
+                             req.body.ayliqOdenis ||
+                             req.body.aylikOdenis ||
+                             req.body['Aylıq ödəniş'] ||
+                             req.body['ayliq_odenis'] ||
+                             '';
 
     const { data } = await getSheetData();
     if (data.some(r => cleanSheetValue(r['Ödəniş kodu']) === odemeKodu.trim())) {
@@ -265,14 +272,12 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
 
 app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async (req, res) => {
   try {
-    console.log('Gələn body:', req.body); // DEBUG üçün - sonra silərsən
-
     const {
       odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox,
       komendant, sifre, unvan, qeyd, rowIndex, oldImageUrl
     } = req.body;
 
-    // Aylıq ödənişi bütün mümkün adlardan tut
+    // DÜZƏLDİ: bütün variantları yoxlayır
     const finalAyliqOdenis = req.body.aylıqOdenis ||
                              req.body.ayliqOdenis ||
                              req.body.aylikOdenis ||
@@ -288,7 +293,6 @@ app.post('/edit/:odemeKodu', checkAuth, upload.array('muqavileSekli', 10), async
       }
     }
 
-    // B-dən N-ə qədər - Sənin sıran
     const updatedRow = [
       `'${odemeKodu}`, // B
       adSoyad, // C
