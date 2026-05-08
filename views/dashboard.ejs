@@ -6,25 +6,78 @@
 :root{--bg:#0f172a;--card:#1e293b;--border:#334155;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--blue:#3b82f6;--purple:#8b5cf6;--orange:#f59e0b;--red:#ef4444}
 body{font-family:system-ui;margin:0;background:var(--bg);color:var(--text)}
 
-/* DÜZƏLİŞ 1: HEADER - font kiçildi, çıxış qırmızı oldu */
-.header{background:linear-gradient(90deg, #059669, #10b981);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.header.logo{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
-.header h1{margin:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-.header.actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.header.actions a{color:#fff;text-decoration:none;font-weight:500;font-size:12px;padding:6px 10px;background:rgba(255,255,255,0.15);border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:4px}
-.header.actions a:hover{background:rgba(255,255,255,0.25)}
-.header.actions a.btn-logout{background:rgba(239,68,68,0.9)}
-.header.actions a.btn-logout:hover{background:var(--red)}
-@media (max-width:380px){
-.header{padding:8px 10px}
-.header h1{font-size:13px}
-.header.actions a{font-size:11px;padding:5px 8px}
-.header.actions a span{display:none}
-}
-@media (max-width:340px){
-.header h1{font-size:12px}
+/* MODERN HEADER DÜZƏLİŞİ - Köhnəni silib bunu yapışdır */
+.header {
+    background: linear-gradient(90deg, #059669, #10b981);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
+.header .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.header .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header .actions a {
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header .actions a:first-child {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header .actions a:first-child:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.header .actions a.btn-logout {
+    background: #ef4444; 
+    border: 1px solid #dc2626;
+}
+
+.header .actions a.btn-logout:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 400px) {
+    .header h1 { font-size: 14px; }
+    .header .actions a { padding: 6px 10px; font-size: 12px; }
+    .header .actions a span { display: none; } 
+}
+
+/* BUNLAR OLDUĞU KİMİ QALSIN */
 .container{padding:15px;max-width:1000px;margin:auto}
 .search-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:20px}
 
