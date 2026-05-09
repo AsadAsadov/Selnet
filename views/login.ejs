@@ -1,18 +1,226 @@
-<!DOCTYPE html><html><head>
-<title>Giriş</title><meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{font-family:system-ui;background:#0f172a;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-.login{padding:40px;background:#1e293b;border-radius:12px;width:320px;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
-h2{color:#fff;text-align:center;margin:0 0 20px}input{width:100%;padding:12px;margin:8px 0;background:#334155;border:1px solid #475569;border-radius:8px;color:#fff;box-sizing:border-box}
-button{width:100%;padding:12px;background:#10b981;border:none;border-radius:8px;color:#fff;font-weight:bold;cursor:pointer;margin-top:10px}
-.error{color:#f87171;text-align:center;font-size:14px}
-</style></head><body>
-<div class="login">
-  <h2>Admin Giriş</h2>
-  <% if (error) { %><p class="error"><%= error %></p><% } %>
-  <form method="POST">
-    <input name="username" placeholder="İstifadəçi adı" required>
-    <input name="password" type="password" placeholder="Parol" required>
-    <button type="submit">Daxil ol</button>
-  </form>
-</div></body></html>
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>Giriş - Müştəri axtarış sistemi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent-green: #10b981;
+            --text-main: #f1f5f9;
+            --input-bg: #334155;
+            --border-color: #475569;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary-bg);
+            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            padding: 30px 20px 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .lang-selector {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-selector img {
+            width: 20px;
+            height: 14px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .lang-selector img:hover {
+            opacity: 1;
+        }
+
+        .logo-container img {
+            max-width: 180px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .card-body {
+            padding: 20px 35px 35px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            width: 18px;
+            height: 18px;
+            color: #94a3b8;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            background: var(--accent-green);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn-login:hover {
+            background: #059669;
+        }
+
+        .btn-login svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .error-msg {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid #f87171;
+            color: #f87171;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .footer-info {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .copyright {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .copyright a {
+            color: var(--accent-green);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="card-header">
+            <div class="lang-selector">
+                <img src="https://flagcdn.com/w20/az.png" alt="AZ" title="Azərbaycan">
+                <img src="https://flagcdn.com/w20/gb.png" alt="EN" title="English">
+                <img src="https://flagcdn.com/w20/ru.png" alt="RU" title="Русский">
+            </div>
+            
+            <div class="logo-container">
+                <img src="UI/Brand/logo/logo-SELNET.png" alt="SELNET Logo">
+            </div>
+        </div>
+
+        <div class="card-body">
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-msg"><%= error %></div>
+            <% } %>
+
+            <form method="POST">
+                <div class="form-group">
+                    <div class="input-group">
+                        <svg class="input-icon" fill="currentColor" viewBox="0 0 448 512"><path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0S96 57.3 96 128s57.3 128 128 128zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"></path></svg>
+                        <input class="form-control" placeholder="İstifadəçi adı" type="text" name="username" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <svg class="input-icon" fill="currentColor" viewBox="0 0 448 512"><path d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z"></path></svg>
+                        <input class="form-control" placeholder="Şifrə" type="password" name="password" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button class="btn-login" type="submit">
+                    <svg fill="currentColor" viewBox="0 0 512 512"><path d="M352 96h64c17.7 0 32 14.3 32 32V384c0 17.7-14.3 32-32 32H352c-17.7 0-32 14.3-32 32s14.3 32 32 32h64c53 0 96-43 96-96V128c0-53-43-96-96-96H352c-17.7 0-32 14.3-32 32s14.3 32 32 32zm-7.5 177.4c4.8-4.5 7.5-10.8 7.5-17.4s-2.7-12.9-7.5-17.4l-144-136c-7-6.6-17.2-8.4-26-4.6s-14.5 12.5-14.5 22v72H32c-17.7 0-32 14.3-32 32v64c0 17.7 14.3 32 32 32H160v72c0 9.6 5.7 18.2 14.5 22s19 2 26-4.6l144-136z"></path></svg>
+                    Daxil ol
+                </button>
+            </form>
+        </div>
+        
+        <div style="text-align: center; padding-bottom: 20px;">
+            <small style="color: #94a3b8;">SELNET MMC</small>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        <div class="copyright">
+            © 2012-2026 <a href="#">Müştəri axtarış sistemi</a>. Bütün hüquqlar qorunur.
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
