@@ -1555,6 +1555,38 @@
             }
          }
 
+         @media (max-width: 768px) {
+            /* Kartın içini 2 sütuna bölürük */
+            .modal-body.grid {
+               display: grid !important;
+               grid-template-columns: repeat(2, 1fr) !important;
+               gap: 12px !important;
+               overflow-x: hidden !important;
+               padding: 15px !important;
+            }
+
+            /* Ad, Soyad bölməsi yuxarıda tam en tutsun */
+            .info-item.full-width,
+            .name-section {
+               grid-column: span 2 !important;
+            }
+
+            /* Yazıların qutudan çıxmaması üçün */
+            .info-item {
+               min-width: 0;
+               word-break: break-word;
+            }
+
+            .info-item label {
+               font-size: 11px !important;
+               display: block;
+            }
+
+            .info-text {
+               font-size: 13px !important;
+            }
+         }
+
          @media (max-width: 600px) {
             .modal {
                align-items: center;
