@@ -167,7 +167,7 @@
             height: 45px;
             width: auto;
             object-fit: contain;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
+            filter: brightness(0) invert(1);
          }
          .search-wrapper {
             display: flex;
@@ -942,7 +942,7 @@
          }
          .modal-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             white-space: nowrap;
             flex: 0 0 auto;
@@ -974,6 +974,10 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+         }
+         .modal-controls span {
+            font-size: 14px;
+            color: var(--muted);
          }
          .close-btn {
             width: 40px;
@@ -1232,6 +1236,33 @@
          .hidden {
             display: none !important;
          }
+         @media (max-width: 768px) {
+            .modal-body.grid {
+               display: flex !important;
+               flex-direction: row !important;
+               gap: 12px !important;
+               flex-wrap: nowrap;
+               overflow-x: auto;
+               overflow-y: hidden;
+               padding-right: 10px;
+            }
+            .modal-body.grid .info-item {
+               flex: 0 0 auto;
+               min-width: fit-content;
+            }
+            .modal-controls {
+               gap: 5px;
+            }
+            .modal-controls span {
+               font-size: 11px !important;
+            }
+            .modal-controls button {
+               min-width: 30px !important;
+               min-height: 32px !important;
+               padding: 4px 8px !important;
+               font-size: 14px !important;
+            }
+         }
          @media (max-width: 600px) {
             .container {
                padding: 12px;
@@ -1275,6 +1306,35 @@
             }
             .chart-btn {
                width: 100%;
+            }
+            .brand-logo {
+               height: 35px;
+            }
+            .modal-controls {
+               gap: 4px !important;
+               flex-wrap: nowrap;
+            }
+            .modal-controls span {
+               font-size: 10px !important;
+               min-width: fit-content;
+            }
+            .modal-controls button {
+               min-width: 28px !important;
+               min-height: 30px !important;
+               padding: 3px 6px !important;
+               font-size: 13px !important;
+            }
+            .modal-body.grid {
+               display: flex !important;
+               flex-direction: row !important;
+               gap: 8px !important;
+               flex-wrap: nowrap;
+               overflow-x: auto;
+               overflow-y: hidden;
+            }
+            .modal-body.grid .info-item {
+               flex: 0 0 auto;
+               min-width: fit-content;
             }
             .list-item {
                align-items: flex-start;
