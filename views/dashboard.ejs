@@ -1,343 +1,1640 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Müştəri Panel</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<style>
-:root {
-  --bg: #0f172a;
-  --card: rgba(30, 41, 59, 0.7);
-  --card-glass: rgba(30, 41, 59, 0.85);
-  --border-soft: rgba(255, 255, 255, 0.1);
-  --green: #10b981;
-  --green-glow: rgba(16, 185, 129, 0.3);
-  --text: #f8fafc;
-  --muted: #94a3b8;
-  --blue: #3b82f6;
-  --orange: #f59e0b;
-  --red: #ef4444;
-  --gray: #64748b;
+< !DOCTYPE html > < html > < head >
+	<
+	title > Müştəri Panel < /title><meta name="viewport" content="width=device-width, initial-scale=1"> <
+	link rel = "stylesheet"
+href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" >
+	<
+	script src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" > < /script> <
+	style >
+	: root {
+		--bg: #0f172a;--card:# 1e293 b;
+		--card - soft: #223047;--card-glass:rgba(30,41,59,.82);--border:# 334155;
+		--border - soft: rgba(148, 163, 184, .22);
+		--green: #10b981;--green-dark:# 059669;
+		--text: #e2e8f0;
+		--muted: #94a3b8;--muted-2:# cbd5e1;
+		--blue: #3b82f6;--purple:# 8 b5cf6;
+		--orange: #f59e0b;
+		--red: #ef4444;
+		--gray: #6b7280;--glow:rgba(16,185,129,.22);--z-modal-base:1000;--z-modal-list:1100;--z-modal-chart:1150;--z-modal-detail:1200}
+
+*{box-sizing:border-box}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:radial-gradient(circle at top,# 13203 a 0,
+			var (--bg) 45 % );
+color: var (--text);
+min - height: 100 vh
+}.header {
+	background: linear - gradient(90 deg, #047857,# 10 b981);padding: 12 px 16 px;display: flex;justify - content: space - between;align - items: center;gap: 10 px;box - shadow: 0 12 px 30 px rgba(0, 0, 0, .22)
+}.header.logo {
+	display: flex;align - items: center;gap: 8 px;color: #fff
+}.header h1 {
+	margin: 0;font - size: 16 px;font - weight: 800;letter - spacing: .5 px
+}.header.actions {
+	display: flex;align - items: center;gap: 8 px
+}.header.actions a {
+	text - decoration: none;
+	font - weight: 700;
+	font - size: 13 px;
+	padding: 8 px 14 px;
+	border - radius: 10 px;
+	display: flex;
+	align - items: center;
+	gap: 6 px;
+	color: #fff;
+	transition: all .2 s ease;
+	box - shadow: 0 2 px 8 px rgba(0, 0, 0, .14)
+}.header.actions a: first - child {
+	background: rgba(255, 255, 255, .2);border: 1 px solid rgba(255, 255, 255, .32)
+}.header.actions a: first - child: hover {
+	background: rgba(255, 255, 255, .3);transform: translateY(-1 px)
+}.header.actions a.btn - logout {
+	background: #ef4444;border: 1 px solid #dc2626
+}.header.actions a.btn - logout: hover {
+	background: #dc2626;box - shadow: 0 4 px 14 px rgba(239, 68, 68, .3);transform: translateY(-1 px)
+}.container {
+	padding: 15 px;max - width: 1000 px;margin: auto
+}.search - section, .card, .stat - card, .chart - container, .list - item, .not - found, .error {
+	box - shadow: 0 14 px 30 px rgba(0, 0, 0, .14)
+}.search - section {
+	background: linear - gradient(180 deg,
+		var (--card), rgba(30, 41, 59, .92));border: 1 px solid
+	var (--border - soft);border - radius: 16 px;padding: 15 px;margin - bottom: 20 px
+}.search - box {
+	display: flex;gap: 10 px;margin - bottom: 12 px
+}.search - box input {
+	flex: 1;padding: 12 px;background: rgba(15, 23, 42, .88);border: 1 px solid
+	var (--border);border - radius: 10 px;color: var (--text);font - size: 15 px;min - width: 0
+}.search - box input: focus, .date - filter input[type = "date"]: focus {
+	outline: none;border - color: var (--green);box - shadow: 0 0 0 3 px rgba(16, 185, 129, .12)
+}.search - box button {
+	padding: 12 px 20 px;background: var (--green);border: none;border - radius: 10 px;color: #fff;font - weight: 800;cursor: pointer;white - space: nowrap
+}.search - box button: hover {
+	background: var (--green - dark)
+}.date - filter {
+	display: grid;grid - template - columns: repeat(2, minmax(0, 1 fr));gap: 10 px;align - items: center;width: 100 %
+}.date - filter label {
+	font - size: 13 px;
+	color: var (--muted - 2);
+	grid - column: 1 / -1;
+	margin - bottom: 2 px;
+	display: flex;
+	align - items: center;
+	gap: 6 px
+}.date - filter input[type = "date"] {
+	padding: 10 px 5 px;background: rgba(15, 23, 42, .88);border: 1 px solid
+	var (--border);border - radius: 10 px;color: var (--text);font - size: 13 px;width: 100 % ;text - align: center;min - width: 0
+}.filter - actions {
+	display: flex;flex - direction: column;gap: 10 px;grid - column: 1 / -1;margin - top: 4 px;width: 100 %
+}.btn - filter, .btn - clear {
+	width: 100 % ;justify - content: center
+}.btn - filter {
+	padding: 10 px 15 px;background: var (--green);border: none;border - radius: 10 px;color: #fff;cursor: pointer;font - weight: 700;white - space: nowrap
+}.btn - filter: hover {
+	background: var (--green - dark)
+}.btn - clear {
+	display: inline - flex;align - items: center;gap: 6 px;padding: 10 px 15 px;background: var (--border);border - radius: 10 px;color: var (--text);text - decoration: none;font - size: 14 px;white - space: nowrap
+}.search - info {
+	color: var (--muted - 2);font - size: 14 px;margin - bottom: 20 px
+}.stats {
+	display: grid;grid - template - columns: repeat(auto - fit, minmax(200 px, 1 fr));gap: 15 px;margin - bottom: 18 px
+}.stat - card {
+	background: linear - gradient(180 deg,
+		var (--card), rgba(30, 41, 59, .86));border: 1 px solid
+	var (--border - soft);padding: 20 px;border - radius: 16 px;cursor: pointer;transition: all .22 s ease;position: relative;overflow: hidden
+}.stat - card: before {
+	content: "";position: absolute;inset: 0;background: radial - gradient(circle at right top, rgba(255, 255, 255, .08), transparent 40 % );pointer - events: none
+}.stat - card: hover {
+	border - color: var (--green);
+	transform: translateY(-2 px);
+	box - shadow: 0 18 px 38 px rgba(0, 0, 0, .22), 0 0 22 px
+	var (--glow)
+}.stat - card h3 {
+	margin: 0 0 5 px;color: var (--muted - 2);font - size: 14 px;font - weight: 600
+}.stat - card p {
+	margin: 0;font - size: 28 px;font - weight: 900
+}.stat - card.blue {
+	border - left: 4 px solid
+	var (--blue)
+}.stat - card.green {
+	border - left: 4 px solid
+	var (--green)
+}.stat - card.purple {
+	border - left: 4 px solid
+	var (--purple)
+}.stat - card.gray {
+	border - left: 4 px solid
+	var (--gray)
+}.chart - container {
+	background: linear - gradient(180 deg,
+		var (--card), rgba(30, 41, 59, .88));border: 1 px solid
+	var (--border - soft);border - radius: 16 px;margin - bottom: 25 px;overflow: hidden
+}.chart - toggle {
+	width: 100 % ;background: transparent;border: none;color: var (--text);padding: 16 px 18 px;display: flex;justify - content: space - between;align - items: center;gap: 15 px;cursor: pointer;text - align: left
+}.chart - toggle: hover {
+	background: rgba(16, 185, 129, .07)
+}.chart - toggle - title {
+	display: flex;align - items: center;gap: 10 px;font - size: 18 px;font - weight: 800
+}.chart - toggle - icon {
+	width: 34 px;height: 34 px;border - radius: 10 px;background: rgba(15, 23, 42, .78);border: 1 px solid
+	var (--border - soft);display: inline - flex;align - items: center;justify - content: center;transition: transform .25 s ease,
+	color .25 s ease;color: var (--muted - 2)
+}.chart - container.is - open.chart - toggle - icon {
+	transform: rotate(180 deg);color: var (--green)
+}.chart - panel {
+	max - height: 0;
+	opacity: 0;
+	overflow: hidden;
+	transition: max - height .42 s ease, opacity .28 s ease
+}.chart - container.is - open.chart - panel {
+	max - height: 520 px;
+	opacity: 1
+}.chart - inner {
+	padding: 0 18 px 18 px
+}.chart - actions {
+	display: flex;justify - content: flex - end;margin - bottom: 10 px
+}.btn - expand {
+	background: var (--border);border: none;color: var (--text);padding: 8 px 12 px;border - radius: 8 px;cursor: pointer;font - size: 13 px
+}.btn - expand: hover {
+	background: var (--green)
+}.chart - scroll {
+	width: 100 % ;overflow - x: auto;overflow - y: hidden;padding - bottom: 6 px;scrollbar - color: var (--green) rgba(15, 23, 42, .55)
+}.chart - scroll::-webkit - scrollbar {
+	height: 8 px
+}.chart - scroll::-webkit - scrollbar - thumb {
+	background: var (--green);border - radius: 999 px
+}.chart - scroll::-webkit - scrollbar - track {
+	background: rgba(15, 23, 42, .55);border - radius: 999 px
+}.chart - wrapper {
+	height: 300 px;position: relative
+}.chart - empty {
+	height: 220 px;border: 1 px dashed
+	var (--border);border - radius: 14 px;display: flex;flex - direction: column;align - items: center;justify - content: center;color: var (--muted);gap: 10 px;background: rgba(15, 23, 42, .35)
+}.chart - empty i {
+	font - size: 34 px;
+	color: var (--muted)
+}.modal - chart - frame {
+	height: min(56 vh, 520 px);min - height: 280 px
+}.chart - buttons {
+	display: flex;gap: 8 px;margin - top: 15 px;flex - wrap: wrap
+}.chart - btn {
+	padding: 8 px 16 px;background: var (--border);border: none;border - radius: 8 px;color: var (--text);cursor: pointer;font - size: 14 px;font - weight: 700
+}.chart - btn: hover {
+	box - shadow: 0 0 0 3 px rgba(16, 185, 129, .12)
+}.chart - btn.active {
+	background: var (--green)
+}.chart - btn.orange.active {
+	background: var (--orange)
+}.chart - btn.blue.active {
+	background: var (--blue)
+}.card {
+	background: var (--card);border: 1 px solid
+	var (--border - soft);border - radius: 16 px;overflow: hidden;margin - bottom: 20 px
+}.card - header {
+	padding: 20 px;border - bottom: 1 px solid
+	var (--border - soft)
+}.card - header h2 {
+	margin: 0 0 5 px;font - size: 22 px
+}.card - header span {
+	color: var (--muted);font - size: 14 px
+}.card - body {
+	padding: 20 px;display: grid;grid - template - columns: 1 fr 1 fr;gap: 20 px
+}.info - item label {
+	font - size: 12 px;
+	color: var (--muted);
+	display: block;
+	margin - bottom: 5 px;
+	text - transform: uppercase;
+	letter - spacing: .04 em
+}.info - item {
+	min - width: 0;
+	max - width: 100 %
+}.info - item p, .info - value {
+	margin: 0;width: 100 % ;min - width: 0;max - width: 100 % ;font - size: 16 px;font - weight: 600;line - height: 1.45;white - space: normal;word - break: normal;overflow - wrap: break -word
+}.info - text {
+	display: block;min - width: 0;max - width: 100 % ;white - space: pre - wrap;word - break: normal;overflow - wrap: break -word
+}.info - value--contact, .info - value--links {
+	display: flex;align - items: center;gap: 10 px;flex - wrap: wrap
+}.info - item a {
+	min - width: 0;
+	max - width: 100 % ;
+	color: var (--green);
+	text - decoration: none;
+	font - weight: 800;
+	cursor: pointer;
+	word -
+		break: normal;
+	overflow - wrap: break -word
+}.full - width {
+	grid - column: 1 / -1
+}.section - title {
+	font - size: 18 px;
+	margin: 25 px 0 15 px;
+	color: var (--text);
+	display: flex;
+	align - items: center;
+	gap: 10 px
+}.result - list, .compact - list {
+	display: grid;gap: 10 px
+}.list - item {
+	background: linear - gradient(180 deg,
+		var (--card), rgba(30, 41, 59, .9));border: 1 px solid
+	var (--border - soft);padding: 12 px 14 px;border - radius: 14 px;margin - bottom: 10 px;display: flex;justify - content: space - between;align - items: center;gap: 12 px;cursor: pointer;transition: transform .2 s ease,
+	border - color .2 s ease,
+	box - shadow .2 s ease,
+	background .2 s ease;position: relative;overflow: hidden
+}.result - list.list - item {
+	padding: 14 px 15 px
+}.list - item: hover {
+	border - color: rgba(16, 185, 129, .82);
+	background: #273549;transform:translateX(5px);box-shadow:0 10px 26px rgba(0,0,0,.18),0 0 18px rgba(16,185,129,.16)}.list-item .chevron{color:var(--muted);transition:transform .2s ease,color .2s ease}.list-item:hover .chevron{transform:translateX(4px);color:var(--green)}.list-main{min-width:0;flex:1}.list-top{display:flex;align-items:center;gap:8px;justify-content:space-between;min-width:0}.list-item .name{font-weight:850;color:# f8fafc;
+	font - size: 15 px;
+	line - height: 1.25;
+	min - width: 0
+}.list - item - name {
+	display: flex;align - items: center;flex - wrap: wrap;gap: 6 px
+}.meta {
+	font - size: 13 px;
+	color: var (--muted);
+	margin - top: 5 px;
+	line - height: 1.4
+}.meta strong {
+	color: var (--muted - 2);font - weight: 700
+}.list - date {
+	font - size: 11 px;
+	color: #d1fae5;
+	background: rgba(16, 185, 129, .13);
+	border: 1 px solid rgba(16, 185, 129, .28);
+	border - radius: 999 px;
+	padding: 4 px 8 px;
+	white - space: nowrap;
+	font - weight: 800
+}.list - item.kocurme.list - date {
+	color: #ffedd5;background: rgba(245, 158, 11, .13);border - color: rgba(245, 158, 11, .3)
+}.list - item.archived - item.list - date {
+	color: #d1d5db;background: rgba(107, 114, 128, .16);border - color: rgba(107, 114, 128, .32)
+}.list - item.qosulma {
+	border - left: 4 px solid
+	var (--green)
+}.list - item.kocurme {
+	border - left: 4 px solid
+	var (--orange)
+}.list - item.archived - item {
+	border - left: 4 px solid
+	var (--gray);
+	opacity: .84
+}.badge {
+	display: inline - flex;align - items: center;gap: 5 px;padding: 4 px 9 px;border - radius: 999 px;font - size: 11 px;font - weight: 850;letter - spacing: .01 em;border: 1 px solid transparent
+}.badge.qosulma {
+	background: linear - gradient(135 deg, rgba(16, 185, 129, .24), rgba(16, 185, 129, .09));color: #6ee7b7;border-color:rgba(16,185,129,.28)}.badge.kocurme{background:linear-gradient(135deg,rgba(245,158,11,.24),rgba(245,158,11,.08));color:# fbbf24;border - color: rgba(245, 158, 11, .3)
+}.badge.archived {
+	background: linear - gradient(135 deg, rgba(107, 114, 128, .25), rgba(107, 114, 128, .08));color: #d1d5db;border - color: rgba(107, 114, 128, .34)
+}.pagination {
+	display: flex;gap: 10 px;justify - content: center;margin - top: 20 px;flex - wrap: wrap
+}.pagination a, .pagination button {
+	padding: 8 px 15 px;background: var (--card);border: 1 px solid
+	var (--border);border - radius: 8 px;color: var (--text);text - decoration: none;cursor: pointer
+}.pagination a.active {
+	background: var (--green);border - color: var (--green)
+}.not - found, .error {
+	text - align: center;
+	padding: 40 px;
+	color: var (--muted);
+	background: var (--card);
+	border: 1 px solid
+	var (--border - soft);
+	border - radius: 16 px
+}.error {
+	color: #fca5a5
+}.archive - notice {
+	background: rgba(107, 114, 128, .15);border: 1 px solid
+	var (--gray);padding: 10 px 15 px;border - radius: 10 px;margin - bottom: 15 px;display: flex;align - items: center;gap: 10 px;color: var (--muted - 2)
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--text);
-  min-height: 100vh;
-  /* Sənin istədiyin arxa fon şəkli */
-  background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
-              url('https://raw.githubusercontent.com/AsadAsadov/Selnet/main/home.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+body.modal - open {
+	overflow: hidden;touch - action: none
+}.modal {
+	display: none;position: fixed;inset: 0;z - index: var (--z - modal - base);width: auto;height: 100 dvh;min - height: 100 dvh;padding: clamp(14 px, 3 vh, 32 px) clamp(12 px, 3 vw, 28 px);padding - top: max(clamp(14 px, 3 vh, 32 px), env(safe - area - inset - top));padding - right: max(clamp(12 px, 3 vw, 28 px), env(safe - area - inset - right));padding - bottom: max(clamp(14 px, 3 vh, 32 px), env(safe - area - inset - bottom));padding - left: max(clamp(12 px, 3 vw, 28 px), env(safe - area - inset - left));align - items: center;justify - content: center;background: radial - gradient(circle at 50 % 18 % , rgba(16, 185, 129, .12), transparent 34 % ),
+	rgba(2, 6, 23, .76);backdrop - filter: blur(12 px) saturate(1.08); - webkit - backdrop - filter: blur(12 px) saturate(1.08);overflow: hidden;overscroll - behavior: contain
+}.modal.is - open {
+	display: flex
+}.modal - content {
+	width: min(92 vw, 840 px);max - height: calc(100 dvh - max(clamp(28 px, 6 vh, 64 px), calc(env(safe - area - inset - top) + env(safe - area - inset - bottom) + 28 px)));min - height: 0;display: flex;flex - direction: column;overflow: hidden;background: linear - gradient(145 deg, rgba(30, 41, 59, .88), rgba(15, 23, 42, .96));border: 1 px solid rgba(148, 163, 184, .26);border - radius: 22 px;box - shadow: 0 28 px 80 px rgba(0, 0, 0, .48),
+	0 10 px 28 px rgba(2, 6, 23, .3),
+	inset 0 1 px 0 rgba(255, 255, 255, .07);animation: modalScale .22 s cubic - bezier(.2, .8, .2, 1);contain: layout paint;touch - action: auto
+}.modal - content.large {
+	width: min(94 vw, 1100 px)
+}.customer - detail - modal - content {
+	width: min(92 vw, 940 px)
 }
-
-/* YENİ MÜASİR HEADER (MODERN DESIGN) */
-.header {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-bottom: 1px solid var(--border-soft);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+@keyframes modalScale {
+	from {
+		transform: scale(.97) translate3d(0, 10 px, 0);opacity: 0
+	}
+	to {
+		transform: scale(1) translate3d(0, 0, 0);opacity: 1
+	}
+}.modal - header, .modal - footer {
+	flex: 0 0 auto;padding: 18 px 20 px;border - color: var (--border - soft);background: linear - gradient(180 deg, rgba(15, 23, 42, .94), rgba(30, 41, 59, .84));backdrop - filter: blur(16 px); - webkit - backdrop - filter: blur(16 px);z - index: 2
+}.modal - header {
+	border - bottom: 1 px solid
+	var (--border - soft);
+	display: flex;
+	justify - content: space - between;
+	align - items: center;
+	gap: 15 px
+}.modal - footer {
+	border - top: 1 px solid
+	var (--border - soft)
+}.modal - header h2 {
+	margin: 0;font - size: 20 px;line - height: 1.25;flex: 1 1 auto;min - width: 0;white - space: normal;word - break: normal;overflow - wrap: break -word
+}.modal - controls {
+	display: flex;gap: 10 px;align - items: center;white - space: nowrap;flex: 0 0 auto
+}.modal - controls button {
+	background: rgba(51, 65, 85, .86);border: 1 px solid rgba(148, 163, 184, .18);color: var (--text);min - width: 38 px;min - height: 38 px;padding: 8 px 12 px;border - radius: 10 px;cursor: pointer;font - size: 16 px;transition: background .18 s ease,
+	border - color .18 s ease,
+	transform .18 s ease,
+	box - shadow .18 s ease
+}.modal - controls button: hover {
+	background: var (--green);border - color: rgba(16, 185, 129, .72);transform: translateY(-1 px);box - shadow: 0 8 px 20 px rgba(16, 185, 129, .18)
+}.modal - controls button: disabled {
+	opacity: .35;cursor: not - allowed;transform: none;box - shadow: none
+}.close - btn {
+	width: 40 px;height: 40 px;border - radius: 12 px;display: inline - flex;align - items: center;justify - content: center;font - size: 30 px;cursor: pointer;color: var (--muted);line - height: 1;transition: color .18 s ease,
+	transform .18 s ease,
+	background .18 s ease,
+	box - shadow .18 s ease;flex: 0 0 auto
+}.close - btn: hover, .close - btn: focus - visible {
+	color: #fff;background: rgba(239, 68, 68, .16);box - shadow: 0 0 0 3 px rgba(239, 68, 68, .12);transform: rotate(90 deg)
+}.modal - body {
+	flex: 1 1 auto;min - height: 0;padding: 20 px;overflow - y: auto;overflow - x: hidden;overscroll - behavior: contain;scrollbar - gutter: stable;scrollbar - width: thin;scrollbar - color: rgba(16, 185, 129, .7) rgba(15, 23, 42, .5)
+}.modal - body::-webkit - scrollbar, .customer - list - body::-webkit - scrollbar {
+	width: 10 px
+}.modal - body::-webkit - scrollbar - track, .customer - list - body::-webkit - scrollbar - track {
+	background: rgba(15, 23, 42, .52);border - radius: 999 px
+}.modal - body::-webkit - scrollbar - thumb, .customer - list - body::-webkit - scrollbar - thumb {
+	background: linear - gradient(180 deg, #34d399,# 047857);border - radius: 999 px;border: 2 px solid rgba(15, 23, 42, .72)
+}.modal - body.grid {
+	display: grid;grid - template - columns: repeat(2, minmax(0, 1 fr));gap: 18 px;align - content: start;min - width: 0
+}.modal - body.grid.info - item {
+	min - width: 0;
+	max - width: 100 %
+}.modal - body.grid.info - item p {
+	min - width: 0;
+	max - width: 100 % ;
+	white - space: normal;
+	word -
+		break: normal;
+	overflow - wrap: break -word
+}.modal - body.grid.info - item a {
+	max - width: 100 % ;
+	white - space: normal;
+	word -
+		break: normal;
+	overflow - wrap: break -word
+}.modal - body.grid.info - value--links a, .modal - body.grid.drive - link {
+	overflow - wrap: anywhere
+}.modal - actions {
+	display: flex;gap: 10 px;margin - top: 10 px;flex - wrap: wrap;align - items: center;min - width: 0
+}.all - customers - toolbar {
+	display: flex;align - items: center;justify - content: space - between;gap: 12 px;margin - bottom: 14 px;color: var (--muted);font - size: 13 px
+}.loading - block {
+	padding: 22 px
+}.skeleton - list {
+	display: grid;gap: 12 px
+}.skeleton - card {
+	height: 68 px;border - radius: 14 px;background: linear - gradient(90 deg, rgba(51, 65, 85, .45) 25 % , rgba(100, 116, 139, .42) 37 % , rgba(51, 65, 85, .45) 63 % );background - size: 400 % 100 % ;animation: shimmer 1.25 s ease infinite;border: 1 px solid
+	var (--border - soft)
+}.loader - inline {
+	display: flex;flex - direction: column;align - items: center;justify - content: center;gap: 12 px;padding: 42 px;color: var (--muted)
+}.spinner {
+	width: 34 px;height: 34 px;border: 3 px solid rgba(148, 163, 184, .25);border - top - color: var (--green);border - radius: 50 % ;animation: spin .8 s linear infinite
+}.spinner.small {
+	width: 20 px;height: 20 px;border - width: 2 px
 }
-
-.header .logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+@keyframes shimmer {
+	0 % {
+		background - position: 100 % 0
+	}
+	100 % {
+		background - position: 0 0
+	}
 }
+@keyframes spin {
+	to {
+		transform: rotate(360 deg)
+	}
+}.btn - wa {
+		display: inline - flex;align - items: center;justify - content: center;gap: 6 px;min - width: 0;max - width: 100 % ;flex: 0 1 auto;padding: 6 px 12 px;background: #25D366;color:# fff!important;border - radius: 8 px;text - decoration: none;font - weight: 700;font - size: 14 px;white - space: normal;text - align: center
+	}.btn - wa: hover {
+		background: #1da851}.btn-edit,.btn-delete,.btn-archive,.btn-unarchive{padding:8px 14px;border:none;border-radius:8px;color:# fff;cursor: pointer;font - weight: 700;font - size: 14 px;text - decoration: none;display: inline - flex;align - items: center;justify - content: center;gap: 6 px;min - width: 0;max - width: 100 % ;flex: 0 1 auto;white - space: normal;text - align: center
+	}.btn - edit {
+		background: var (--blue)
+	}.btn - edit: hover {
+		background: #2563eb}.btn-delete{background:var(--red)}.btn-delete:hover{background:# dc2626
+	}.btn - archive {
+		background: var (--gray)
+	}.btn - archive: hover {
+		background: #4b5563}.btn-unarchive{background:var(--green)}.btn-unarchive:hover{background:var(--green-dark)}.btn-image{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;max-width:100%;flex:0 1 auto;padding:6px 12px;background:var(--blue);color:# fff!important;border - radius: 8 px;text - decoration: none;font - weight: 700;font - size: 14 px;cursor: pointer;border: none;white - space: normal;text - align: center;overflow - wrap: anywhere
+	}.btn - image: hover {
+		background: #2563eb}.hidden{display:none!important}@media (max-width:600px){.container{padding:12px}.card-body,.modal-body.grid,.stats{grid-template-columns:1fr}.search-box{flex-direction:column}.chart-wrapper{height:250px}.chart-buttons{display:grid;grid-template-columns:1fr;gap:10px}.chart-btn{width:100%}.list-item{align-items:flex-start}.list-top{align-items:flex-start;flex-direction:column}.list-date{align-self:flex-start}.chevron{margin-top:4px}.all-customers-toolbar{flex-direction:column;align-items:flex-start}.chart-toggle-title{font-size:16px}.header h1{font-size:14px}.header .actions a{padding:7px 10px;font-size:12px}.header .actions a span{display:none}}@media (max-width:400px){.date-filter{grid-template-columns:1fr}.chart-container.is-open .chart-panel{max-height:620px}}
 
-.header .logo i {
-  background: linear-gradient(135deg, var(--green), #34d399);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: 24px;
-  filter: drop-shadow(0 0 8px var(--green-glow));
-}
 
-.header h1 {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  background: linear-gradient(to right, #fff, #cbd5e1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
 
-.header .actions {
-  display: flex;
-  gap: 10px;
-}
 
-.header .actions a {
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 10px 18px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #fff;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
 
-.header .actions a:first-child {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34d399;
-}
+# customerListModal {
+			z - index: var (--z - modal - list)
+		}
+		#chartModal {
+			z - index: var (--z - modal - chart)
+		}
+		#customerModal {
+			z - index: var (--z - modal - detail)
+		}.customer - list - modal - content {
+			width: min(92 vw, 900 px);background: linear - gradient(145 deg, rgba(30, 41, 59, .9), rgba(15, 23, 42, .97));border - color: rgba(16, 185, 129, .26)
+		}.customer - list - header h2 {
+			display: flex;align - items: center;gap: 10 px;flex - wrap: wrap
+		}.customer - list - header p {
+			margin: 6 px 0 0;color: var (--muted);font - size: 13 px;line - height: 1.35
+		}.modal - count - badge {
+			display: inline - flex;align - items: center;justify - content: center;min - width: 34 px;padding: 4 px 10 px;border - radius: 999 px;background: rgba(16, 185, 129, .14);border: 1 px solid rgba(16, 185, 129, .32);color: #bbf7d0;font - size: 13 px;font - weight: 900
+		}.customer - modal - search {
+			flex: 0 0 auto;margin: 14 px 18 px 0;position: relative
+		}.customer - modal - search i {
+			position: absolute;left: 14 px;top: 50 % ;transform: translateY(-50 % );color: var (--green);pointer - events: none
+		}.customer - modal - search input {
+			width: 100 % ;padding: 13 px 14 px 13 px 42 px;border - radius: 14 px;border: 1 px solid
+			var (--border - soft);background: rgba(2, 6, 23, .48);color: var (--text);font - size: 14 px;outline: none;transition: border - color .18 s ease,
+			box - shadow .18 s ease,
+			background .18 s ease
+		}.customer - modal - search input: focus {
+			border - color: rgba(16, 185, 129, .7);
+			box - shadow: 0 0 0 4 px rgba(16, 185, 129, .12);
+			background: rgba(2, 6, 23, .68)
+		}.customer - list - body {
+			flex: 1 1 auto;min - height: 0;overflow - y: auto;overflow - x: hidden;padding - bottom: 18 px;scrollbar - gutter: stable;scrollbar - width: thin;scrollbar - color: rgba(16, 185, 129, .75) rgba(15, 23, 42, .55)
+		}.customer - list - body.compact - list {
+			gap: 12 px
+		}.customer - list - body.list - item {
+			background: linear - gradient(135 deg, rgba(30, 41, 59, .92), rgba(15, 23, 42, .76));border - color: rgba(148, 163, 184, .18);margin - bottom: 0
+		}.customer - list - body.list - item: before {
+			content: "";position: absolute;left: 0;top: 10 px;bottom: 10 px;width: 4 px;border - radius: 999 px;background: var (--green);box - shadow: 0 0 18 px rgba(16, 185, 129, .55)
+		}.customer - list - body.list - item.kocurme: before {
+			background: var (--orange);box - shadow: 0 0 18 px rgba(245, 158, 11, .45)
+		}.customer - list - body.list - item.archived - item: before {
+			background: var (--gray);box - shadow: 0 0 18 px rgba(148, 163, 184, .35)
+		}.customer - list - body.list - item: hover {
+			transform: translateY(-2 px) translateX(4 px);box - shadow: 0 16 px 36 px rgba(0, 0, 0, .28),
+			0 0 24 px rgba(16, 185, 129, .18)
+		}.customer - list - empty {
+			padding: 34 px;text - align: center;color: var (--muted)
+		}.customer - list - empty i {
+			font - size: 30 px;
+			color: var (--green);
+			margin - bottom: 10 px
+		}.pagination button {
+			padding: 8 px 15 px;background: var (--green);border: none;border - radius: 10 px;color: #fff;font - weight: 800;cursor: pointer
+		}.pagination button: disabled {
+			opacity: .45;cursor: not - allowed
+		}
+		@media(max - width: 600 px) {
+			.customer - list - body.list - item {
+				padding: 13 px 12 px 13 px 14 px
+			}.customer - list - header p {
+				font - size: 12 px
+			}.modal - count - badge {
+				padding: 3 px 8 px
+			}.pagination {
+				gap: 8 px;flex - wrap: wrap
+			}.pagination button {
+				flex: 1;min - width: 105 px
+			}
+		}
 
-.header .actions a:first-child:hover {
-  background: var(--green);
-  color: #fff;
-  box-shadow: 0 0 20px var(--green-glow);
-  transform: translateY(-2px);
-}
 
-.header .actions a.btn-logout {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #f87171;
-}
+		@media(max - width: 900 px) {
+			.modal - content, .customer - detail - modal - content, .customer - list - modal - content {
+				width: 90 vw
+			}.modal - content.large {
+				width: 92 vw
+			}.modal - body.grid {
+				grid - template - columns: 1 fr
+			}
+		}
 
-.header .actions a.btn-logout:hover {
-  background: var(--red);
-  color: #fff;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
-  transform: translateY(-2px);
-}
+		@media(max - width: 600 px) {
+			.modal {
+				align - items: center;
+				padding: 12 px 10 px;
+				padding - top: max(12 px, env(safe - area - inset - top));
+				padding - bottom: max(12 px, env(safe - area - inset - bottom))
+			}.modal - content, .customer - detail - modal - content, .customer - list - modal - content {
+				width: 95 vw;max - height: calc(100 dvh - max(24 px, calc(env(safe - area - inset - top) + env(safe - area - inset - bottom) + 24 px)));border - radius: 18 px
+			}.modal - header {
+				padding: 13 px 14 px;align - items: flex - start
+			}.modal - header h2 {
+				font - size: 17 px
+			}.modal - controls {
+				gap: 6 px;flex - wrap: wrap;justify - content: flex - end
+			}.modal - controls button {
+				min - width: 36 px;
+				min - height: 36 px;
+				padding: 7 px 9 px
+			}.close - btn {
+				width: 38 px;height: 38 px;border - radius: 11 px
+			}.modal - body {
+				padding: 14 px
+			}.customer - modal - search {
+				margin: 12 px 14 px 0
+			}.customer - modal - search input {
+				font - size: 16 px
+			}.btn - wa, .btn - image, .btn - edit, .btn - delete, .btn - archive, .btn - unarchive {
+				min - height: 38 px
+			}.list - item {
+				align - items: flex - start
+			}.list - top {
+				align - items: flex - start;
+				flex - direction: column
+			}.list - date {
+				align - self: flex - start
+			}.chevron {
+				margin - top: 4 px
+			}.all - customers - toolbar {
+				flex - direction: column;
+				align - items: flex - start
+			}.chart - toggle - title {
+				font - size: 16 px
+			}.header h1 {
+				font - size: 14 px
+			}.header.actions a {
+				padding: 7 px 10 px;font - size: 12 px
+			}.header.actions a span {
+				display: none
+			}
+		}
 
-/* KONTEYNER VƏ DİGƏR ELEMENTLƏRİN ŞÜŞƏ EFFEKTİ */
-.container {
-  padding: 20px;
-  max-width: 1100px;
-  margin: auto;
-}
+		@media(max - width: 400 px) {
+			.date - filter {
+				grid - template - columns: 1 fr
+			}.chart - container.is - open.chart - panel {
+				max - height: 620 px
+			}.modal - content, .customer - detail - modal - content, .customer - list - modal - content {
+				width: 96 vw
+			}.modal - body {
+				padding: 12 px
+			}.modal - actions > * {
+				width: 100 % ;justify - content: center
+			}.modal - controls {
+				width: 100 %
+			}
+		}
 
-.search-section {
-  background: var(--card-glass);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-soft);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 25px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-}
+		@media(prefers - reduced - motion: reduce) {
+			.modal - content {
+				animation: none
+			}.modal - controls button, .close - btn {
+				transition: none
+			}
+		}
 
-.search-box input {
-  background: rgba(15, 23, 42, 0.6) !important;
-  border: 1px solid var(--border-soft) !important;
-  transition: 0.3s;
-}
 
-.search-box input:focus {
-  border-color: var(--green) !important;
-  background: rgba(15, 23, 42, 0.8) !important;
-}
+		/* Customer detail modal text must wrap only at normal word boundaries. */
+		.modal - body,
+		.modal - body * ,
+		.info - item,
+		.info - value {
+			min - width: 0;
+		}
 
-.stat-card {
-  background: var(--card-glass);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-soft);
-  border-radius: 20px;
-  transition: 0.3s ease;
-}
+		.info - item {
+			display: flex;
+			flex - wrap: wrap;
+		}
 
-.stat-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--green);
-  box-shadow: 0 15px 45px rgba(0,0,0,0.3);
-}
+		.info - item label,
+		.info - value {
+			max - width: 100 % ;
+		}
 
-/* Qalan bütün mövcud CSS-lərin (Modal, List, Pagination) saxlanılır... */
-/* ... (Burada sənin orijinal CSS-lərin davam edir) ... */
+		.info - value,
+		.info - text,
+		.modal - body.grid.info - item.info - value,
+		.modal - body.grid.info - item.info - text,
+		.modal - header h2 {
+			white - space: normal;
+			word -
+				break: normal;
+			overflow - wrap: normal;
+		} <
+		/style></head > < body >
 
-</style>
-</head>
-<body>
+		<
+		div class = "header" >
+		<
+		div class = "logo" > < h1 > < i class = "fa-solid fa-database" > < /i> Müştəri Axtarış Sistemi</h1 > < /div> <
+		div class = "actions" >
+		<
+		a href = "/add" > < i class = "fa-solid fa-plus" > < /i><span>Əlavə Et</span > < /a> <
+		a href = "/logout"
+		class = "btn-logout" > < i class = "fa-solid fa-right-from-bracket" > < /i><span>Çıxış</span > < /a> <
+		/div> <
+		/div>
 
-<div class="header">
-  <div class="logo">
-    <i class="fa-solid fa-shield-halved"></i>
-    <h1>Müştəri Axtarış Sistemi</h1>
-  </div>
-  <div class="actions">
-    <a href="/add"><i class="fa-solid fa-user-plus"></i><span>Əlavə Et</span></a>
-    <a href="/logout" class="btn-logout"><i class="fa-solid fa-power-off"></i><span>Çıxış</span></a>
-  </div>
-</div>
+		<
+		%
+		const dateText = (item) => formatDate(item && item['Timestamp']);
+		const getType = (item) => {
+			const qeydText = (item && item['Qeyd'] || '').toLowerCase();
+			const isArchived = (item && item['Arxiv'] || '').toLowerCase() === 'hə';
+			const typeClass = isArchived ? 'archived-item' : (qeydText.includes('köç') ? 'kocurme' : 'qosulma');
+			const badgeClass = isArchived ? 'archived' : typeClass;
+			const typeLabel = isArchived ? 'Arxivdə' : (qeydText.includes('köç') ? 'Köçürmə' : 'Qoşulma');
+			const iconClass = isArchived ? 'fa-box-archive' : (typeClass === 'kocurme' ? 'fa-truck-moving' : 'fa-plug');
+			return {
+				typeClass,
+				badgeClass,
+				typeLabel,
+				iconClass
+			};
+		}; %
+		>
 
-    <div class="chart-container" id="monthlyStatsCard">
-      <button class="chart-toggle" type="button" id="chartToggle" aria-expanded="false" aria-controls="chartPanel">
-        <span class="chart-toggle-title"><i class="fa-solid fa-chart-line"></i> Aylıq Qoşulma Statistikası</span>
-        <span class="chart-toggle-icon"><i class="fa-solid fa-chevron-down"></i></span>
-      </button>
-      <div class="chart-panel" id="chartPanel">
-        <div class="chart-inner">
-          <% if (monthlyStats.labels.length > 0) { %>
-            <div class="chart-actions"><button class="btn-expand" onclick="openChartModal()"><i class="fa-solid fa-expand"></i> Böyüt</button></div>
-            <div class="chart-scroll"><div class="chart-wrapper" style="min-width:<%= Math.max(560, monthlyStats.labels.length * 92) %>px"><canvas id="monthlyChart"></canvas></div></div>
-            <div class="chart-buttons" data-chart-scope="main">
-              <button class="chart-btn active" data-type="total" onclick="updateChart('total','main')">Ümumi</button>
-              <button class="chart-btn green" data-type="qosulma" onclick="updateChart('qosulma','main')">Qoşulma</button>
-              <button class="chart-btn orange" data-type="kocurme" onclick="updateChart('kocurme','main')">Köçürmə</button>
-            </div>
-          <% } else { %>
-            <div class="chart-empty"><i class="fa-regular fa-chart-bar"></i><strong>Statistika tapılmadı</strong><span>Chart üçün aylıq məlumat yoxdur.</span></div>
-          <% } %>
-        </div>
-      </div>
-    </div>
+		<
+		div class = "container" >
+		<
+		div class = "search-section" >
+		<
+		form class = "search-box"
+		method = "GET" >
+		<
+		input type = "text"
+		name = "q"
+		value = "<%= q || '' %>"
+		placeholder = "Ödəniş kodu, Telefon, Ad və ya Ünvan..." >
+		<
+		button type = "submit" > < i class = "fa-solid fa-magnifying-glass" > < /i> Axtar</button >
+		<
+		/form> <
+		form class = "date-filter"
+		method = "GET" >
+		<
+		input type = "hidden"
+		name = "q"
+		value = "<%= q || '' %>" >
+		<
+		label > < i class = "fa-solid fa-calendar" > < /i> Tarix:</label >
+		<
+		input type = "date"
+		name = "startDate"
+		value = "<%= startDate || '' %>" >
+		<
+		input type = "date"
+		name = "endDate"
+		value = "<%= endDate || '' %>" >
+		<
+		div class = "filter-actions" >
+		<
+		button type = "submit"
+		class = "btn-filter" > < i class = "fa-solid fa-filter" > < /i> Filter</button >
+		<
+		%
+		if (q || startDate || endDate) {
+			% > < a href = "/"
+			class = "btn-clear" > < i class = "fa-solid fa-xmark" > < /i> Təmizlə</a > < %
+		} % >
+		<
+		/div> <
+		/form> <
+		/div>
 
-  <% } %>
-</div>
+		<
+		%
+		if (errorMsg) {
+			% >
+			<
+			div class = "error" > < p > < i class = "fa-solid fa-triangle-exclamation" > < /i> <%= errorMsg %></p > < /div> <
+				%
+		} else if (q || startDate || endDate) {
+			% >
+			<
+			%
+			if (results.length > 0) {
+				% >
+				<
+				div class = "search-info" >
+				<
+				%
+				if (q) {
+					% > Axtarış: "<%= q %>" - < %
+				} % >
+				<
+				%
+				if (startDate || endDate) {
+					% > Tarix: < %= startDate || '...' % > - < %= endDate || '...' % > - < %
+				} % >
+				<
+				%= totalResults % > nəticə tapıldı <
+					/div>
 
-<div id="customerModal" class="modal" aria-hidden="true">
-  <div class="modal-content customer-detail-modal-content">
-    <div class="modal-header">
-      <h2 id="modalTitle"></h2>
-      <div class="modal-controls">
-        <button onclick="navigateModal(-1)" id="prevBtn"><i class="fa-solid fa-chevron-left"></i></button>
-        <span id="modalCounter" style="color:var(--muted);font-size:14px"></span>
-        <button onclick="navigateModal(1)" id="nextBtn"><i class="fa-solid fa-chevron-right"></i></button>
-        <span class="close-btn" onclick="closeModal('customerModal')">&times;</span>
-      </div>
-    </div>
-    <div class="modal-body grid" id="modalBody"></div>
-  </div>
-</div>
+					<
+					%
+					if (results.length === 1) {
+						% >
+						<
+						%
+						const result = results[0];
+						const isArchived = (result['Arxiv'] || '').toLowerCase() === 'hə'; % >
+						<
+						%
+						if (isArchived) {
+							% > < div class = "archive-notice" > < i class = "fa-solid fa-box-archive" > < /i><span>Bu müştəri arxivdədir</span > < /div><% } %> <
+							div class = "card" >
+							<
+							div class = "card-header" >
+							<
+							h2 > < %= result['Ad, Soyad, Ata adı'] || 'Adsız müştəri' % > < /h2> <
+								span > Ödəniş kodu: < %= result['Ödəniş kodu'] % > | Qeydiyyat: < %= dateText(result) % > < /span> <
+								div style = "margin-top:15px;display:flex;gap:10px;flex-wrap:wrap" >
+								<
+								a href = "/edit/<%= result['Ödəniş kodu'] %>"
+							class = "btn-edit" > < i class = "fa-solid fa-pen" > < /i> Redaktə</a >
+							<
+							button class = "btn-delete"
+							onclick = "deleteCustomer('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>)" > < i class = "fa-solid fa-trash" > < /i> Sil</button >
+								<
+								%
+								if (isArchived) {
+									% > < button class = "btn-unarchive"
+									onclick = "toggleArchive('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>, false)" > < i class = "fa-solid fa-box-open" > < /i> Arxivdən Çıxart</button > < %
+								} else {
+									% > < button class = "btn-archive"
+									onclick = "toggleArchive('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>, true)" > < i class = "fa-solid fa-box-archive" > < /i> Arxivə Göndər</button > < %
+								} % >
+								<
+								/div> <
+								/div> <
+							div class = "card-body" > < % -include('card-content', {
+									result: result
+								}) % > < /div> <
+								/div> <
+								%
+						} else {
+							% >
+							<
+							div class = "result-list"
+							id = "searchResults" >
+								<
+								% results.forEach((item, index) => {
+									const t = getType(item); % >
+									<
+									div class = "list-item <%= t.typeClass %>"
+									data - code = "<%= item['Ödəniş kodu'] %>"
+									data - index = "<%= index %>"
+									data - list = "search"
+									role = "button"
+									tabindex = "0" >
+										<
+										div class = "list-main" >
+										<
+										div class = "list-top" >
+										<
+										div class = "name list-item-name" > < %= item['Ad, Soyad, Ata adı'] || 'Adsız müştəri' % > < span class = "badge <%= t.badgeClass %>" > < i class = "fa-solid <%= t.iconClass %>" > < /i> <%= t.typeLabel %></span > < /div> <
+										span class = "list-date" > < i class = "fa-regular fa-calendar" > < /i> <%= dateText(item) %></span >
+										<
+										/div> <
+										div class = "meta" > < strong > Kod: < /strong> <%= item['Ödəniş kodu'] || '-' %> · <strong>Tel:</strong > < %= item['Telefon nömrəsi'] || '-' % > < %
+										if (item['Ünvan']) {
+											% > · < %= item['Ünvan'] % > < %
+										} % > < /div> <
+										/div> <
+									i class = "fa-solid fa-chevron-right chevron" > < /i> <
+									/div> <
+									%
+								}) % >
+								<
+								/div> <
+								%
+								if (totalPages > 1) {
+									% >
+									<
+									div class = "pagination" >
+									<
+									%
+									if (currentPage > 1) {
+										% > < a href = "/?q=<%= q %>&startDate=<%= startDate %>&endDate=<%= endDate %>&page=<%= currentPage - 1 %>" > Əvvəlki < /a><% } %> <
+											span style = "padding:8px 15px" > Səhifə < %= currentPage % > / <%= totalPages %></span >
+											<
+											%
+											if (currentPage < totalPages) {
+												% > < a href = "/?q=<%= q %>&startDate=<%= startDate %>&endDate=<%= endDate %>&page=<%= currentPage + 1 %>" > Növbəti < /a><% } %> <
+													/div> <
+													%
+											} % >
+											<
+											%
+									} % >
+									<
+									%
+								} else {
+									% > < div class = "not-found" > < p > < i class = "fa-solid fa-circle-xmark" > < /i> Nəticə tapılmadı</p > < /div><% } %> <
+										%
+								}
+							else {
+								% >
+								<
+								div class = "stats" >
+								<
+								div class = "stat-card purple"
+								onclick = "openCustomerListModal('all')" > < h3 > Ümumi Müştəri Sayı < /h3><p><%= totalCount %></p > < span style = "font-size:12px;color:var(--muted)" > Kliklə hamısına bax < /span></div >
+									<
+									div class = "stat-card green"
+								onclick = "openCustomerListModal('today')" > < h3 > Bu gün əlavə olunanlar < /h3><p><%= todayCustomers.length %></p > < span style = "font-size:12px;color:var(--muted)" > Kliklə siyahıya bax < /span></div >
+									<
+									div class = "stat-card gray"
+								onclick = "openCustomerListModal('archive')" > < h3 > Arxivdə olanlar < /h3><p><%= archivedCustomers.length %></p > < span style = "font-size:12px;color:var(--muted)" > Kliklə arxivə bax < /span></div >
+									<
+									/div>
 
-<div id="chartModal" class="modal" aria-hidden="true">
-  <div class="modal-content large">
-    <div class="modal-header"><h2>Aylıq Qoşulma Statistikası</h2><span class="close-btn" onclick="closeModal('chartModal')">&times;</span></div>
-    <div class="modal-body">
-      <% if (monthlyStats.labels.length > 0) { %>
-        <div class="chart-scroll"><div class="modal-chart-frame" style="min-width:<%= Math.max(620, monthlyStats.labels.length * 96) %>px"><canvas id="modalChart"></canvas></div></div>
-        <div class="chart-buttons" data-chart-scope="modal">
-          <button class="chart-btn active" data-type="total" onclick="updateChart('total','modal')">Ümumi</button>
-          <button class="chart-btn green" data-type="qosulma" onclick="updateChart('qosulma','modal')">Qoşulma</button>
-          <button class="chart-btn orange" data-type="kocurme" onclick="updateChart('kocurme','modal')">Köçürmə</button>
-        </div>
-      <% } else { %><div class="chart-empty"><i class="fa-regular fa-chart-bar"></i><strong>Statistika tapılmadı</strong></div><% } %>
-    </div>
-  </div>
-</div>
+									<
+									div class = "chart-container"
+								id = "monthlyStatsCard" >
+									<
+									button class = "chart-toggle"
+								type = "button"
+								id = "chartToggle"
+								aria - expanded = "false"
+								aria - controls = "chartPanel" >
+									<
+									span class = "chart-toggle-title" > < i class = "fa-solid fa-chart-line" > < /i> Aylıq Qoşulma Statistikası</span >
+									<
+									span class = "chart-toggle-icon" > < i class = "fa-solid fa-chevron-down" > < /i></span >
+									<
+									/button> <
+									div class = "chart-panel"
+								id = "chartPanel" >
+									<
+									div class = "chart-inner" >
+									<
+									%
+									if (monthlyStats.labels.length > 0) {
+										% >
+										<
+										div class = "chart-actions" > < button class = "btn-expand"
+										onclick = "openChartModal()" > < i class = "fa-solid fa-expand" > < /i> Böyüt</button > < /div> <
+											div class = "chart-scroll" > < div class = "chart-wrapper"
+										style = "min-width:<%= Math.max(560, monthlyStats.labels.length * 92) %>px" > < canvas id = "monthlyChart" > < /canvas></div > < /div> <
+											div class = "chart-buttons"
+										data - chart - scope = "main" >
+											<
+											button class = "chart-btn active"
+										data - type = "total"
+										onclick = "updateChart('total','main')" > Ümumi < /button> <
+											button class = "chart-btn green"
+										data - type = "qosulma"
+										onclick = "updateChart('qosulma','main')" > Qoşulma < /button> <
+											button class = "chart-btn orange"
+										data - type = "kocurme"
+										onclick = "updateChart('kocurme','main')" > Köçürmə < /button> <
+											/div> <
+											%
+									} else {
+										% >
+										<
+										div class = "chart-empty" > < i class = "fa-regular fa-chart-bar" > < /i><strong>Statistika tapılmadı</strong > < span > Chart üçün aylıq məlumat yoxdur. < /span></div >
+											<
+											%
+									} % >
+									<
+									/div> <
+									/div> <
+									/div>
 
-<div id="customerListModal" class="modal" aria-hidden="true">
-  <div class="modal-content customer-list-modal-content">
-    <div class="modal-header customer-list-header">
-      <div>
-        <h2 id="customerListTitle"><i class="fa-solid fa-users"></i> Bütün Müştərilər <span class="modal-count-badge" id="customerListCount">0</span></h2>
-        <p id="customerListSubtitle">Siyahı yüklənir...</p>
-      </div>
-      <span class="close-btn" onclick="closeModal('customerListModal')">&times;</span>
-    </div>
-    <div class="customer-modal-search">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <input id="customerListSearch" type="search" autocomplete="off" placeholder="Ad, telefon və ya ödəniş kodu üzrə axtar...">
-    </div>
-    <div class="modal-body customer-list-body" id="customerListBody"><div class="loading-block"><div class="skeleton-list"><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div></div></div></div>
-  </div>
-</div>
+									<
+									%
+							} % >
+							<
+							/div>
 
-<script>
-let currentModalIndex = 0;
-let currentModalList = [];
-let currentModalType = '';
-let mainChart = null;
-let modalChartInstance = null;
-let customerListAbortController = null;
-let modalAbortController = null;
-let modalRequestSeq = 0;
-let mainChartInitialized = false;
-let activeChartType = 'total';
-let customerListState = { type: 'all', page: 1, limit: 10, totalPages: 1, totalCustomers: 0, customers: [], filteredCustomers: [], search: '' };
-const chartData = <%- JSON.stringify(monthlyStats) %>;
-const chartHasData = Array.isArray(chartData.labels) && chartData.labels.length > 0;
-const modalLists = {
-  search: <%- JSON.stringify(results.map(r => r['Ödəniş kodu']).filter(Boolean)) %>,
-  today: <%- JSON.stringify(todayCustomers.map(r => r['Ödəniş kodu']).filter(Boolean)) %>,
-  archive: <%- JSON.stringify(archivedCustomers.map(r => r['Ödəniş kodu']).filter(Boolean)) %>,
-  all: []
-};
-const embeddedSearchCustomers = <%- JSON.stringify(results || []) %>;
-const customerListConfig = {
-  all: { title: 'Bütün Müştərilər', icon: 'fa-users', endpoint: '/api/all-customers', subtitle: 'Bütün müştəri bazası' },
-  today: { title: 'Bu gün əlavə olunanlar', icon: 'fa-calendar-day', endpoint: '/api/today-customers', subtitle: 'Bugünkü aktiv qeydiyyatlar' },
-  archive: { title: 'Arxivdə olanlar', icon: 'fa-box-archive', endpoint: '/api/archive-customers', subtitle: 'Arxiv statuslu müştərilər' },
-  search: { title: 'Axtarış nəticələri', icon: 'fa-magnifying-glass', endpoint: null, subtitle: 'Cari axtarış nəticələri' }
-};
+							<
+							div id = "customerModal"
+							class = "modal"
+							aria - hidden = "true" >
+								<
+								div class = "modal-content customer-detail-modal-content" >
+								<
+								div class = "modal-header" >
+								<
+								h2 id = "modalTitle" > < /h2> <
+								div class = "modal-controls" >
+								<
+								button onclick = "navigateModal(-1)"
+							id = "prevBtn" > < i class = "fa-solid fa-chevron-left" > < /i></button >
+								<
+								span id = "modalCounter"
+							style = "color:var(--muted);font-size:14px" > < /span> <
+								button onclick = "navigateModal(1)"
+							id = "nextBtn" > < i class = "fa-solid fa-chevron-right" > < /i></button >
+								<
+								span class = "close-btn"
+							onclick = "closeModal('customerModal')" > & times; < /span> <
+							/div> <
+							/div> <
+							div class = "modal-body grid"
+							id = "modalBody" > < /div> <
+								/div> <
+								/div>
 
-function escapeHtml(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
-function formatDate(timestamp){
-  if(timestamp === undefined || timestamp === null || String(timestamp).trim() === '') return 'Tarix yoxdur';
-  const raw = String(timestamp).trim();
-  let match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(match){const m=Number(match[1]),d=Number(match[2]),y=Number(match[3]);if(m>=1&&m<=12&&d>=1&&d<=31)return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`;}
-  match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(match){const y=Number(match[1]),m=Number(match[2]),d=Number(match[3]);if(m>=1&&m<=12&&d>=1&&d<=31)return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`;}
-  const parsed = new Date(raw);
-  if(!Number.isNaN(parsed.getTime())) return `${String(parsed.getDate()).padStart(2,'0')}.${String(parsed.getMonth()+1).padStart(2,'0')}.${parsed.getFullYear()}`;
-  return 'Tarix yoxdur';
-}
-function getCustomerType(item){const qeydText=String(item?.['Qeyd']||'').toLowerCase();const isArchived=String(item?.['Arxiv']||'').toLowerCase()==='hə';const typeClass=isArchived?'archived-item':(qeydText.includes('köç')?'kocurme':'qosulma');const badgeClass=isArchived?'archived':typeClass;const typeLabel=isArchived?'Arxivdə':(qeydText.includes('köç')?'Köçürmə':'Qoşulma');const iconClass=isArchived?'fa-box-archive':(typeClass==='kocurme'?'fa-truck-moving':'fa-plug');return{typeClass,badgeClass,typeLabel,iconClass};}
-function createBadge(type){return `<span class="badge ${type.badgeClass}"><i class="fa-solid ${type.iconClass}"></i> ${escapeHtml(type.typeLabel)}</span>`;}
-function createLoadingSkeleton(count=3){return `<div class="loading-block"><div class="skeleton-list">${Array.from({length:count},()=>'<div class="skeleton-card"></div>').join('')}</div></div>`;}
-function createSpinner(text='Yüklənir...'){return `<div class="loader-inline"><span class="spinner"></span><span>${escapeHtml(text)}</span></div>`;}
-function debounce(fn, wait=180){let timeout;return (...args)=>{clearTimeout(timeout);timeout=setTimeout(()=>fn(...args),wait);};}
-function normalizeSearch(value){return String(value ?? '').toLowerCase().replace(/\s+/g,'').trim();}
-function customerMatchesSearch(item, query){if(!query)return true;const haystack=[item?.['Ad, Soyad, Ata adı'],item?.['Telefon nömrəsi'],item?.['Ödəniş kodu']].map(normalizeSearch).join('|');return haystack.includes(query);}
-function createCustomerListItem(item,index,listType='all'){
-  const type=getCustomerType(item);const odemeKodu=String(item?.['Ödəniş kodu']??'');const adSoyad=item?.['Ad, Soyad, Ata adı']||'Adsız müştəri';const telefon=item?.['Telefon nömrəsi']||'-';const unvan=item?.['Ünvan']||'';
-  return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.['Timestamp']))}</span></div><div class="meta"><strong>Kod:</strong> ${escapeHtml(odemeKodu||'-')} · <strong>Tel:</strong> ${escapeHtml(telefon)}${unvan?` · ${escapeHtml(unvan)}`:''}</div></div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
-}
+								<
+								div id = "chartModal"
+							class = "modal"
+							aria - hidden = "true" >
+								<
+								div class = "modal-content large" >
+								<
+								div class = "modal-header" > < h2 > Aylıq Qoşulma Statistikası < /h2><span class="close-btn" onclick="closeModal('chartModal')">&times;</span > < /div> <
+								div class = "modal-body" >
+								<
+								%
+								if (monthlyStats.labels.length > 0) {
+									% >
+									<
+									div class = "chart-scroll" > < div class = "modal-chart-frame"
+									style = "min-width:<%= Math.max(620, monthlyStats.labels.length * 96) %>px" > < canvas id = "modalChart" > < /canvas></div > < /div> <
+										div class = "chart-buttons"
+									data - chart - scope = "modal" >
+										<
+										button class = "chart-btn active"
+									data - type = "total"
+									onclick = "updateChart('total','modal')" > Ümumi < /button> <
+										button class = "chart-btn green"
+									data - type = "qosulma"
+									onclick = "updateChart('qosulma','modal')" > Qoşulma < /button> <
+										button class = "chart-btn orange"
+									data - type = "kocurme"
+									onclick = "updateChart('kocurme','modal')" > Köçürmə < /button> <
+										/div> <
+										%
+								} else {
+									% > < div class = "chart-empty" > < i class = "fa-regular fa-chart-bar" > < /i><strong>Statistika tapılmadı</strong > < /div><% } %> <
+									/div> <
+									/div> <
+									/div>
 
-function syncModalLock(){const hasOpenModal=Boolean(document.querySelector('.modal.is-open'));document.body.classList.toggle('modal-open',hasOpenModal);}
-function setModalOpen(id,isOpen){const el=document.getElementById(id);if(!el)return;el.classList.toggle('is-open',isOpen);el.setAttribute('aria-hidden',String(!isOpen));syncModalLock();if(!isOpen&&id==='customerListModal'&&customerListAbortController){customerListAbortController.abort();customerListAbortController=null;}}
-function closeModal(id){setModalOpen(id,false);if(id==='customerModal'&&modalAbortController){modalAbortController.abort();modalAbortController=null;}}
+									<
+									div id = "customerListModal"
+									class = "modal"
+									aria - hidden = "true" >
+										<
+										div class = "modal-content customer-list-modal-content" >
+										<
+										div class = "modal-header customer-list-header" >
+										<
+										div >
+										<
+										h2 id = "customerListTitle" > < i class = "fa-solid fa-users" > < /i> Bütün Müştərilər <span class="modal-count-badge" id="customerListCount">0</span > < /h2> <
+										p id = "customerListSubtitle" > Siyahı yüklənir... < /p> <
+										/div> <
+										span class = "close-btn"
+									onclick = "closeModal('customerListModal')" > & times; < /span> <
+									/div> <
+									div class = "customer-modal-search" >
+									<
+									i class = "fa-solid fa-magnifying-glass" > < /i> <
+									input id = "customerListSearch"
+									type = "search"
+									autocomplete = "off"
+									placeholder = "Ad, telefon və ya ödəniş kodu üzrə axtar..." >
+										<
+										/div> <
+										div class = "modal-body customer-list-body"
+									id = "customerListBody" > < div class = "loading-block" > < div class = "skeleton-list" > < div class = "skeleton-card" > < /div><div class="skeleton-card"></div > < div class = "skeleton-card" > < /div></div > < /div></div >
+										<
+										/div> <
+										/div>
 
-function setupChartToggle(){const card=document.getElementById('monthlyStatsCard');const toggle=document.getElementById('chartToggle');if(!card||!toggle)return;const saved=localStorage.getItem('monthlyStatsChartOpen')==='true';setChartOpen(saved,false);toggle.addEventListener('click',()=>setChartOpen(!card.classList.contains('is-open'),true));}
-function setChartOpen(open,persist){const card=document.getElementById('monthlyStatsCard');const toggle=document.getElementById('chartToggle');if(!card||!toggle)return;card.classList.toggle('is-open',open);toggle.setAttribute('aria-expanded',String(open));if(persist)localStorage.setItem('monthlyStatsChartOpen',String(open));if(open&&chartHasData&&!mainChartInitialized){requestAnimationFrame(()=>initChart());}else if(open&&mainChart){setTimeout(()=>mainChart.resize(),260);}}
-function chartConfig(type='total'){const colors={total:{bg:'rgba(59,130,246,.46)',border:'#3b82f6'},qosulma:{bg:'rgba(16,185,129,.52)',border:'#10b981'},kocurme:{bg:'rgba(245,158,11,.55)',border:'#f59e0b'}};const labels={total:'Ümumi',qosulma:'Qoşulma',kocurme:'Köçürmə'};return{label:labels[type]||labels.total,color:colors[type]||colors.total};}
-function syncChartButtons(scope,type=activeChartType){document.querySelectorAll(`.chart-buttons[data-chart-scope="${scope}"] .chart-btn`).forEach(b=>b.classList.toggle('active',b.dataset.type===type));}
-function buildChart(ctx,type=activeChartType){const cfg=chartConfig(type);return new Chart(ctx,{type:'bar',data:{labels:chartData.labels,datasets:[{label:cfg.label,data:chartData[type]||[],backgroundColor:cfg.color.bg,borderColor:cfg.color.border,borderWidth:2,borderRadius:8,barPercentage:.72,categoryPercentage:.68}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:450,easing:'easeOutQuart'},plugins:{legend:{labels:{color:'#e2e8f0'}}},scales:{y:{beginAtZero:true,ticks:{color:'#94a3b8',stepSize:1,precision:0},grid:{color:'rgba(51,65,85,.8)'}},x:{ticks:{color:'#cbd5e1',autoSkip:false,maxRotation:0,minRotation:0},grid:{color:'rgba(51,65,85,.45)'}}}}});}
-function initChart(){if(!chartHasData||mainChartInitialized)return;const ctx=document.getElementById('monthlyChart');if(!ctx)return;mainChart=buildChart(ctx,activeChartType);syncChartButtons('main');mainChartInitialized=true;}
-function openChartModal(){setModalOpen('chartModal',true);syncChartButtons('modal');if(chartHasData&&!modalChartInstance){requestAnimationFrame(()=>{const ctx=document.getElementById('modalChart');if(ctx)modalChartInstance=buildChart(ctx,activeChartType);});}else if(modalChartInstance){setTimeout(()=>modalChartInstance.resize(),120);}}
-function updateChart(type,scope='main'){if(!chartData[type])return;activeChartType=type;const cfg=chartConfig(type);['main','modal'].forEach(syncScope=>syncChartButtons(syncScope,type));[mainChart,modalChartInstance].filter(Boolean).forEach(chart=>{chart.data.datasets[0].label=cfg.label;chart.data.datasets[0].data=chartData[type]||[];chart.data.datasets[0].backgroundColor=cfg.color.bg;chart.data.datasets[0].borderColor=cfg.color.border;chart.update('active');});}
+										<
+										script >
+										let currentModalIndex = 0;
+									let currentModalList = [];
+									let currentModalType = '';
+									let mainChart = null;
+									let modalChartInstance = null;
+									let customerListAbortController = null;
+									let modalAbortController = null;
+									let modalRequestSeq = 0;
+									let mainChartInitialized = false;
+									let activeChartType = 'total';
+									let customerListState = {
+										type: 'all',
+										page: 1,
+										limit: 10,
+										totalPages: 1,
+										totalCustomers: 0,
+										customers: [],
+										filteredCustomers: [],
+										search: ''
+									};
+									const chartData = < % -JSON.stringify(monthlyStats) % > ;
+									const chartHasData = Array.isArray(chartData.labels) && chartData.labels.length > 0;
+									const modalLists = {
+										search: < % -JSON.stringify(results.map(r => r['Ödəniş kodu']).filter(Boolean)) % > ,
+										today: < % -JSON.stringify(todayCustomers.map(r => r['Ödəniş kodu']).filter(Boolean)) % > ,
+										archive: < % -JSON.stringify(archivedCustomers.map(r => r['Ödəniş kodu']).filter(Boolean)) % > ,
+										all: []
+									};
+									const embeddedSearchCustomers = < % -JSON.stringify(results || []) % > ;
+									const customerListConfig = {
+										all: {
+											title: 'Bütün Müştərilər',
+											icon: 'fa-users',
+											endpoint: '/api/all-customers',
+											subtitle: 'Bütün müştəri bazası'
+										},
+										today: {
+											title: 'Bu gün əlavə olunanlar',
+											icon: 'fa-calendar-day',
+											endpoint: '/api/today-customers',
+											subtitle: 'Bugünkü aktiv qeydiyyatlar'
+										},
+										archive: {
+											title: 'Arxivdə olanlar',
+											icon: 'fa-box-archive',
+											endpoint: '/api/archive-customers',
+											subtitle: 'Arxiv statuslu müştərilər'
+										},
+										search: {
+											title: 'Axtarış nəticələri',
+											icon: 'fa-magnifying-glass',
+											endpoint: null,
+											subtitle: 'Cari axtarış nəticələri'
+										}
+									};
 
-function updateCustomerListHeader(){const cfg=customerListConfig[customerListState.type]||customerListConfig.all;const title=document.getElementById('customerListTitle');const count=document.getElementById('customerListCount');const subtitle=document.getElementById('customerListSubtitle');if(title)title.innerHTML=`<i class="fa-solid ${cfg.icon}"></i> ${escapeHtml(cfg.title)} <span class="modal-count-badge" id="customerListCount">${Number(customerListState.totalCustomers)||0}</span>`;if(count)count.textContent=Number(customerListState.totalCustomers)||0;if(subtitle)subtitle.textContent=`${cfg.subtitle} · Səhifə ${customerListState.page} / ${customerListState.totalPages}`;}
-function setCustomerListSearchValue(value=''){const input=document.getElementById('customerListSearch');if(input)input.value=value;customerListState.search=normalizeSearch(value);}
-async function openCustomerListModal(type='all'){customerListState={...customerListState,type:customerListConfig[type]?type:'all',page:1,totalPages:1,totalCustomers:0,customers:[],filteredCustomers:[],search:''};setCustomerListSearchValue('');updateCustomerListHeader();setModalOpen('customerListModal',true);await loadCustomerListPage(1);setTimeout(()=>document.getElementById('customerListSearch')?.focus(),80);}
-function showCustomerListError(message){const body=document.getElementById('customerListBody');if(!body)return;body.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(message||'Müştərilər yüklənmədi.')}</p><button class="btn-edit" type="button" onclick="loadCustomerListPage(${Number(customerListState.page)||1})"><i class="fa-solid fa-rotate-right"></i> Yenidən cəhd et</button></div>`;}
-async function loadCustomerListPage(page=1){const cfg=customerListConfig[customerListState.type]||customerListConfig.all;const requestedPage=Number.parseInt(page,10)||1;const body=document.getElementById('customerListBody');if(!body)return;customerListState.page=requestedPage;updateCustomerListHeader();body.innerHTML=createLoadingSkeleton(5);if(customerListAbortController)customerListAbortController.abort();customerListAbortController=new AbortController();try{let payload;if(customerListState.type==='search'){const customers=Array.isArray(embeddedSearchCustomers)?embeddedSearchCustomers:[];payload={customers,currentPage:1,totalPages:1,totalCustomers:customers.length};}else{const res=await fetch(`${cfg.endpoint}?page=${encodeURIComponent(requestedPage)}&limit=${encodeURIComponent(customerListState.limit)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:customerListAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');payload=await res.json();if(!res.ok||payload.success!==true)throw new Error(payload.error||`Server xətası (${res.status})`);}customerListState.customers=Array.isArray(payload.customers)?payload.customers:(Array.isArray(payload.data)?payload.data:[]);customerListState.page=Math.max(1,Number.parseInt(payload.currentPage,10)||1);customerListState.totalPages=Math.max(1,Number.parseInt(payload.totalPages,10)||1);customerListState.totalCustomers=Number.parseInt(payload.totalCustomers,10)||customerListState.customers.length;applyCustomerListFilter();}catch(error){if(error.name==='AbortError')return;console.error('[customer-list-modal] Müştərilər yüklənmədi:',error);showCustomerListError(error.message);}}
-function applyCustomerListFilter(){const query=customerListState.search;customerListState.filteredCustomers=customerListState.customers.filter(item=>customerMatchesSearch(item,query));modalLists[customerListState.type]=customerListState.filteredCustomers.map(c=>c&&c['Ödəniş kodu']).filter(code=>code!==undefined&&code!==null&&String(code).trim()!=='').map(String);renderCustomerListModal();}
-function renderCustomerListModal(){const body=document.getElementById('customerListBody');if(!body)return;updateCustomerListHeader();const customers=customerListState.filteredCustomers;const totalLabel=customerListState.search?`${customers.length} uyğun nəticə`:`${customerListState.totalCustomers} müştəri`;if(customers.length===0){body.innerHTML=`<div class="customer-list-empty"><i class="fa-regular fa-folder-open"></i><p>${customerListState.search?'Axtarışa uyğun müştəri tapılmadı.':'Siyahıda müştəri yoxdur.'}</p></div>`;return;}const listHtml=`<div class="all-customers-toolbar"><span><i class="fa-solid fa-layer-group"></i> Səhifə ${customerListState.page} / ${customerListState.totalPages}</span><strong>${escapeHtml(totalLabel)}</strong></div><div class="compact-list">${customers.map((item,index)=>createCustomerListItem(item,index,customerListState.type)).join('')}</div>`;const paginationHtml=customerListState.type==='search'?'':`<div class="pagination"><button type="button" ${customerListState.page<=1?'disabled':''} onclick="loadCustomerListPage(${customerListState.page-1})">Əvvəlki</button><span style="padding:8px 15px">Səhifə ${customerListState.page} / ${customerListState.totalPages}</span><button type="button" ${customerListState.page>=customerListState.totalPages?'disabled':''} onclick="loadCustomerListPage(${customerListState.page+1})">Növbəti</button></div>`;body.innerHTML=listHtml+paginationHtml;}
-const handleCustomerListSearch=debounce((event)=>{customerListState.search=normalizeSearch(event.target.value);applyCustomerListFilter();},180);
+									function escapeHtml(value) {
+										return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+									}
 
-function openModal(odemeKodu,index,type='search'){currentModalType=type;currentModalList=Array.isArray(modalLists[type])?[...modalLists[type]]:[];if(!currentModalList.length&&odemeKodu)currentModalList=[String(odemeKodu)];currentModalIndex=currentModalList.map(String).indexOf(String(odemeKodu));if(currentModalIndex<0)currentModalIndex=Number.isInteger(index)?index:0;loadModalCustomer(odemeKodu);}
-async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';prevBtn.disabled=currentModalIndex<=0;nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=String(r['Arxiv']||'').toLowerCase()==='hə';modalTitle.innerHTML=`${escapeHtml(r['Ad, Soyad, Ata adı']||'Adsız')} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const fields=[{key:'Ödəniş kodu',label:'Ödəniş Kodu'},{key:'Telefon nömrəsi',label:'Telefon',type:'tel'},{key:'Aylıq ödəniş',label:'Aylıq Ödəniş',suffix:' AZN'},{key:'Ş/V FİN',label:'Ş/V FİN'},{key:'Ş/V Seriya',label:'Ş/V Seriya'},{key:'Modem S/N',label:'Modem S/N'},{key:'Tv Box',label:'TV Box'},{key:'Komendant',label:'Komendant'},{key:'Timestamp',label:'Qeydiyyat tarixi',type:'date'},{key:'Ünvan',label:'Ünvan',full:true},{key:'Qeyd',label:'Qeyd',full:true},{key:'Müqavilə və Modemin şəkli',label:'Müqavilə Şəkli',type:'image',full:true}];let html='';fields.forEach(f=>{let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r['Ödəniş kodu']||'')).replace(/'/g,'\u0027');html+=`<div class="info-item full-width modal-actions"><a href="/edit/${encodeURIComponent(r['Ödəniş kodu'])}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a><button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${Number(r.rowIndex)||0})'><i class="fa-solid fa-trash"></i> Sil</button>${isArchived?`<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex)||0}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`:`<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex)||0}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
-function navigateModal(direction){const newIndex=currentModalIndex+direction;if(newIndex>=0&&newIndex<currentModalList.length){currentModalIndex=newIndex;loadModalCustomer(currentModalList[currentModalIndex]);}}
+									function formatDate(timestamp) {
+										if (timestamp === undefined || timestamp === null || String(timestamp).trim() === '') return 'Tarix yoxdur';
+										const raw = String(timestamp).trim();
+										let match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+										if (match) {
+											const m = Number(match[1]),
+												d = Number(match[2]),
+												y = Number(match[3]);
+											if (m >= 1 && m <= 12 && d >= 1 && d <= 31) return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`;
+										}
+										match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+										if (match) {
+											const y = Number(match[1]),
+												m = Number(match[2]),
+												d = Number(match[3]);
+											if (m >= 1 && m <= 12 && d >= 1 && d <= 31) return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`;
+										}
+										const parsed = new Date(raw);
+										if (!Number.isNaN(parsed.getTime())) return `${String(parsed.getDate()).padStart(2,'0')}.${String(parsed.getMonth()+1).padStart(2,'0')}.${parsed.getFullYear()}`;
+										return 'Tarix yoxdur';
+									}
 
-async function postJson(url,body){const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},credentials:'same-origin',body:JSON.stringify(body)});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error('Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(!res.ok||json.success!==true)throw new Error(json.error||`Server xətası (${res.status})`);return json;}
-async function deleteCustomer(odemeKodu,rowIndex){if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini silmək istəyirsiniz?`))return;try{await postJson(`/delete/${encodeURIComponent(odemeKodu)}`,{rowIndex});alert('Müştəri silindi');location.reload();}catch(error){alert('Xəta: '+error.message);}}
-async function toggleArchive(odemeKodu,rowIndex,archive){const action=archive?'arxivə göndərmək':'arxivdən çıxartmaq';if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`))return;try{await postJson(`/archive/${encodeURIComponent(odemeKodu)}`,{rowIndex,archive});alert(archive?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');location.reload();}catch(error){alert('Xəta: '+error.message);}}
+									function getCustomerType(item) {
+										const qeydText = String(item?.['Qeyd'] || '').toLowerCase();
+										const isArchived = String(item?.['Arxiv'] || '').toLowerCase() === 'hə';
+										const typeClass = isArchived ? 'archived-item' : (qeydText.includes('köç') ? 'kocurme' : 'qosulma');
+										const badgeClass = isArchived ? 'archived' : typeClass;
+										const typeLabel = isArchived ? 'Arxivdə' : (qeydText.includes('köç') ? 'Köçürmə' : 'Qoşulma');
+										const iconClass = isArchived ? 'fa-box-archive' : (typeClass === 'kocurme' ? 'fa-truck-moving' : 'fa-plug');
+										return {
+											typeClass,
+											badgeClass,
+											typeLabel,
+											iconClass
+										};
+									}
 
-document.addEventListener('click',(e)=>{const item=e.target.closest('.list-item[data-code]');if(item){openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}if(e.target.classList.contains('modal'))closeModal(e.target.id);});
-document.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){const item=e.target.closest?.('.list-item[data-code]');if(item){e.preventDefault();openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}}const customerOpen=document.getElementById('customerModal')?.classList.contains('is-open');if(customerOpen){if(e.key==='Escape'){closeModal('customerModal');return;}if(e.key==='ArrowLeft')navigateModal(-1);if(e.key==='ArrowRight')navigateModal(1);}if(e.key==='Escape'){if(document.getElementById('chartModal')?.classList.contains('is-open')){closeModal('chartModal');return;}if(document.getElementById('customerListModal')?.classList.contains('is-open'))closeModal('customerListModal');}});
-document.addEventListener('DOMContentLoaded',()=>{setupChartToggle();document.getElementById('customerListSearch')?.addEventListener('input',handleCustomerListSearch);});
-</script>
+									function createBadge(type) {
+										return `<span class="badge ${type.badgeClass}"><i class="fa-solid ${type.iconClass}"></i> ${escapeHtml(type.typeLabel)}</span>`;
+									}
 
-</body></html>
+									function createLoadingSkeleton(count = 3) {
+										return `<div class="loading-block"><div class="skeleton-list">${Array.from({length:count},()=>'<div class="skeleton-card"></div>').join('')}</div></div>`;
+									}
+
+									function createSpinner(text = 'Yüklənir...') {
+										return `<div class="loader-inline"><span class="spinner"></span><span>${escapeHtml(text)}</span></div>`;
+									}
+
+									function debounce(fn, wait = 180) {
+										let timeout;
+										return (...args) => {
+											clearTimeout(timeout);
+											timeout = setTimeout(() => fn(...args), wait);
+										};
+									}
+
+									function normalizeSearch(value) {
+										return String(value ?? '').toLowerCase().replace(/\s+/g, '').trim();
+									}
+
+									function customerMatchesSearch(item, query) {
+										if (!query) return true;
+										const haystack = [item?.['Ad, Soyad, Ata adı'], item?.['Telefon nömrəsi'], item?.['Ödəniş kodu']].map(normalizeSearch).join('|');
+										return haystack.includes(query);
+									}
+
+									function createCustomerListItem(item, index, listType = 'all') {
+										const type = getCustomerType(item);
+										const odemeKodu = String(item?.['Ödəniş kodu'] ?? '');
+										const adSoyad = item?.['Ad, Soyad, Ata adı'] || 'Adsız müştəri';
+										const telefon = item?.['Telefon nömrəsi'] || '-';
+										const unvan = item?.['Ünvan'] || '';
+										return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.['Timestamp']))}</span></div><div class="meta"><strong>Kod:</strong> ${escapeHtml(odemeKodu||'-')} · <strong>Tel:</strong> ${escapeHtml(telefon)}${unvan?` · ${escapeHtml(unvan)}`:''}</div></div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
+									}
+
+									function syncModalLock() {
+										const hasOpenModal = Boolean(document.querySelector('.modal.is-open'));
+										document.body.classList.toggle('modal-open', hasOpenModal);
+									}
+
+									function setModalOpen(id, isOpen) {
+										const el = document.getElementById(id);
+										if (!el) return;
+										el.classList.toggle('is-open', isOpen);
+										el.setAttribute('aria-hidden', String(!isOpen));
+										syncModalLock();
+										if (!isOpen && id === 'customerListModal' && customerListAbortController) {
+											customerListAbortController.abort();
+											customerListAbortController = null;
+										}
+									}
+
+									function closeModal(id) {
+										setModalOpen(id, false);
+										if (id === 'customerModal' && modalAbortController) {
+											modalAbortController.abort();
+											modalAbortController = null;
+										}
+									}
+
+									function setupChartToggle() {
+										const card = document.getElementById('monthlyStatsCard');
+										const toggle = document.getElementById('chartToggle');
+										if (!card || !toggle) return;
+										const saved = localStorage.getItem('monthlyStatsChartOpen') === 'true';
+										setChartOpen(saved, false);
+										toggle.addEventListener('click', () => setChartOpen(!card.classList.contains('is-open'), true));
+									}
+
+									function setChartOpen(open, persist) {
+										const card = document.getElementById('monthlyStatsCard');
+										const toggle = document.getElementById('chartToggle');
+										if (!card || !toggle) return;
+										card.classList.toggle('is-open', open);
+										toggle.setAttribute('aria-expanded', String(open));
+										if (persist) localStorage.setItem('monthlyStatsChartOpen', String(open));
+										if (open && chartHasData && !mainChartInitialized) {
+											requestAnimationFrame(() => initChart());
+										} else if (open && mainChart) {
+											setTimeout(() => mainChart.resize(), 260);
+										}
+									}
+
+									function chartConfig(type = 'total') {
+										const colors = {
+											total: {
+												bg: 'rgba(59,130,246,.46)',
+												border: '#3b82f6'
+											},
+											qosulma: {
+												bg: 'rgba(16,185,129,.52)',
+												border: '#10b981'
+											},
+											kocurme: {
+												bg: 'rgba(245,158,11,.55)',
+												border: '#f59e0b'
+											}
+										};
+										const labels = {
+											total: 'Ümumi',
+											qosulma: 'Qoşulma',
+											kocurme: 'Köçürmə'
+										};
+										return {
+											label: labels[type] || labels.total,
+											color: colors[type] || colors.total
+										};
+									}
+
+									function syncChartButtons(scope, type = activeChartType) {
+										document.querySelectorAll(`.chart-buttons[data-chart-scope="${scope}"] .chart-btn`).forEach(b => b.classList.toggle('active', b.dataset.type === type));
+									}
+
+									function buildChart(ctx, type = activeChartType) {
+										const cfg = chartConfig(type);
+										return new Chart(ctx, {
+											type: 'bar',
+											data: {
+												labels: chartData.labels,
+												datasets: [{
+													label: cfg.label,
+													data: chartData[type] || [],
+													backgroundColor: cfg.color.bg,
+													borderColor: cfg.color.border,
+													borderWidth: 2,
+													borderRadius: 8,
+													barPercentage: .72,
+													categoryPercentage: .68
+												}]
+											},
+											options: {
+												responsive: true,
+												maintainAspectRatio: false,
+												animation: {
+													duration: 450,
+													easing: 'easeOutQuart'
+												},
+												plugins: {
+													legend: {
+														labels: {
+															color: '#e2e8f0'
+														}
+													}
+												},
+												scales: {
+													y: {
+														beginAtZero: true,
+														ticks: {
+															color: '#94a3b8',
+															stepSize: 1,
+															precision: 0
+														},
+														grid: {
+															color: 'rgba(51,65,85,.8)'
+														}
+													},
+													x: {
+														ticks: {
+															color: '#cbd5e1',
+															autoSkip: false,
+															maxRotation: 0,
+															minRotation: 0
+														},
+														grid: {
+															color: 'rgba(51,65,85,.45)'
+														}
+													}
+												}
+											}
+										});
+									}
+
+									function initChart() {
+										if (!chartHasData || mainChartInitialized) return;
+										const ctx = document.getElementById('monthlyChart');
+										if (!ctx) return;
+										mainChart = buildChart(ctx, activeChartType);
+										syncChartButtons('main');
+										mainChartInitialized = true;
+									}
+
+									function openChartModal() {
+										setModalOpen('chartModal', true);
+										syncChartButtons('modal');
+										if (chartHasData && !modalChartInstance) {
+											requestAnimationFrame(() => {
+												const ctx = document.getElementById('modalChart');
+												if (ctx) modalChartInstance = buildChart(ctx, activeChartType);
+											});
+										} else if (modalChartInstance) {
+											setTimeout(() => modalChartInstance.resize(), 120);
+										}
+									}
+
+									function updateChart(type, scope = 'main') {
+										if (!chartData[type]) return;
+										activeChartType = type;
+										const cfg = chartConfig(type);
+										['main', 'modal'].forEach(syncScope => syncChartButtons(syncScope, type));
+										[mainChart, modalChartInstance].filter(Boolean).forEach(chart => {
+											chart.data.datasets[0].label = cfg.label;
+											chart.data.datasets[0].data = chartData[type] || [];
+											chart.data.datasets[0].backgroundColor = cfg.color.bg;
+											chart.data.datasets[0].borderColor = cfg.color.border;
+											chart.update('active');
+										});
+									}
+
+									function updateCustomerListHeader() {
+										const cfg = customerListConfig[customerListState.type] || customerListConfig.all;
+										const title = document.getElementById('customerListTitle');
+										const count = document.getElementById('customerListCount');
+										const subtitle = document.getElementById('customerListSubtitle');
+										if (title) title.innerHTML = `<i class="fa-solid ${cfg.icon}"></i> ${escapeHtml(cfg.title)} <span class="modal-count-badge" id="customerListCount">${Number(customerListState.totalCustomers)||0}</span>`;
+										if (count) count.textContent = Number(customerListState.totalCustomers) || 0;
+										if (subtitle) subtitle.textContent = `${cfg.subtitle} · Səhifə ${customerListState.page} / ${customerListState.totalPages}`;
+									}
+
+									function setCustomerListSearchValue(value = '') {
+										const input = document.getElementById('customerListSearch');
+										if (input) input.value = value;
+										customerListState.search = normalizeSearch(value);
+									}
+									async function openCustomerListModal(type = 'all') {
+										customerListState = {
+											...customerListState,
+											type: customerListConfig[type] ? type : 'all',
+											page: 1,
+											totalPages: 1,
+											totalCustomers: 0,
+											customers: [],
+											filteredCustomers: [],
+											search: ''
+										};
+										setCustomerListSearchValue('');
+										updateCustomerListHeader();
+										setModalOpen('customerListModal', true);
+										await loadCustomerListPage(1);
+										setTimeout(() => document.getElementById('customerListSearch')?.focus(), 80);
+									}
+
+									function showCustomerListError(message) {
+										const body = document.getElementById('customerListBody');
+										if (!body) return;
+										body.innerHTML = `<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(message||'Müştərilər yüklənmədi.')}</p><button class="btn-edit" type="button" onclick="loadCustomerListPage(${Number(customerListState.page)||1})"><i class="fa-solid fa-rotate-right"></i> Yenidən cəhd et</button></div>`;
+									}
+									async function loadCustomerListPage(page = 1) {
+										const cfg = customerListConfig[customerListState.type] || customerListConfig.all;
+										const requestedPage = Number.parseInt(page, 10) || 1;
+										const body = document.getElementById('customerListBody');
+										if (!body) return;
+										customerListState.page = requestedPage;
+										updateCustomerListHeader();
+										body.innerHTML = createLoadingSkeleton(5);
+										if (customerListAbortController) customerListAbortController.abort();
+										customerListAbortController = new AbortController();
+										try {
+											let payload;
+											if (customerListState.type === 'search') {
+												const customers = Array.isArray(embeddedSearchCustomers) ? embeddedSearchCustomers : [];
+												payload = {
+													customers,
+													currentPage: 1,
+													totalPages: 1,
+													totalCustomers: customers.length
+												};
+											} else {
+												const res = await fetch(`${cfg.endpoint}?page=${encodeURIComponent(requestedPage)}&limit=${encodeURIComponent(customerListState.limit)}`, {
+													headers: {
+														Accept: 'application/json'
+													},
+													credentials: 'same-origin',
+													signal: customerListAbortController.signal
+												});
+												const contentType = res.headers.get('content-type') || '';
+												if (!contentType.includes('application/json')) throw new Error(res.status === 401 ? 'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.' : 'Server JSON formatında cavab qaytarmadı.');
+												payload = await res.json();
+												if (!res.ok || payload.success !== true) throw new Error(payload.error || `Server xətası (${res.status})`);
+											}
+											customerListState.customers = Array.isArray(payload.customers) ? payload.customers : (Array.isArray(payload.data) ? payload.data : []);
+											customerListState.page = Math.max(1, Number.parseInt(payload.currentPage, 10) || 1);
+											customerListState.totalPages = Math.max(1, Number.parseInt(payload.totalPages, 10) || 1);
+											customerListState.totalCustomers = Number.parseInt(payload.totalCustomers, 10) || customerListState.customers.length;
+											applyCustomerListFilter();
+										} catch (error) {
+											if (error.name === 'AbortError') return;
+											console.error('[customer-list-modal] Müştərilər yüklənmədi:', error);
+											showCustomerListError(error.message);
+										}
+									}
+
+									function applyCustomerListFilter() {
+										const query = customerListState.search;
+										customerListState.filteredCustomers = customerListState.customers.filter(item => customerMatchesSearch(item, query));
+										modalLists[customerListState.type] = customerListState.filteredCustomers.map(c => c && c['Ödəniş kodu']).filter(code => code !== undefined && code !== null && String(code).trim() !== '').map(String);
+										renderCustomerListModal();
+									}
+
+									function renderCustomerListModal() {
+										const body = document.getElementById('customerListBody');
+										if (!body) return;
+										updateCustomerListHeader();
+										const customers = customerListState.filteredCustomers;
+										const totalLabel = customerListState.search ? `${customers.length} uyğun nəticə` : `${customerListState.totalCustomers} müştəri`;
+										if (customers.length === 0) {
+											body.innerHTML = `<div class="customer-list-empty"><i class="fa-regular fa-folder-open"></i><p>${customerListState.search?'Axtarışa uyğun müştəri tapılmadı.':'Siyahıda müştəri yoxdur.'}</p></div>`;
+											return;
+										}
+										const listHtml = `<div class="all-customers-toolbar"><span><i class="fa-solid fa-layer-group"></i> Səhifə ${customerListState.page} / ${customerListState.totalPages}</span><strong>${escapeHtml(totalLabel)}</strong></div><div class="compact-list">${customers.map((item,index)=>createCustomerListItem(item,index,customerListState.type)).join('')}</div>`;
+										const paginationHtml = customerListState.type === 'search' ? '' : `<div class="pagination"><button type="button" ${customerListState.page<=1?'disabled':''} onclick="loadCustomerListPage(${customerListState.page-1})">Əvvəlki</button><span style="padding:8px 15px">Səhifə ${customerListState.page} / ${customerListState.totalPages}</span><button type="button" ${customerListState.page>=customerListState.totalPages?'disabled':''} onclick="loadCustomerListPage(${customerListState.page+1})">Növbəti</button></div>`;
+										body.innerHTML = listHtml + paginationHtml;
+									}
+									const handleCustomerListSearch = debounce((event) => {
+										customerListState.search = normalizeSearch(event.target.value);
+										applyCustomerListFilter();
+									}, 180);
+
+									function openModal(odemeKodu, index, type = 'search') {
+										currentModalType = type;
+										currentModalList = Array.isArray(modalLists[type]) ? [...modalLists[type]] : [];
+										if (!currentModalList.length && odemeKodu) currentModalList = [String(odemeKodu)];
+										currentModalIndex = currentModalList.map(String).indexOf(String(odemeKodu));
+										if (currentModalIndex < 0) currentModalIndex = Number.isInteger(index) ? index : 0;
+										loadModalCustomer(odemeKodu);
+									}
+									async function loadModalCustomer(odemeKodu) {
+										const modalBody = document.getElementById('modalBody');
+										const modalTitle = document.getElementById('modalTitle');
+										const counter = document.getElementById('modalCounter');
+										const prevBtn = document.getElementById('prevBtn');
+										const nextBtn = document.getElementById('nextBtn');
+										if (!modalBody || !modalTitle) return;
+										if (modalAbortController) modalAbortController.abort();
+										modalAbortController = new AbortController();
+										const requestId = ++modalRequestSeq;
+										modalTitle.textContent = 'Müştəri məlumatı';
+										modalBody.innerHTML = createSpinner('Məlumat yüklənir...');
+										setModalOpen('customerModal', true);
+										counter.textContent = currentModalList.length ? `${currentModalIndex+1} / ${currentModalList.length}` : '';
+										prevBtn.disabled = currentModalIndex <= 0;
+										nextBtn.disabled = currentModalIndex >= currentModalList.length - 1;
+										try {
+											const res = await fetch(`/customer/${encodeURIComponent(odemeKodu)}`, {
+												headers: {
+													Accept: 'application/json'
+												},
+												credentials: 'same-origin',
+												signal: modalAbortController.signal
+											});
+											const contentType = res.headers.get('content-type') || '';
+											if (!contentType.includes('application/json')) throw new Error(res.status === 401 ? 'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.' : 'Server JSON formatında cavab qaytarmadı.');
+											const json = await res.json();
+											if (requestId !== modalRequestSeq) return;
+											if (!res.ok || json.success !== true || !json.data) throw new Error(json.error || 'Məlumat tapılmadı.');
+											const r = json.data;
+											const isArchived = String(r['Arxiv'] || '').toLowerCase() === 'hə';
+											modalTitle.innerHTML = `${escapeHtml(r['Ad, Soyad, Ata adı']||'Adsız')} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;
+											const fields = [{
+												key: 'Ödəniş kodu',
+												label: 'Ödəniş Kodu'
+											}, {
+												key: 'Telefon nömrəsi',
+												label: 'Telefon',
+												type: 'tel'
+											}, {
+												key: 'Aylıq ödəniş',
+												label: 'Aylıq Ödəniş',
+												suffix: ' AZN'
+											}, {
+												key: 'Ş/V FİN',
+												label: 'Ş/V FİN'
+											}, {
+												key: 'Ş/V Seriya',
+												label: 'Ş/V Seriya'
+											}, {
+												key: 'Modem S/N',
+												label: 'Modem S/N'
+											}, {
+												key: 'Tv Box',
+												label: 'TV Box'
+											}, {
+												key: 'Komendant',
+												label: 'Komendant'
+											}, {
+												key: 'Timestamp',
+												label: 'Qeydiyyat tarixi',
+												type: 'date'
+											}, {
+												key: 'Ünvan',
+												label: 'Ünvan',
+												full: true
+											}, {
+												key: 'Qeyd',
+												label: 'Qeyd',
+												full: true
+											}, {
+												key: 'Müqavilə və Modemin şəkli',
+												label: 'Müqavilə Şəkli',
+												type: 'image',
+												full: true
+											}];
+											let html = '';
+											fields.forEach(f => {
+												let val = r[f.key];
+												if (f.type === 'date') val = formatDate(val);
+												if (val && String(val).trim() !== '' && String(val).toLowerCase() !== 'yox') {
+													const valueClass = f.type === 'tel' ? 'info-value info-value--contact' : (f.type === 'image' ? 'info-value info-value--links' : 'info-value');
+													html += `<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;
+													if (f.type === 'tel') {
+														const cleanTel = String(val).replace(/\s/g, '');
+														const waTel = '994' + cleanTel.replace(/^0/, '');
+														html += `<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;
+													} else if (f.type === 'image') {
+														const links = String(val).split(',').map(l => l.trim()).filter(Boolean);
+														html += links.map((l, i) => `<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');
+													} else {
+														html += `<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;
+													}
+													html += '</p></div>';
+												}
+											});
+											const codeArg = JSON.stringify(String(r['Ödəniş kodu'] || '')).replace(/'/g, '\u0027');
+											html += `<div class="info-item full-width modal-actions"><a href="/edit/${encodeURIComponent(r['Ödəniş kodu'])}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a><button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${Number(r.rowIndex)||0})'><i class="fa-solid fa-trash"></i> Sil</button>${isArchived?`<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex)||0}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`:`<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex)||0}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`}</div>`;
+											modalBody.innerHTML = html;
+										} catch (error) {
+											if (error.name === 'AbortError') return;
+											console.error('[customer-modal] Müştəri yüklənmədi:', error);
+											modalTitle.textContent = 'Xəta';
+											modalBody.innerHTML = `<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;
+										}
+									}
+
+									function navigateModal(direction) {
+										const newIndex = currentModalIndex + direction;
+										if (newIndex >= 0 && newIndex < currentModalList.length) {
+											currentModalIndex = newIndex;
+											loadModalCustomer(currentModalList[currentModalIndex]);
+										}
+									}
+
+									async function postJson(url, body) {
+										const res = await fetch(url, {
+											method: 'POST',
+											headers: {
+												'Content-Type': 'application/json',
+												Accept: 'application/json'
+											},
+											credentials: 'same-origin',
+											body: JSON.stringify(body)
+										});
+										const contentType = res.headers.get('content-type') || '';
+										if (!contentType.includes('application/json')) throw new Error('Server JSON formatında cavab qaytarmadı.');
+										const json = await res.json();
+										if (!res.ok || json.success !== true) throw new Error(json.error || `Server xətası (${res.status})`);
+										return json;
+									}
+									async function deleteCustomer(odemeKodu, rowIndex) {
+										if (!confirm(`"${odemeKodu}" ödəniş kodlu müştərini silmək istəyirsiniz?`)) return;
+										try {
+											await postJson(`/delete/${encodeURIComponent(odemeKodu)}`, {
+												rowIndex
+											});
+											alert('Müştəri silindi');
+											location.reload();
+										} catch (error) {
+											alert('Xəta: ' + error.message);
+										}
+									}
+									async function toggleArchive(odemeKodu, rowIndex, archive) {
+										const action = archive ? 'arxivə göndərmək' : 'arxivdən çıxartmaq';
+										if (!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`)) return;
+										try {
+											await postJson(`/archive/${encodeURIComponent(odemeKodu)}`, {
+												rowIndex,
+												archive
+											});
+											alert(archive ? 'Müştəri arxivə göndərildi' : 'Müştəri arxivdən çıxarıldı');
+											location.reload();
+										} catch (error) {
+											alert('Xəta: ' + error.message);
+										}
+									}
+
+									document.addEventListener('click', (e) => {
+										const item = e.target.closest('.list-item[data-code]');
+										if (item) {
+											openModal(item.dataset.code, Number.parseInt(item.dataset.index, 10) || 0, item.dataset.list || 'search');
+											return;
+										}
+										if (e.target.classList.contains('modal')) closeModal(e.target.id);
+									});
+									document.addEventListener('keydown', (e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											const item = e.target.closest?.('.list-item[data-code]');
+											if (item) {
+												e.preventDefault();
+												openModal(item.dataset.code, Number.parseInt(item.dataset.index, 10) || 0, item.dataset.list || 'search');
+												return;
+											}
+										}
+										const customerOpen = document.getElementById('customerModal')?.classList.contains('is-open');
+										if (customerOpen) {
+											if (e.key === 'Escape') {
+												closeModal('customerModal');
+												return;
+											}
+											if (e.key === 'ArrowLeft') navigateModal(-1);
+											if (e.key === 'ArrowRight') navigateModal(1);
+										}
+										if (e.key === 'Escape') {
+											if (document.getElementById('chartModal')?.classList.contains('is-open')) {
+												closeModal('chartModal');
+												return;
+											}
+											if (document.getElementById('customerListModal')?.classList.contains('is-open')) closeModal('customerListModal');
+										}
+									});
+									document.addEventListener('DOMContentLoaded', () => {
+										setupChartToggle();
+										document.getElementById('customerListSearch')?.addEventListener('input', handleCustomerListSearch);
+									}); <
+									/script>
+
+									<
+									/body></html >
