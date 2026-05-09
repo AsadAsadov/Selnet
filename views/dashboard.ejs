@@ -1556,6 +1556,56 @@
          }
 
          @media (max-width: 768px) {
+            /* Başlıq və Logo hissəsi */
+            .search-filter-section {
+               flex-direction: column;
+               gap: 10px !important;
+            }
+
+            .brand-logo {
+               height: 42px !important;
+               margin-bottom: 5px;
+               filter: brightness(0) invert(1);
+               width: auto;
+            }
+
+            /* Axtarış qutusu və düymənin birləşməsi */
+            .search-wrapper {
+               display: flex;
+               gap: 5px;
+               align-items: center;
+            }
+
+            #searchInput {
+               padding: 10px 35px !important;
+               font-size: 14px;
+               flex: 1;
+            }
+
+            /* Axtar düyməsini inputun yanına gətirmək */
+            .search-button {
+               padding: 0 15px !important;
+               height: 42px !important;
+               border-radius: 12px !important;
+               width: auto !important;
+               flex-shrink: 0;
+            }
+
+            /* Tarix bloklarını yan-yana və balaca etmək */
+            .date-filters {
+               display: flex !important;
+               flex-direction: row !important;
+               gap: 8px !important;
+               width: 100%;
+            }
+
+            .date-filters input[type="date"] {
+               flex: 1;
+               font-size: 12px !important;
+               padding: 8px !important;
+               max-width: 49%;
+            }
+
             /* Kartın içini 2 sütuna bölürük */
             .modal-body.grid {
                display: grid !important;
