@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <%- include('partials/customer-form-styles') %>
+    <style>
+        body {
+            background-image: url("https://raw.githubusercontent.com/AsadAsadov/Selnet/main/home.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+            padding: 18px 22px;
+        }
+        .header .logo h1,
+        .header > a {
+            color: #f8fafc;
+        }
+        .header > a {
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
 </head>
 <body>
 <div class="header">
