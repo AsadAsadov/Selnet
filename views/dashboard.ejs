@@ -1556,54 +1556,80 @@
          }
 
          @media (max-width: 768px) {
-            /* Başlıq və Logo hissəsi */
+            /* Ana konteyner */
             .search-filter-section {
-               flex-direction: column;
+               display: flex !important;
+               flex-direction: column !important;
                gap: 10px !important;
+               padding: 10px !important;
+            }
+
+            /* Loqo mərkəzdə və ağ rəngdə */
+            .brand-logo-container {
+               text-align: center !important;
+               margin-bottom: 5px !important;
             }
 
             .brand-logo {
-               height: 42px !important;
-               margin-bottom: 5px;
-               filter: brightness(0) invert(1);
+               height: 40px !important;
+               filter: brightness(0) invert(1) !important;
                width: auto;
             }
 
-            /* Axtarış qutusu və düymənin birləşməsi */
+            /* Axtarış formunu yan-yana edirik */
+            .search-box {
+               display: flex !important;
+               gap: 5px !important;
+               width: 100% !important;
+            }
+
             .search-wrapper {
-               display: flex;
-               gap: 5px;
-               align-items: center;
+               flex: 1 !important;
             }
 
-            #searchInput {
-               padding: 10px 35px !important;
-               font-size: 14px;
-               flex: 1;
+            .search-box button {
+               width: 50px !important;
+               padding: 0 !important;
+               display: flex !important;
+               align-items: center !important;
+               justify-content: center !important;
             }
 
-            /* Axtar düyməsini inputun yanına gətirmək */
-            .search-button {
-               padding: 0 15px !important;
-               height: 42px !important;
-               border-radius: 12px !important;
-               width: auto !important;
-               flex-shrink: 0;
+            .search-box button span,
+            .search-box button {
+               font-size: 0 !important;
             }
 
-            /* Tarix bloklarını yan-yana və balaca etmək */
-            .date-filters {
+            .search-box button i {
+               font-size: 16px !important;
+            }
+
+            /* Tarix filtrlərini yan-yana sıxırıq */
+            .date-filter {
                display: flex !important;
                flex-direction: row !important;
-               gap: 8px !important;
-               width: 100%;
+               align-items: center !important;
+               gap: 5px !important;
+               width: 100% !important;
             }
 
-            .date-filters input[type="date"] {
-               flex: 1;
+            .date-filter input[type="date"] {
+               flex: 1 !important;
+               min-width: 0 !important;
+               padding: 8px 5px !important;
                font-size: 12px !important;
-               padding: 8px !important;
-               max-width: 49%;
+            }
+
+            /* Filter düyməsini kiçik kvadrat edirik */
+            .btn-filter {
+               width: 45px !important;
+               height: 40px !important;
+               padding: 0 !important;
+               font-size: 0 !important;
+            }
+
+            .btn-filter i {
+               font-size: 16px !important;
             }
 
             /* Kartın içini 2 sütuna bölürük */
