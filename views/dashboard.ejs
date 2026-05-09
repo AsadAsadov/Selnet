@@ -139,11 +139,26 @@
          }
          .search-box {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 15px;
             margin-bottom: 12px;
+            flex-wrap: wrap;
+         }
+         .brand-logo {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+            margin-right: 15px;
+            flex-shrink: 0;
+         }
+         .search-wrapper {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
          }
          .search-box input {
-            flex: 1;
+            width: 100%;
             padding: 12px;
             background: rgba(15, 23, 42, 0.88);
             border: 1px solid var(--border);
@@ -1586,12 +1601,19 @@
       <div class="container">
          <div class="search-section">
             <form class="search-box" method="GET">
-               <input
-                  type="text"
-                  name="q"
-                  value="<%= q || '' %>"
-                  placeholder="Ödəniş kodu, Telefon, Ad və ya Ünvan..."
+               <img
+                  src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png"
+                  alt="Selnet"
+                  class="brand-logo"
                />
+               <div class="search-wrapper">
+                  <input
+                     type="text"
+                     name="q"
+                     value="<%= q || '' %>"
+                     placeholder="Ödəniş kodu, Telefon, Ad və ya Ünvan..."
+                  />
+               </div>
                <button type="submit">
                   <i class="fa-solid fa-magnifying-glass"></i> Axtar
                </button>
