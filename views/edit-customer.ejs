@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <%- include('partials/customer-form-styles') %>
-    <style>.btn-submit{--submit-color:var(--blue);--submit-color-dark:#2563eb;box-shadow:0 14px 32px rgba(59,130,246,.22)}</style>
+    <style>
+        .form-card {
+            background: rgba(15, 23, 42, 0.68);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        .form-card h2 {
+            color: #f8fafc;
+        }
+        .btn-submit {
+            --submit-color: var(--blue);
+            --submit-color-dark: #2563eb;
+            box-shadow: 0 14px 32px rgba(59, 130, 246, .22);
+        }
+    </style>
 </head>
 <body>
 <div class="header">
