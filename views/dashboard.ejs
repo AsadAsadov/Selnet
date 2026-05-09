@@ -127,22 +127,29 @@
             box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
          }
          .search-section {
-            background: linear-gradient(
-               180deg,
-               var(--card),
-               rgba(30, 41, 59, 0.92)
-            );
-            border: 1px solid var(--border-soft);
-            border-radius: 16px;
-            padding: 15px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 22px;
             margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+         }
+         .search-filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 18px;
          }
          .search-box {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
+            gap: 12px;
+            flex: 2 1 420px;
+            min-width: 260px;
+            padding: 0;
+            border: none;
+            background: transparent;
          }
          .brand-logo {
             height: 38px;
@@ -154,24 +161,65 @@
          .search-wrapper {
             display: flex;
             align-items: center;
+            position: relative;
             flex: 1;
             min-width: 0;
          }
-         .search-box input {
+         .search-wrapper input {
             width: 100%;
-            padding: 12px;
-            background: rgba(15, 23, 42, 0.88);
+            padding: 12px 14px 12px 44px;
+            background: rgba(30, 41, 59, 0.5);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 14px;
             color: var(--text);
             font-size: 15px;
             min-width: 0;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
          }
-         .search-box input:focus,
+         .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--green);
+            pointer-events: none;
+            font-size: 16px;
+         }
+         .search-wrapper input:focus,
          .date-filter input[type="date"]:focus {
             outline: none;
             border-color: var(--green);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+            box-shadow: 0 0 10px var(--glow);
+         }
+         .date-filter {
+            display: flex;
+            gap: 12px;
+            flex: 1 1 320px;
+            min-width: 260px;
+            align-items: center;
+            padding: 0;
+            border: none;
+            background: transparent;
+         }
+         .date-filter label {
+            margin: 0;
+            display: none;
+         }
+         .date-filter input[type="date"] {
+            flex: 1;
+            padding: 12px 14px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--text);
+            font-size: 14px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+         }
+         .date-filter input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(64%) sepia(39%) saturate(403%) hue-rotate(101deg) brightness(100%) contrast(97%);
+         }
+         .date-filter input[type="date"]::-moz-focus-inner {
+            border: 0;
          }
          .search-box button {
             padding: 12px 20px;
@@ -1177,8 +1225,27 @@
             .stats {
                grid-template-columns: 1fr;
             }
+            .search-filter-section {
+               flex-direction: column;
+               align-items: stretch;
+            }
+            .search-box,
+            .date-filter {
+               width: 100%;
+               flex: 1 1 100%;
+            }
             .search-box {
                flex-direction: column;
+               gap: 12px;
+            }
+            .search-wrapper input {
+               padding-left: 44px;
+            }
+            .filter-actions {
+               width: 100%;
+               display: flex;
+               flex-wrap: wrap;
+               gap: 10px;
             }
             .chart-wrapper {
                width: 100% !important;
@@ -1600,46 +1667,47 @@
 
       <div class="container">
          <div class="search-section">
-            <form class="search-box" method="GET">
-               <img
-                  src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png"
-                  alt="Selnet"
-                  class="brand-logo"
-               />
-               <div class="search-wrapper">
-                  <input
-                     type="text"
-                     name="q"
-                     value="<%= q || '' %>"
-                     placeholder="Ödəniş kodu, Telefon, Ad və ya Ünvan..."
-                  />
+               <div class="search-filter-section">
+                  <form class="search-box" method="GET">
+                     <img
+                        src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png"
+                        alt="Selnet"
+                        class="brand-logo"
+                     />
+                     <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input
+                           type="text"
+                           name="q"
+                           value="<%= q || '' %>"
+                           placeholder="Ödəniş kodunu daxil et"
+                        />
+                     </div>
+                     <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i> Axtar
+                     </button>
+                  </form>
+                  <form class="date-filter" method="GET">
+                     <input type="hidden" name="q" value="<%= q || '' %>" />
+                     <input
+                        type="date"
+                        name="startDate"
+                        value="<%= startDate || '' %>"
+                     />
+                     <input type="date" name="endDate" value="<%= endDate || '' %>" />
+                     <div class="filter-actions">
+                        <button type="submit" class="btn-filter">
+                           <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+                        <% if (q || startDate || endDate) { %><a
+                           href="/"
+                           class="btn-clear"
+                           ><i class="fa-solid fa-xmark"></i> Təmizlə</a
+                        ><% } %>
+                     </div>
+                  </form>
                </div>
-               <button type="submit">
-                  <i class="fa-solid fa-magnifying-glass"></i> Axtar
-               </button>
-            </form>
-            <form class="date-filter" method="GET">
-               <input type="hidden" name="q" value="<%= q || '' %>" />
-               <label><i class="fa-solid fa-calendar"></i> Tarix:</label>
-               <input
-                  type="date"
-                  name="startDate"
-                  value="<%= startDate || '' %>"
-               />
-               <input type="date" name="endDate" value="<%= endDate || '' %>" />
-               <div class="filter-actions">
-                  <button type="submit" class="btn-filter">
-                     <i class="fa-solid fa-filter"></i> Filter
-                  </button>
-                  <% if (q || startDate || endDate) { %><a
-                     href="/"
-                     class="btn-clear"
-                     ><i class="fa-solid fa-xmark"></i> Təmizlə</a
-                  ><% } %>
-               </div>
-            </form>
-         </div>
-
+            </div>
          <% if (errorMsg) { %>
          <div class="error">
             <p>
