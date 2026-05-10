@@ -1,8 +1,20 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const { google } = require('googleapis');
+const { createClient } = require('@supabase/supabase-js');
+
 const app = express();
+
+// Supabase Bağlantısı
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('XƏTA: SUPABASE_URL və SUPABASE_ANON_KEY .env faylında müəyyən olunmalıdır');
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
@@ -17,16 +29,6 @@ app.use(session({
 
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS;
-const SHEET_ID = process.env.SHEET_ID;
-const SHEET_TAB_NAME = process.env.SHEET_TAB_NAME || 'Müştəri';
-
-const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.GOOGLE_CREDS),
-  scopes: [
-    'https://www.googleapis.com/auth/spreadsheets'
-  ],
-});
-const sheets = google.sheets({ version: 'v4', auth });
 
 function checkAuth(req, res, next) {
   if (req.session.loggedIn) return next();
@@ -93,7 +95,7 @@ function filterByDateRange(customers, startDate, endDate) {
   const startNum = inputDateToNumber(startDate);
   const endNum = inputDateToNumber(endDate);
   return customers.filter(c => {
-    const custNum = dateToNumber(c['Timestamp']);
+    const custNum = dateToNumber(c.timestamp);
     if (custNum === 0) return false;
     if (startNum && custNum < startNum) return false;
     if (endNum && custNum > endNum) return false;
@@ -134,7 +136,7 @@ function getMonthlyStats(customers) {
   for (const customer of customers) {
     if (isArchivedCustomer(customer)) continue;
 
-    const parts = parseTimestampParts(customer?.['Timestamp']);
+    const parts = parseTimestampParts(customer?.timestamp);
     if (!parts) continue;
 
     const currentIndex = monthIndex(parts.year, parts.month);
@@ -142,7 +144,7 @@ function getMonthlyStats(customers) {
 
     const key = monthKey(parts.year, parts.month);
     const monthStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0, problem: 0 };
-    const qeyd = (customer['Qeyd'] || '').toLowerCase();
+    const qeyd = (customer.qeyd || '').toLowerCase();
 
     monthStats.total += 1;
     if (qeyd.includes('problem')) {
@@ -182,19 +184,22 @@ function getMonthlyStats(customers) {
 
 // DATA GET
 async function getSheetData() {
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEET_TAB_NAME}!A:P`,
-  });
-  const rows = response.data.values || [];
-  if (rows.length === 0) return { headers: [], data: [] };
-  const headers = rows[0];
-  const data = rows.slice(1).map((row, idx) => {
-    const obj = headers.reduce((o, h, i) => { o[h] = row[i] || ''; return o; }, {});
-    obj.rowIndex = idx + 2;
-    return obj;
-  });
-  return { headers, data };
+  try {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .order('id', { ascending: false });
+    
+    if (error) {
+      console.error('Supabase SELECT xətası:', error);
+      throw new Error(error.message);
+    }
+
+    return { headers: [], data: data || [] };
+  } catch (err) {
+    console.error('getSheetData failed:', err);
+    throw err;
+  }
 }
 
 function cleanSheetValue(val) {
@@ -211,11 +216,11 @@ function normalizeDriveLinks(value) {
 }
 
 function isArchivedCustomer(customer) {
-  return String(customer?.['Arxiv'] || '').trim().toLowerCase() === 'hə';
+  return String(customer?.arxiv || '').trim().toLowerCase() === 'hə';
 }
 
 function isProblemCustomer(customer) {
-  return String(customer?.['Qeyd'] || '').toLowerCase().includes('problem');
+  return String(customer?.qeyd || '').toLowerCase().includes('problem');
 }
 
 function isTodayCustomer(customer) {
@@ -267,11 +272,17 @@ app.get('/logout', (req, res) => { req.session.destroy(); res.redirect('/login')
 // Tək müştəri datası (JSON)
 app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const { data } = await getSheetData();
-    const requestedCode = cleanSheetValue(req.params.odemeKodu);
-    const found = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === requestedCode);
-    if (!found) return res.status(404).json({ success: false, data: null, error: 'Müştəri tapılmadı.' });
-    res.json({ success: true, data: found });
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('odeme_kodu', req.params.odemeKodu.trim())
+      .single();
+    
+    if (error || !data) {
+      return res.status(404).json({ success: false, data: null, error: 'Müştəri tapılmadı.' });
+    }
+    
+    res.json({ success: true, data });
   } catch (err) {
     console.error('GET /customer/:odemeKodu failed:', err);
     res.status(500).json({ success: false, data: null, error: err.message });
@@ -290,7 +301,15 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
   const limit = parsePositiveInteger(req.query.limit, 10, 100);
 
   try {
-    const { data } = await getSheetData();
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .order('id', { ascending: false });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+
     sendCustomerList(res, Array.isArray(data) ? data : [], page, limit);
   } catch (err) {
     console.error('GET /api/all-customers failed:', err);
@@ -303,7 +322,15 @@ app.get('/api/today-customers', checkAuth, async (req, res) => {
   const limit = parsePositiveInteger(req.query.limit, 10, 100);
 
   try {
-    const { data } = await getSheetData();
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .order('id', { ascending: false });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+
     const customers = (Array.isArray(data) ? data : []).filter(customer => !isArchivedCustomer(customer) && isTodayCustomer(customer));
     sendCustomerList(res, customers, page, limit);
   } catch (err) {
@@ -317,7 +344,15 @@ app.get('/api/archive-customers', checkAuth, async (req, res) => {
   const limit = parsePositiveInteger(req.query.limit, 10, 100);
 
   try {
-    const { data } = await getSheetData();
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .order('id', { ascending: false });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+
     const customers = (Array.isArray(data) ? data : []).filter(isArchivedCustomer);
     sendCustomerList(res, customers, page, limit);
   } catch (err) {
@@ -332,13 +367,22 @@ app.get('/api/problem-customers', checkAuth, async (req, res) => {
   const solvedParam = req.query.solved;
 
   try {
-    const { data } = await getSheetData();
-    let customers = (Array.isArray(data) ? data : []).filter(isProblemCustomer);
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('qeyd', 'Problem')
+      .order('id', { ascending: false });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    let customers = Array.isArray(data) ? data : [];
 
     if (solvedParam === 'true') {
-      customers = customers.filter(c => String(c['Nəticə'] || '').trim() !== '');
+      customers = customers.filter(c => String(c.netice || '').trim() !== '');
     } else if (solvedParam === 'false') {
-      customers = customers.filter(c => String(c['Nəticə'] || '').trim() === '');
+      customers = customers.filter(c => String(c.netice || '').trim() === '');
     }
 
     sendCustomerList(res, customers, page, limit);
@@ -354,8 +398,8 @@ app.get('/api/problem-customers', checkAuth, async (req, res) => {
 app.get('/add', checkAuth, (req, res) => res.render('add-customer', { success: null, error: null }));
 app.post('/add', checkAuth, async (req, res) => {
   try {
-    const odemeKodu = req.body.odemeKodu || '';
-    const adSoyad = req.body.adSoyad || '';
+    const odeme_kodu = req.body.odemeKodu || '';
+    const ad_soyad = req.body.adSoyad || '';
     const telefon = req.body.telefon || '';
     const fin = req.body.fin || '';
     const seriya = req.body.seriya || '';
@@ -364,48 +408,49 @@ app.post('/add', checkAuth, async (req, res) => {
     const komendant = req.body.komendant || '';
     const unvan = req.body.unvan || '';
     const operationType = req.body.operationType || '';
-    const note = operationType || req.body.qeyd || '';
-    const ayliqOdenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
-    const driveLinks = normalizeDriveLinks(req.body.driveLinks);
+    const qeyd = operationType || req.body.qeyd || '';
+    const ayliq_odenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
+    const drive_links = normalizeDriveLinks(req.body.driveLinks);
     const netice = req.body.netice || '';
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 
-    const newRow = [
-      timestamp,
-      `'${odemeKodu}`,
-      adSoyad,
-      `'${telefon}`,
-      seriya,
-      fin,
-      unvan,
-      modem,
-      tvbox,
-      ayliqOdenis,
-      '',
-      komendant,
-      note,
-      driveLinks,
-      '',
-      netice
-    ];
+    const { data, error } = await supabase
+      .from('customers')
+      .insert([{
+        timestamp,
+        odeme_kodu,
+        ad_soyad,
+        telefon,
+        fin,
+        seriya,
+        unvan,
+        modem,
+        tvbox,
+        ayliq_odenis,
+        komendant,
+        qeyd,
+        drive_links,
+        netice,
+        arxiv: ''
+      }]);
+    
+    if (error) {
+      throw new Error(error.message);
+    }
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!A1`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [newRow] }
-    });
     res.render('add-customer', { success: 'Müştəri uğurla əlavə edildi!', error: null });
-  } catch (err) { res.render('add-customer', { success: null, error: 'Xəta: ' + err.message }); }
+  } catch (err) {
+    console.error('POST /add failed:', err);
+    res.render('add-customer', { success: null, error: 'Xəta: ' + err.message });
+  }
 });
 
 // EDIT CUSTOMER (POST)
 app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const rowIndex = req.body.rowIndex;
-    const odemeKodu = req.body.odemeKodu || '';
-    const adSoyad = req.body.adSoyad || '';
+    const id = req.body.customerId;
+    const ad_soyad = req.body.adSoyad || '';
     const telefon = req.body.telefon || '';
     const fin = req.body.fin || '';
     const seriya = req.body.seriya || '';
@@ -414,84 +459,108 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
     const komendant = req.body.komendant || '';
     const unvan = req.body.unvan || '';
     const qeyd = req.body.qeyd || '';
-    const ayliq = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
-    const driveLinks = normalizeDriveLinks(req.body.driveLinks);
+    const ayliq_odenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
+    const drive_links = normalizeDriveLinks(req.body.driveLinks);
     const netice = req.body.netice || '';
 
     let existingArxiv = '';
     try {
-      const { data } = await getSheetData();
-      const existingRow = data.find(r => String(r.rowIndex) === String(rowIndex));
-      existingArxiv = existingRow ? (existingRow['Arxiv'] || '') : '';
+      const { data } = await supabase
+        .from('customers')
+        .select('arxiv')
+        .eq('id', id)
+        .single();
+      existingArxiv = data ? (data.arxiv || '') : '';
     } catch (error) {
       existingArxiv = '';
     }
 
-    const updatedRow = [
-      `'${odemeKodu}`,
-      adSoyad,
-      `'${telefon}`,
-      seriya,
-      fin,
-      unvan,
-      modem,
-      tvbox,
-      ayliq,
-      '',
-      komendant,
-      qeyd,
-      driveLinks,
-      existingArxiv,
-      netice
-    ];
+    const { error } = await supabase
+      .from('customers')
+      .update({
+        ad_soyad,
+        telefon,
+        seriya,
+        fin,
+        unvan,
+        modem,
+        tvbox,
+        ayliq_odenis,
+        komendant,
+        qeyd,
+        drive_links,
+        arxiv: existingArxiv,
+        netice
+      })
+      .eq('id', id);
+    
+    if (error) {
+      throw new Error(error.message);
+    }
 
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!B${rowIndex}:P${rowIndex}`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [updatedRow] }
-    });
-
-    res.redirect('/edit/' + odemeKodu + '?success=1');
-  } catch (err) { 
-    console.error(err);
-    res.status(500).send("Xəta: " + err.message); 
+    res.redirect('/edit/' + req.params.odemeKodu + '?success=1');
+  } catch (err) {
+    console.error('POST /edit/:odemeKodu failed:', err);
+    res.status(500).send("Xəta: " + err.message);
   }
 });
 
 app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const { data } = await getSheetData();
-    const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === req.params.odemeKodu.trim());
-    if(!customer) return res.redirect('/');
-    customer.ayliqOdenis = customer['Aylıq ödəniş'] || customer['ayliqOdenis'] || "";
-    res.render('edit-customer', { customer, success: req.query.success ? 'Yeniləndi' : null, error: null });
-  } catch (err) { res.redirect('/'); }
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('odeme_kodu', req.params.odemeKodu.trim())
+      .single();
+    
+    if (error || !data) {
+      return res.redirect('/');
+    }
+
+    res.render('edit-customer', { customer: data, success: req.query.success ? 'Yeniləndi' : null, error: null });
+  } catch (err) {
+    console.error('GET /edit/:odemeKodu failed:', err);
+    res.redirect('/');
+  }
 });
 
 // DELETE & ARCHIVE
 app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const { rowIndex } = req.body;
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: SHEET_ID,
-      resource: { requests: [{ deleteDimension: { range: { sheetId: 0, dimension: 'ROWS', startIndex: rowIndex - 1, endIndex: rowIndex } } }] }
-    });
+    const { id } = req.body;
+    const { error } = await supabase
+      .from('customers')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+
     res.json({ success: true });
-  } catch (err) { res.json({ success: false, error: err.message }); }
+  } catch (err) {
+    console.error('POST /delete/:odemeKodu failed:', err);
+    res.json({ success: false, error: err.message });
+  }
 });
 
 app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const { rowIndex, archive } = req.body;
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!O${rowIndex}`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [[archive ? 'Hə' : '']] }
-    });
+    const { id, archive } = req.body;
+    const { error } = await supabase
+      .from('customers')
+      .update({ arxiv: archive ? 'Hə' : '' })
+      .eq('id', id);
+    
+    if (error) {
+      throw new Error(error.message);
+    }
+
     res.json({ success: true });
-  } catch (error) { res.json({ success: false }); }
+  } catch (err) {
+    console.error('POST /archive/:odemeKodu failed:', err);
+    res.json({ success: false, error: err.message });
+  }
 });
 
 // MAIN DASHBOARD
@@ -511,34 +580,43 @@ app.get('/', checkAuth, async (req, res) => {
   const limit = 10;
 
   try {
-    let { data } = await getSheetData();
-    totalCount = data.length;
-    problemCount = (Array.isArray(data) ? data : []).filter(isProblemCustomer).length;
-    monthlyStats = getMonthlyStats(data);
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .order('id', { ascending: false });
+    
+    if (error) {
+      throw new Error(error.message);
+    }
 
-    data = filterByDateRange(data, startDate, endDate);
+    let allData = Array.isArray(data) ? data : [];
+    totalCount = allData.length;
+    problemCount = allData.filter(isProblemCustomer).length;
+    monthlyStats = getMonthlyStats(allData);
 
-    const activeData = data.filter(r => !isArchivedCustomer(r));
-    archivedCustomers = data.filter(isArchivedCustomer);
+    allData = filterByDateRange(allData, startDate, endDate);
+
+    const activeData = allData.filter(r => !isArchivedCustomer(r));
+    archivedCustomers = allData.filter(isArchivedCustomer);
 
     if (status === 'problem') {
-      results = data.filter(isProblemCustomer);
+      results = allData.filter(isProblemCustomer);
     } else if (q) {
       const sq = q.toLowerCase().replace(/\s/g, '');
-      results = data.filter(c => {
-        const ok = cleanSheetValue(c['Ödəniş kodu']).toLowerCase();
-        const tel = cleanSheetValue(c['Telefon nömrəsi']).toLowerCase().replace(/\s/g, '');
-        const ad = (c['Ad, Soyad, Ata adı'] || '').toLowerCase();
+      results = allData.filter(c => {
+        const ok = (c.odeme_kodu || '').toLowerCase();
+        const tel = (c.telefon || '').toLowerCase().replace(/\s/g, '');
+        const ad = (c.ad_soyad || '').toLowerCase();
         return ok.includes(sq) || tel.includes(sq) || ad.includes(sq);
       });
     } else if (startDate || endDate) {
-      results = data;
+      results = allData;
     } else {
       todayCustomers = activeData.filter(isTodayCustomer);
       results = activeData;
     }
   } catch (err) {
-    console.error(err);
+    console.error('Dashboard error:', err);
     errorMsg = 'Xəta: ' + err.message;
   }
 
