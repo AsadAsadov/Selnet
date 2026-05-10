@@ -113,8 +113,9 @@
 
                 <div class="form-group full-width">
                     <label>Nəticə</label>
-                    <% const neticeValue = customer['Netice'] || 'Həll olunmadı'; %>
-                    <select name="netice" required>
+                    <% const neticeValue = customer['Netice'] || '' ; %>
+                    <select name="netice">
+                        <option value="" <%= neticeValue === '' ? 'selected' : '' %>>-- Seçin --</option>
                         <option value="Həll olundu" <%= neticeValue === 'Həll olundu' ? 'selected' : '' %>>Həll olundu</option>
                         <option value="Həll olunmadı" <%= neticeValue === 'Həll olunmadı' ? 'selected' : '' %>>Həll olunmadı</option>
                     </select>
