@@ -141,10 +141,13 @@ function getMonthlyStats(customers) {
     if (currentIndex < startIndex) continue;
 
     const key = monthKey(parts.year, parts.month);
-    const monthStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
+    const monthStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0, problem: 0 };
     const qeyd = (customer['Qeyd'] || '').toLowerCase();
 
     monthStats.total += 1;
+    if (qeyd.includes('problem')) {
+      monthStats.problem += 1;
+    }
     if (qeyd.includes('qoşulma')) {
       monthStats.qosulma += 1;
     } else if (qeyd.includes('köçürmə') || qeyd.includes('kocurme')) {
@@ -159,20 +162,22 @@ function getMonthlyStats(customers) {
   const total = [];
   const qosulma = [];
   const kocurme = [];
+  const problem = [];
 
   for (let index = startIndex; index <= maxMonthIndex; index += 1) {
     const year = Math.floor(index / 12);
     const month = (index % 12) + 1;
     const key = monthKey(year, month);
-    const monthStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
+    const monthStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0, problem: 0 };
 
     labels.push(monthLabelFromKey(key));
     total.push(monthStats.total);
     qosulma.push(monthStats.qosulma);
     kocurme.push(monthStats.kocurme);
+    problem.push(monthStats.problem);
   }
 
-  return { labels, total, qosulma, kocurme };
+  return { labels, total, qosulma, kocurme, problem };
 }
 
 // DATA GET
@@ -387,7 +392,7 @@ app.post('/add', checkAuth, async (req, res) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!A:P`,
+      range: `${SHEET_TAB_NAME}!A1`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [newRow] }
     });
