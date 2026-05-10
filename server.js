@@ -189,9 +189,9 @@ async function getSheetData() {
   const rows = response.data.values || [];
   if (rows.length === 0) return { headers: [], data: [] };
   const headers = rows[0];
-  const data = rows.slice(1).reverse().map((row, idx) => {
+  const data = rows.slice(1).map((row, idx) => {
     const obj = headers.reduce((o, h, i) => { o[h] = row[i] || ''; return o; }, {});
-    obj.rowIndex = rows.length - idx;
+    obj.rowIndex = idx + 2;
     return obj;
   });
   return { headers, data };
