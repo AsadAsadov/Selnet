@@ -4,67 +4,116 @@
     <meta charset="UTF-8">
     <title>Giriş - Müştəri axtarış sistemi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-bg: #ffffff;
-            --input-border: #e2e8f0;
-            --button-gradient: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            --blue-main: #2563eb;
+            --blue-dark: #1d4ed8;
+            --blue-soft: #3b82f6;
+            --card-bg: rgba(255,255,255,0.92);
+            --input-border: #dbe3ee;
+            --text: #0f172a;
+            --muted: #64748b;
+        }
+
+        *{
+            box-sizing:border-box;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #f0f2f5;
+            margin: 0;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* Arxa fon şəkli + blur */
+        body::before{
+            content:"";
+            position: fixed;
+            inset: 0;
+            background-image: url("https://raw.githubusercontent.com/AsadAsadov/Selnet/main/home.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(4px);
+            transform: scale(1.06);
+            z-index: -2;
+        }
+
+        /* Tünd overlay */
+        body::after{
+            content:"";
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.45);
+            z-index: -1;
+        }
+
+        .page-wrapper{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .login-card {
-            background: var(--card-bg);
             width: 100%;
-            max-width: 380px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            max-width: 390px;
+            border-radius: 26px;
             overflow: hidden;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.35),
+                0 0 0 1px rgba(255,255,255,0.08);
+            animation: fadeIn 0.45s ease;
         }
 
-        /* Yuxarı bənövşəyi hissə və loqo */
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        /* Yuxarı mavi hissə */
         .card-header {
-            background: var(--bg-gradient);
-            padding: 40px 20px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            padding: 42px 20px 36px;
             text-align: center;
             position: relative;
         }
 
-        .lang-selector {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .lang-selector img {
-            width: 24px;
-            border-radius: 3px;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.3);
+        .logo-container{
+            display:flex;
+            align-items:center;
+            justify-content:center;
         }
 
         .logo-container img {
-            width: 160px; /* Loqo ölçüsü */
-            filter: brightness(0) invert(1); /* Loqonu ağ rəngə boyayır ki bənövşəyi fonda görünsün */
+            width: 190px;
+            max-width: 100%;
+            height: auto;
+            filter: brightness(0) invert(1);
         }
 
         .card-body {
-            padding: 30px;
+            padding: 32px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             position: relative;
         }
 
@@ -75,113 +124,217 @@
             transform: translateY(-50%);
             color: #94a3b8;
             width: 18px;
+            pointer-events: none;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 15px 12px 45px;
+            padding: 14px 15px 14px 48px;
             border: 1px solid var(--input-border);
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 15px;
-            box-sizing: border-box;
-            transition: 0.3s;
+            background: rgba(241,245,249,0.92);
+            color: var(--text);
+            transition: 0.25s ease;
+        }
+
+        .form-control::placeholder{
+            color:#94a3b8;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #764ba2;
-            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+            border-color: var(--blue-soft);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
         }
 
+        /* Mavi button */
         .btn-login {
             width: 100%;
-            padding: 14px;
-            background: var(--button-gradient);
+            padding: 15px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
             border: none;
-            border-radius: 10px;
+            border-radius: 14px;
             color: white;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 8px;
+            transition: 0.25s ease;
+            box-shadow: 0 12px 24px rgba(37,99,235,0.28);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            box-shadow: 0 16px 30px rgba(37,99,235,0.35);
+        }
+
+        .btn-login:active{
+            transform: scale(0.99);
         }
 
         .error-msg {
-            background: #fff5f5;
-            color: #c53030;
-            padding: 10px;
-            border-radius: 8px;
+            background: rgba(254,242,242,0.95);
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 12px;
             font-size: 13px;
             text-align: center;
-            margin-bottom: 15px;
-            border: 1px solid #feb2b2;
+            margin-bottom: 16px;
+            border: 1px solid rgba(248,113,113,0.35);
+            font-weight: 600;
         }
 
         .footer-text {
             text-align: center;
             padding: 20px;
             font-size: 12px;
-            color: #64748b;
-            background: #f8fafc;
+            color: var(--muted);
+            background: rgba(248,250,252,0.7);
+            border-top: 1px solid rgba(226,232,240,0.7);
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .copyright {
+            margin-top: 18px;
             text-align: center;
-            margin-top: 15px;
-            font-size: 11px;
-            color: #94a3b8;
+            font-size: 12px;
+            color: rgba(255,255,255,0.82);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
         }
-        
-        .copyright a { color: #764ba2; text-decoration: none; }
+
+        .copyright a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px){
+
+            body{
+                padding:16px;
+            }
+
+            .login-card{
+                border-radius:22px;
+            }
+
+            .card-header{
+                padding:34px 18px 30px;
+            }
+
+            .logo-container img{
+                width:160px;
+            }
+
+            .card-body{
+                padding:24px 20px;
+            }
+
+            .form-control{
+                font-size:14px;
+                padding:13px 14px 13px 46px;
+            }
+
+            .btn-login{
+                padding:14px;
+                font-size:15px;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<div class="login-card">
-    <div class="card-header">
-        <div class="lang-selector">
-            <img src="https://flagcdn.com/w40/az.png" alt="AZ">
-            <img src="https://flagcdn.com/w40/gb.png" alt="EN">
-            <img src="https://flagcdn.com/w40/ru.png" alt="RU">
+<div class="page-wrapper">
+
+    <div class="login-card">
+
+        <div class="card-header">
+            <div class="logo-container">
+                <img
+                    src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png"
+                    alt="Selnet Logo"
+                >
+            </div>
         </div>
-        
-        <div class="logo-container">
-            <img src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png" alt="Selnet Logo" style="max-width: 220px; height: auto;">
+
+        <div class="card-body">
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-msg">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <form method="POST">
+
+                <div class="form-group">
+                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                        </path>
+                    </svg>
+
+                    <input
+                        class="form-control"
+                        placeholder="İstifadəçi adı"
+                        type="text"
+                        name="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
+
+                    <input
+                        class="form-control"
+                        placeholder="Şifrə"
+                        type="password"
+                        name="password"
+                        required
+                    >
+                </div>
+
+                <button class="btn-login" type="submit">
+
+                    <svg style="width:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
+                        </path>
+                    </svg>
+
+                    Sign In
+                </button>
+
+            </form>
+
         </div>
+
+        <div class="footer-text">
+            SELNET MMC
+        </div>
+
     </div>
 
-    <div class="card-body">
-        <% if (typeof error !== 'undefined' && error) { %>
-            <div class="error-msg"><%= error %></div>
-        <% } %>
-
-        <form method="POST">
-            <div class="form-group">
-                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                <input class="form-control" placeholder="İstifadəçi adı" type="text" name="username" required>
-            </div>
-
-            <div class="form-group">
-                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                <input class="form-control" placeholder="Şifrə" type="password" name="password" required>
-            </div>
-
-            <button class="btn-login" type="submit">
-                <svg style="width:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                Sign In
-            </button>
-        </form>
+    <div class="copyright">
+        © 2026
+        <a href="#">Müştəri axtarış sistemi</a>.
+        Bütün hüquqlar qorunur.
     </div>
-    
-    <div class="footer-text">SELNET MMC</div>
-</div>
 
-<div class="copyright" style="position: absolute; bottom: 20px;">
-    © 2026 <a href="#">Müştəri axtarış sistemi</a>. Bütün hüquqlar qorunur.
 </div>
 
 </body>
