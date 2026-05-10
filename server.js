@@ -4,15 +4,17 @@ const session = require('express-session');
 const { google } = require('googleapis');
 const app = express();
 
+// --- GÖRÜNÜŞ VƏ PARSER AYARLARI ---
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'gizli-secret',
+  secret: process.env.SESSION_SECRET || 'gizli-secret-key-123',
   resave: false,
   saveUninitialized: true,
-  cookie: { maxAge: 3600000 }
+  cookie: { maxAge: 3600000 } // 1 saat
 }));
 
 const ADMIN_USER = 'admin';
@@ -20,55 +22,96 @@ const ADMIN_PASS = process.env.ADMIN_PASS;
 const SHEET_ID = process.env.SHEET_ID;
 const SHEET_TAB_NAME = process.env.SHEET_TAB_NAME || 'Müştəri';
 
+// --- GOOGLE SHEETS LOGIN ---
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_CREDS),
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 const sheets = google.sheets({ version: 'v4', auth });
 
+// --- GİRİŞ YOXLAMA ---
 function checkAuth(req, res, next) {
-  if (req.session.loggedIn) return next();
-  const wantsJson = req.path.startsWith('/api/') || req.path.startsWith('/customer/') || req.xhr;
-  if (wantsJson) return res.status(401).json({ success: false, error: 'Sessiya bitib.' });
+  if (req.session.loggedIn) {
+    return next();
+  }
+  const isApiRequest = req.path.startsWith('/api/') || req.path.startsWith('/customer/') || req.xhr;
+  if (isApiRequest) {
+    return res.status(401).json({ success: false, error: 'Sessiya bitib.' });
+  }
   return res.redirect('/login');
 }
 
-// --- TARİX VƏ STATİSTİKA FUNKSİYALARI (HƏMİSİ QALDI) ---
+// --- TARİX FUNKSİYALARI (TAM GENİŞ) ---
+
 function parseTimestampParts(timestamp) {
   if (!timestamp) return null;
   const raw = timestamp.toString().trim();
+
+  // Format: MM/DD/YYYY
   let match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (match) return { year: Number(match), month: Number(match), day: Number(match) };
+  if (match) {
+    const month = Number(match);
+    const day = Number(match);
+    const year = Number(match);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return { year, month, day };
+    }
+  }
+
+  // Format: YYYY-MM-DD
   match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (match) return { year: Number(match), month: Number(match), day: Number(match) };
+  if (match) {
+    const year = Number(match);
+    const month = Number(match);
+    const day = Number(match);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return { year, month, day };
+    }
+  }
+
   const parsed = new Date(raw);
-  if (!Number.isNaN(parsed.getTime())) return { year: parsed.getFullYear(), month: parsed.getMonth() + 1, day: parsed.getDate() };
+  if (!Number.isNaN(parsed.getTime())) {
+    return { 
+      year: parsed.getFullYear(), 
+      month: parsed.getMonth() + 1, 
+      day: parsed.getDate() 
+    };
+  }
   return null;
 }
 
 function formatDate(timestamp) {
   const parts = parseTimestampParts(timestamp);
   if (!parts) return 'Tarix yoxdur';
-  return `${String(parts.day).padStart(2, '0')}.${String(parts.month).padStart(2, '0')}.${parts.year}`;
+  const d = String(parts.day).padStart(2, '0');
+  const m = String(parts.month).padStart(2, '0');
+  return `${d}.${m}.${parts.year}`;
 }
 
 function dateToNumber(dateStr) {
   const parts = parseTimestampParts(dateStr);
-  return parts ? parts.year * 10000 + parts.month * 100 + parts.day : 0;
+  if (!parts) return 0;
+  return parts.year * 10000 + parts.month * 100 + parts.day;
 }
 
 function inputDateToNumber(dateStr) {
   if (!dateStr) return null;
   try {
-    const [year, month, day] = dateStr.split('-').map(Number);
+    const parts = dateStr.split('-');
+    const year = Number(parts);
+    const month = Number(parts);
+    const day = Number(parts);
     return year * 10000 + month * 100 + day;
-  } catch { return null; }
+  } catch (e) {
+    return null;
+  }
 }
 
 function filterByDateRange(customers, startDate, endDate) {
   if (!startDate && !endDate) return customers;
   const startNum = inputDateToNumber(startDate);
   const endNum = inputDateToNumber(endDate);
+  
   return customers.filter(c => {
     const custNum = dateToNumber(c['Timestamp']);
     if (custNum === 0) return false;
@@ -78,96 +121,150 @@ function filterByDateRange(customers, startDate, endDate) {
   });
 }
 
-const AZ_MONTH_NAMES = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun', 'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'];
+// --- STATİSTİKA (MAY 2026-DAN BAŞLAYAN) ---
+
+const AZ_MONTH_NAMES = [
+  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+  'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+];
 
 function getMonthlyStats(customers) {
   const statsByMonth = new Map();
+  const startYear = 2026;
+  const startMonth = 5; // May
+  
   const now = new Date();
-  let maxMonthIndex = now.getFullYear() * 12 + now.getMonth();
-  const startIndex = 2026 * 12 + 4; // May 2026
+  const currentTotalMonths = now.getFullYear() * 12 + (now.getMonth());
+  const startTotalMonths = startYear * 12 + (startMonth - 1);
+  
+  let maxMonthIndex = Math.max(startTotalMonths, currentTotalMonths);
 
   for (const customer of customers) {
     if (isArchivedCustomer(customer)) continue;
+
     const parts = parseTimestampParts(customer?.['Timestamp']);
     if (!parts) continue;
+
+    const currentIndex = parts.year * 12 + (parts.month - 1);
+    if (currentIndex < startTotalMonths) continue;
+
     const key = `${parts.year}-${String(parts.month).padStart(2, '0')}`;
-    const s = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
+    const mStats = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
     
-    // M sütunundakı "Qeyd"ə baxır
-    const qeydVal = (customer['Qeyd'] || '').toLowerCase();
-    s.total += 1;
-    if (qeydVal.includes('qoşulma')) s.qosulma += 1;
-    else if (qeydVal.includes('köçürmə') || qeydVal.includes('kocurme')) s.kocurme += 1;
-    statsByMonth.set(key, s);
+    // M Sütunu: Qeyd (Burada Qoşulma/Köçürmə yazılır)
+    const qeyd = (customer['Qeyd'] || '').toLowerCase();
+
+    mStats.total += 1;
+    if (qeyd.includes('qoşulma')) {
+      mStats.qosulma += 1;
+    } else if (qeyd.includes('köçürmə') || qeyd.includes('kocurme')) {
+      mStats.kocurme += 1;
+    }
+
+    statsByMonth.set(key, mStats);
+    if (currentIndex > maxMonthIndex) maxMonthIndex = currentIndex;
   }
-  
+
   const labels = [], total = [], qosulma = [], kocurme = [];
-  for (let i = startIndex; i <= maxMonthIndex; i++) {
-    const y = Math.floor(i / 12), m = (i % 12) + 1;
-    const key = `${y}-${String(m).padStart(2, '0')}`;
-    const s = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
-    labels.push(`${AZ_MONTH_NAMES[m-1]} ${y}`);
-    total.push(s.total); qosulma.push(s.qosulma); kocurme.push(s.kocurme);
+
+  for (let i = startTotalMonths; i <= maxMonthIndex; i++) {
+    const year = Math.floor(i / 12);
+    const month = (i % 12) + 1;
+    const key = `${year}-${String(month).padStart(2, '0')}`;
+    const data = statsByMonth.get(key) || { total: 0, qosulma: 0, kocurme: 0 };
+
+    labels.push(`${AZ_MONTH_NAMES[month - 1]} ${year}`);
+    total.push(data.total);
+    qosulma.push(data.qosulma);
+    kocurme.push(data.kocurme);
   }
+
   return { labels, total, qosulma, kocurme };
 }
 
-// --- DATA ACCESS ---
+// --- DATA İDARƏETMƏ ---
+
 async function getSheetData() {
+  // P sütununa qədər (Nəticə) bütün datanı götürürük
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_TAB_NAME}!A:P`, // P-yə qədər oxuyuruq
+    range: `${SHEET_TAB_NAME}!A:P`,
   });
+  
   const rows = response.data.values || [];
   if (rows.length === 0) return { headers: [], data: [] };
+  
   const headers = rows;
   const data = rows.slice(1).reverse().map((row, idx) => {
-    const obj = headers.reduce((o, h, i) => { o[h] = row[i] || ''; return o; }, {});
+    const obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = row[i] || '';
+    });
     obj.rowIndex = rows.length - idx;
     return obj;
   });
+  
   return { headers, data };
 }
 
-function cleanSheetValue(val) { return val ? val.toString().replace(/^'/, '').trim() : ''; }
-function normalizeDriveLinks(value) { return (value || '').toString().split(/[\n,]+/).map(link => link.trim()).filter(Boolean).join(','); }
-function isArchivedCustomer(customer) { return String(customer?.['Arxiv'] || '').trim().toLowerCase() === 'hə'; }
-function isTodayCustomer(customer) { 
+function cleanSheetValue(val) {
+  return val ? val.toString().replace(/^'/, '').trim() : '';
+}
+
+function normalizeDriveLinks(value) {
+  if (!value) return '';
+  return value.toString().split(/[\n,]+/).map(l => l.trim()).filter(Boolean).join(',');
+}
+
+function isArchivedCustomer(customer) {
+  const val = customer?.['Arxiv'] || '';
+  return val.trim().toLowerCase() === 'hə';
+}
+
+function isTodayCustomer(customer) {
   const parts = parseTimestampParts(customer?.['Timestamp']);
+  if (!parts) return false;
   const now = new Date();
-  return parts && parts.day === now.getDate() && parts.month === (now.getMonth()+1) && parts.year === now.getFullYear();
+  return parts.day === now.getDate() && 
+         parts.month === (now.getMonth() + 1) && 
+         parts.year === now.getFullYear();
 }
 
 // --- ROUTES ---
+
 app.get('/login', (req, res) => res.render('login', { error: null }));
+
 app.post('/login', (req, res) => {
-  if (req.body.username === ADMIN_USER && req.body.password === ADMIN_PASS) {
-    req.session.loggedIn = true; res.redirect('/');
-  } else { res.render('login', { error: 'Yanlışdır' }); }
+  const { username, password } = req.body;
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    req.session.loggedIn = true;
+    return res.redirect('/');
+  }
+  res.render('login', { error: 'Giriş məlumatları səhvdir!' });
 });
 
-app.get('/customer/:odemeKodu', checkAuth, async (req, res) => {
-  try {
-    const { data } = await getSheetData();
-    const found = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === req.params.odemeKodu);
-    res.json({ success: !!found, data: found });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/login');
 });
 
-// --- ADD (SÜTUNLAR TAM DÜZGÜN) ---
+// MÜŞTƏRİ ƏLAVƏ ET
+app.get('/add', checkAuth, (req, res) => {
+  res.render('add-customer', { success: null, error: null });
+});
+
 app.post('/add', checkAuth, async (req, res) => {
   try {
-    const { odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd, operationType, netice } = req.body;
-    const ayliq = req.body.ayliqOdenis || '';
+    const { odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd, operationType, netice, ayliqOdenis } = req.body;
     const now = new Date();
-    const ts = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const ts = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     // A:TS, B:Kod, C:Ad, D:Tel, E:Seriya, F:FIN, G:Unvan, H:Modem, I:TvBox, J:Ayliq, K:Sifre, L:Komendant, M:Qeyd, N:Sekil, O:Arxiv, P:Natica
-    const newRow = [
-      ts, `'${odemeKodu}`, adSoyad, `'${telefon}`, seriya, fin, unvan, modem, tvbox, ayliq, 
-      '', // K: Şifrə (Boş qalır)
+    const row = [
+      ts, `'${odemeKodu}`, adSoyad, `'${telefon}`, seriya, fin, unvan, modem, tvbox, ayliqOdenis, 
+      '', // K: Sifre boş
       komendant, 
-      operationType || qeyd, // M: Qeyd (Bura "Qoşulma" və s. düşür)
+      operationType || qeyd, // M: Qeyd
       normalizeDriveLinks(req.body.driveLinks), // N: Şəkil
       '', // O: Arxiv
       netice || '' // P: Nəticə
@@ -177,73 +274,128 @@ app.post('/add', checkAuth, async (req, res) => {
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!A:P`,
       valueInputOption: 'USER_ENTERED',
-      resource: { values: [newRow] }
+      resource: { values: [row] }
     });
-    res.render('add-customer', { success: 'Əlavə edildi!', error: null });
-  } catch (err) { res.render('add-customer', { success: null, error: err.message }); }
+    
+    res.render('add-customer', { success: 'Müştəri bazaya yazıldı!', error: null });
+  } catch (err) {
+    res.render('add-customer', { success: null, error: err.message });
+  }
 });
 
-// --- EDIT (B-DƏN P-YƏ QƏDƏR) ---
+// REDAKTƏ
+app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
+  try {
+    const { data } = await getSheetData();
+    const customer = data.find(c => cleanSheetValue(c['Ödəniş kodu']) === req.params.odemeKodu.trim());
+    if (!customer) return res.redirect('/');
+    
+    customer.ayliqOdenis = customer['Aylıq ödəniş'] || '';
+    res.render('edit-customer', { customer, success: req.query.success ? 'Yeniləndi' : null, error: null });
+  } catch (e) {
+    res.redirect('/');
+  }
+});
+
 app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const { rowIndex, odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd, operationType, netice } = req.body;
-    const updatedRow = [
-      `'${odemeKodu}`, adSoyad, `'${telefon}`, seriya, fin, unvan, modem, tvbox, 
-      req.body.ayliqOdenis || "", 
-      '', // K: Şifrə
+    const { rowIndex, odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd, operationType, netice, ayliqOdenis } = req.body;
+    
+    const row = [
+      `'${odemeKodu}`, adSoyad, `'${telefon}`, seriya, fin, unvan, modem, tvbox, ayliqOdenis, 
+      '', // K: Sifre
       komendant, 
       operationType || qeyd, // M: Qeyd
-      normalizeDriveLinks(req.body.driveLinks), // N: Şəkil
+      normalizeDriveLinks(req.body.driveLinks), // N: Sekil
       '', // O: Arxiv
-      netice || "" // P: Nəticə
+      netice || '' // P: Nəticə
     ];
+
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `${SHEET_TAB_NAME}!B${rowIndex}:P${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
-      resource: { values: [updatedRow] }
+      resource: { values: [row] }
     });
-    res.redirect('/edit/' + odemeKodu + '?success=1');
-  } catch (err) { res.status(500).send(err.message); }
+
+    res.redirect(`/edit/${odemeKodu}?success=1`);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
-app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
-  try {
-    const { data } = await getSheetData();
-    const customer = data.find(r => cleanSheetValue(r['Ödəniş kodu']) === req.params.odemeKodu.trim());
-    if(!customer) return res.redirect('/');
-    customer.ayliqOdenis = customer['Aylıq ödəniş'] || "";
-    res.render('edit-customer', { customer, success: req.query.success, error: null });
-  } catch (err) { res.redirect('/'); }
-});
-
+// ANA SƏHİFƏ (DASHBOARD)
 app.get('/', checkAuth, async (req, res) => {
   try {
     let { data } = await getSheetData();
     const totalCount = data.length;
-    const monthlyStats = getMonthlyStats(data);
+    const stats = getMonthlyStats(data);
+    
     const q = req.query.q ? req.query.q.trim().toLowerCase() : '';
+    const startDate = req.query.startDate || '';
+    const endDate = req.query.endDate || '';
     
+    // Filtrləmə
     let filtered = data.filter(r => !isArchivedCustomer(r));
-    if(q) {
-      filtered = data.filter(c => 
-        cleanSheetValue(c['Ödəniş kodu']).toLowerCase().includes(q) || 
-        (c['Ad, Soyad, Ata adı'] || '').toLowerCase().includes(q)
-      );
-    }
     
-    const page = parseInt(req.query.page) || 1, limit = 10;
+    if (q) {
+      filtered = data.filter(c => {
+        const code = cleanSheetValue(c['Ödəniş kodu']).toLowerCase();
+        const name = (c['Ad, Soyad, Ata adı'] || '').toLowerCase();
+        const tel = cleanSheetValue(c['Telefon nömrəsi']).toLowerCase();
+        return code.includes(q) || name.includes(q) || tel.includes(q);
+      });
+    } else if (startDate || endDate) {
+      filtered = filterByDateRange(data, startDate, endDate);
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const totalPages = Math.ceil(filtered.length / limit);
+    const results = filtered.slice((page - 1) * limit, page * limit);
+
     res.render('dashboard', {
-      results: filtered.slice((page-1)*limit, page*limit),
+      results,
       totalResults: filtered.length,
       currentPage: page,
-      totalPages: Math.ceil(filtered.length / limit),
+      totalPages,
       todayCustomers: data.filter(r => !isArchivedCustomer(r) && isTodayCustomer(r)),
       archivedCustomers: data.filter(isArchivedCustomer),
-      totalCount, monthlyStats, formatDate, q, startDate: '', endDate: '', errorMsg: null
+      totalCount,
+      monthlyStats: stats,
+      formatDate,
+      q, startDate, endDate, errorMsg: null
     });
-  } catch (err) { res.send(err.message); }
+
+  } catch (err) {
+    res.send("Sistem xətası: " + err.message);
+  }
+});
+
+// ARXİV VƏ SİLMƏ APİ
+app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
+  try {
+    const { rowIndex, archive } = req.body;
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB_NAME}!O${rowIndex}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [[archive ? 'Hə' : '']] }
+    });
+    res.json({ success: true });
+  } catch (e) { res.json({ success: false }); }
+});
+
+app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
+  try {
+    const { rowIndex } = req.body;
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SHEET_ID,
+      resource: { requests: [{ deleteDimension: { range: { sheetId: 0, dimension: 'ROWS', startIndex: rowIndex - 1, endIndex: rowIndex } } }] }
+    });
+    res.json({ success: true });
+  } catch (err) { res.json({ success: false }); }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server ${PORT}-da işləyir`));
+app.listen(PORT, () => console.log(`Server port ${PORT}-da aktivdir.`));
