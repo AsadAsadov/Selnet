@@ -452,6 +452,17 @@
          .stat-card.gray {
             border-left: 4px solid var(--gray);
          }
+         .stat-card.red {
+            border-left: 4px solid var(--red);
+         }
+         .badge.problem {
+            background: rgba(239, 68, 68, 0.16);
+            color: var(--red);
+            border-color: var(--red);
+         }
+         .list-item.problem {
+            border-left: 4px solid var(--red);
+         }
          .chart-container {
             background: rgba(15, 23, 42, 0.82);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2092,6 +2103,16 @@
                   >Kliklə arxivə bax</span
                >
             </div>
+            <div
+               class="stat-card red"
+               onclick="openCustomerListModal('problem')"
+            >
+               <h3>Problemlər</h3>
+               <p><%= problemCount %></p>
+               <span style="font-size: 12px; color: var(--muted)"
+                  >Kliklə Problemli müştərilərə bax</span
+               >
+            </div>
          </div>
 
          <div class="chart-container" id="monthlyStatsCard">
@@ -2307,6 +2328,7 @@
            all: { title: 'Bütün Müştərilər', icon: 'fa-users', endpoint: '/api/all-customers', subtitle: 'Bütün müştəri bazası' },
            today: { title: 'Bu gün əlavə olunanlar', icon: 'fa-calendar-day', endpoint: '/api/today-customers', subtitle: 'Bugünkü aktiv qeydiyyatlar' },
            archive: { title: 'Arxivdə olanlar', icon: 'fa-box-archive', endpoint: '/api/archive-customers', subtitle: 'Arxiv statuslu müştərilər' },
+           problem: { title: 'Problemlər', icon: 'fa-triangle-exclamation', endpoint: '/api/problem-customers', subtitle: 'Qeydində Problem yazılanlar' },
            search: { title: 'Axtarış nəticələri', icon: 'fa-magnifying-glass', endpoint: null, subtitle: 'Cari axtarış nəticələri' }
          };
 
@@ -2322,7 +2344,17 @@
            if(!Number.isNaN(parsed.getTime())) return `${String(parsed.getDate()).padStart(2,'0')}.${String(parsed.getMonth()+1).padStart(2,'0')}.${parsed.getFullYear()}`;
            return 'Tarix yoxdur';
          }
-         function getCustomerType(item){const qeydText=String(item?.['Qeyd']||'').toLowerCase();const isArchived=String(item?.['Arxiv']||'').toLowerCase()==='hə';const typeClass=isArchived?'archived-item':(qeydText.includes('köç')?'kocurme':'qosulma');const badgeClass=isArchived?'archived':typeClass;const typeLabel=isArchived?'Arxivdə':(qeydText.includes('köç')?'Köçürmə':'Qoşulma');const iconClass=isArchived?'fa-box-archive':(typeClass==='kocurme'?'fa-truck-moving':'fa-plug');return{typeClass,badgeClass,typeLabel,iconClass};}
+         function getCustomerType(item){
+           const note = String(item?.['Qeyd'] || '').trim();
+           const noteText = note.toLowerCase();
+           const isArchived = String(item?.['Arxiv'] || '').toLowerCase() === 'hə';
+           const isProblem = !isArchived && noteText.includes('problem');
+           const typeClass = isArchived ? 'archived-item' : (isProblem ? 'problem' : (noteText.includes('köç') || noteText.includes('kocurme') ? 'kocurme' : (noteText.includes('qoşulma') ? 'qosulma' : 'qosulma')));
+           const badgeClass = isArchived ? 'archived' : (isProblem ? 'problem' : typeClass);
+           const typeLabel = isArchived ? 'Arxivdə' : (isProblem ? 'Problem' : (noteText.includes('köç') || noteText.includes('kocurme') ? 'Köçürmə' : (noteText.includes('qoşulma') ? 'Qoşulma' : (note || 'Digər'))));
+           const iconClass = isArchived ? 'fa-box-archive' : (isProblem ? 'fa-triangle-exclamation' : (typeClass === 'kocurme' ? 'fa-truck-moving' : 'fa-plug'));
+           return { typeClass, badgeClass, typeLabel, iconClass };
+         }
          function createBadge(type){return `<span class="badge ${type.badgeClass}"><i class="fa-solid ${type.iconClass}"></i> ${escapeHtml(type.typeLabel)}</span>`;}
          function createLoadingSkeleton(count=3){return `<div class="loading-block"><div class="skeleton-list">${Array.from({length:count},()=>'<div class="skeleton-card"></div>').join('')}</div></div>`;}
          function createSpinner(text='Yüklənir...'){return `<div class="loader-inline"><span class="spinner"></span><span>${escapeHtml(text)}</span></div>`;}
