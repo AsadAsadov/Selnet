@@ -209,6 +209,10 @@ function isArchivedCustomer(customer) {
   return String(customer?.['Arxiv'] || '').trim().toLowerCase() === 'hə';
 }
 
+function isProblemCustomer(customer) {
+  return String(customer?.['Qeyd'] || '').toLowerCase().includes('problem');
+}
+
 function isTodayCustomer(customer) {
   const todayNum = dateToNumber(new Date().toLocaleDateString('en-US'));
   return dateToNumber(customer?.['Timestamp']) === todayNum;
@@ -313,6 +317,28 @@ app.get('/api/archive-customers', checkAuth, async (req, res) => {
     sendCustomerList(res, customers, page, limit);
   } catch (err) {
     console.error('GET /api/archive-customers failed:', err);
+    res.status(500).json({ success: false, customers: [], totalPages: 1, totalCustomers: 0, error: err.message });
+  }
+});
+
+app.get('/api/problem-customers', checkAuth, async (req, res) => {
+  const page = parsePositiveInteger(req.query.page, 1);
+  const limit = parsePositiveInteger(req.query.limit, 10, 100);
+  const solvedParam = req.query.solved;
+
+  try {
+    const { data } = await getSheetData();
+    let customers = (Array.isArray(data) ? data : []).filter(isProblemCustomer);
+
+    if (solvedParam === 'true') {
+      customers = customers.filter(c => String(c['Nəticə'] || '').trim() !== '');
+    } else if (solvedParam === 'false') {
+      customers = customers.filter(c => String(c['Nəticə'] || '').trim() === '');
+    }
+
+    sendCustomerList(res, customers, page, limit);
+  } catch (err) {
+    console.error('GET /api/problem-customers failed:', err);
     res.status(500).json({ success: false, customers: [], totalPages: 1, totalCustomers: 0, error: err.message });
   }
 });
@@ -469,10 +495,7 @@ app.get('/', checkAuth, async (req, res) => {
   let todayCustomers = [];
   let archivedCustomers = [];
   let totalCount = 0;
-  let monthlyStats = { labels: [], total: [], qosulma: [], kocurme: [] };
-  let errorMsg = req.query.error || null;
-  const q = req.query.q ? req.query.q.trim() : '';
-  const startDate = req.query.startDate || '';
+    let problemCount = 0;
   const endDate = req.query.endDate || '';
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
@@ -480,6 +503,7 @@ app.get('/', checkAuth, async (req, res) => {
   try {
     let { data } = await getSheetData();
     totalCount = data.length;
+    problemCount = (Array.isArray(data) ? data : []).filter(isProblemCustomer).length;
     monthlyStats = getMonthlyStats(data);
 
     data = filterByDateRange(data, startDate, endDate);
@@ -512,7 +536,7 @@ app.get('/', checkAuth, async (req, res) => {
 
   res.render('dashboard', {
     results: paginatedResults, q, startDate, endDate, errorMsg,
-    totalResults, currentPage: page, totalPages, todayCustomers, archivedCustomers, totalCount, monthlyStats, formatDate
+    totalResults, currentPage: page, totalPages, todayCustomers, archivedCustomers, totalCount, problemCount, monthlyStats, formatDate
   });
 });
 
