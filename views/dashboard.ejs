@@ -1902,12 +1902,12 @@
       <% const dateText = (item) => formatDate(item && item['Timestamp']); const
       getType = (item) => { const qeydText = (item && item['Qeyd'] ||
       '').toLowerCase(); const isArchived = (item && item['Arxiv'] ||
-      '').toLowerCase() === 'hə'; const typeClass = isArchived ? 'archived-item'
-      : (qeydText.includes('köç') ? 'kocurme' : 'qosulma'); const badgeClass =
-      isArchived ? 'archived' : typeClass; const typeLabel = isArchived ?
-      'Arxivdə' : (qeydText.includes('köç') ? 'Köçürmə' : 'Qoşulma'); const
-      iconClass = isArchived ? 'fa-box-archive' : (typeClass === 'kocurme' ?
-      'fa-truck-moving' : 'fa-plug'); return { typeClass, badgeClass, typeLabel,
+      '').toLowerCase() === 'hə'; const isProblem = !isArchived && qeydText.includes('problem'); const typeClass = isArchived ? 'archived-item'
+      : (isProblem ? 'problem' : (qeydText.includes('köç') ? 'kocurme' : 'qosulma')); const badgeClass =
+      isArchived ? 'archived' : (isProblem ? 'problem' : typeClass); const typeLabel = isArchived ?
+      'Arxivdə' : (isProblem ? 'Problem' : (qeydText.includes('köç') ? 'Köçürmə' : 'Qoşulma')); const
+      iconClass = isArchived ? 'fa-box-archive' : (isProblem ? 'fa-triangle-exclamation' : (typeClass === 'kocurme' ?
+      'fa-truck-moving' : 'fa-plug')); return { typeClass, badgeClass, typeLabel,
       iconClass }; }; %>
 
       <div class="container">
@@ -1921,6 +1921,7 @@
                            class="brand-logo"
                         />
                      </div>
+                     <input type="hidden" name="status" value="<%= status || '' %>" />
                      <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input
@@ -1936,6 +1937,7 @@
                   </form>
                   <form class="date-filter" method="GET">
                      <input type="hidden" name="q" value="<%= q || '' %>" />
+                     <input type="hidden" name="status" value="<%= status || '' %>" />
                      <input
                         type="date"
                         name="startDate"
@@ -1979,7 +1981,7 @@
          <% } %>
          <div class="card">
             <div class="card-header">
-               <h2><%= result['Ad, Soyad, Ata adı'] || 'Adsız müştəri' %></h2>
+               <h2><%= result['Ad, Soyad, Ata adı'] %></h2>
                <span
                   >Ödəniş kodu: <%= result['Ödəniş kodu'] %> | Qeydiyyat: <%=
                   dateText(result) %></span
@@ -2032,7 +2034,7 @@
                <div class="list-main">
                   <div class="list-top">
                      <div class="name list-item-name">
-                        <%= item['Ad, Soyad, Ata adı'] || 'Adsız müştəri'
+                        <%= item['Ad, Soyad, Ata adı'] || '' %>
                         %><span class="badge <%= t.badgeClass %>"
                            ><i class="fa-solid <%= t.iconClass %>"></i> <%=
                            t.typeLabel %></span
@@ -2056,14 +2058,14 @@
          <% if (totalPages > 1) { %>
          <div class="pagination">
             <% if (currentPage > 1) { %><a
-               href="/?q=<%= q %>&startDate=<%= startDate %>&endDate=<%= endDate %>&page=<%= currentPage - 1 %>"
+               href="/?q=<%= q %>&startDate=<%= startDate %>&endDate=<%= endDate %><%= status ? '&status=' + encodeURIComponent(status) : '' %>&page=<%= currentPage - 1 %>"
                >Əvvəlki</a
             ><% } %>
             <span style="padding: 8px 15px"
                >Səhifə <%= currentPage %> / <%= totalPages %></span
             >
             <% if (currentPage < totalPages) { %><a
-               href="/?q=<%= q %>&startDate=<%= startDate %>&endDate=<%= endDate %>&page=<%= currentPage + 1 %>"
+               href="/?q=<%= q %>&startDate=<%= startDate %>&endDate=<%= endDate %><%= status ? '&status=' + encodeURIComponent(status) : '' %>&page=<%= currentPage + 1 %>"
                >Növbəti</a
             ><% } %>
          </div>
@@ -2105,7 +2107,7 @@
             </div>
             <div
                class="stat-card red"
-               onclick="openCustomerListModal('problem')"
+               onclick="window.location.href='/?status=Problem'"
             >
                <h3>Problemlər</h3>
                <p><%= problemCount %></p>
@@ -2362,7 +2364,7 @@
          function normalizeSearch(value){return String(value ?? '').toLowerCase().replace(/\s+/g,'').trim();}
          function customerMatchesSearch(item, query){if(!query)return true;const haystack=[item?.['Ad, Soyad, Ata adı'],item?.['Telefon nömrəsi'],item?.['Ödəniş kodu']].map(normalizeSearch).join('|');return haystack.includes(query);}
          function createCustomerListItem(item,index,listType='all'){
-           const type=getCustomerType(item);const odemeKodu=String(item?.['Ödəniş kodu']??'');const adSoyad=item?.['Ad, Soyad, Ata adı']||'Adsız müştəri';const telefon=item?.['Telefon nömrəsi']||'-';const unvan=item?.['Ünvan']||'';
+           const type=getCustomerType(item);const odemeKodu=String(item?.['Ödəniş kodu']??'');const adSoyad=item?.['Ad, Soyad, Ata adı']||'';const telefon=item?.['Telefon nömrəsi']||'-';const unvan=item?.['Ünvan']||'';
            return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.['Timestamp']))}</span></div><div class="meta"><strong>Kod:</strong> ${escapeHtml(odemeKodu||'-')} · <strong>Tel:</strong> ${escapeHtml(telefon)}${unvan?` · ${escapeHtml(unvan)}`:''}</div></div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
          }
 
