@@ -188,6 +188,7 @@ async function getSheetData() {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
+      .eq('arxiv', false)
       .order('id', { ascending: false });
     
     if (error) {
@@ -544,13 +545,13 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
   }
 });
 
-app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
+app.post('/archive/:id', checkAuth, async (req, res) => {
   try {
-    const { id, archive } = req.body;
+    const { archive } = req.body;
     const { error } = await supabase
       .from('customers')
       .update({ arxiv: archive ? 'Hə' : '' })
-      .eq('id', id);
+      .eq('id', req.params.id);
     
     if (error) {
       throw new Error(error.message);
@@ -558,7 +559,7 @@ app.post('/archive/:odemeKodu', checkAuth, async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.error('POST /archive/:odemeKodu failed:', err);
+    console.error('POST /archive/:id failed:', err);
     res.json({ success: false, error: err.message });
   }
 });
