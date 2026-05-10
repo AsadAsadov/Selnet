@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <%- include('partials/customer-form-styles') %>
+
     <style>
         body {
             background-image: url("https://raw.githubusercontent.com/AsadAsadov/Selnet/main/home.jpg");
@@ -14,6 +15,7 @@
             background-attachment: fixed;
             min-height: 100vh;
         }
+
         .header {
             background: rgba(15, 23, 42, 0.78);
             backdrop-filter: blur(14px);
@@ -22,10 +24,12 @@
             box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
             padding: 18px 22px;
         }
+
         .header .logo h1,
         .header > a {
             color: #f8fafc;
         }
+
         .header > a {
             text-decoration: none;
             font-weight: 700;
@@ -33,9 +37,11 @@
             align-items: center;
             gap: 8px;
         }
+
         .form-group {
             transition: all 0.25s ease;
         }
+
         .hidden-field {
             max-height: 0;
             opacity: 0;
@@ -44,6 +50,7 @@
             margin: 0;
             padding: 0;
         }
+
         .hidden-field .field-hint,
         .hidden-field label,
         .hidden-field input,
@@ -51,133 +58,318 @@
         .hidden-field textarea {
             display: none;
         }
+
+        /* PC-də 2 sütun */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Mobil */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+        }
     </style>
 </head>
+
 <body>
+
 <div class="header">
-    <div class="logo"><h1><i class="fa-solid fa-user-plus"></i> Yeni Müştəri</h1></div>
-    <a href="/"><i class="fa-solid fa-home"></i> Ana Səhifə</a>
+    <div class="logo">
+        <h1>
+            <i class="fa-solid fa-user-plus"></i>
+            Yeni Müştəri
+        </h1>
+    </div>
+
+    <a href="/">
+        <i class="fa-solid fa-home"></i>
+        Ana Səhifə
+    </a>
 </div>
+
 <div class="container">
-    <a href="/" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Geri</a>
+
+    <a href="/" class="btn-back">
+        <i class="fa-solid fa-arrow-left"></i>
+        Geri
+    </a>
 
     <div class="form-card">
-        <h2><i class="fa-solid fa-plus-circle"></i> Müştəri Əlavə Et</h2>
+
+        <h2>
+            <i class="fa-solid fa-plus-circle"></i>
+            Müştəri Əlavə Et
+        </h2>
 
         <% if (success) { %>
-            <div class="alert success"><i class="fa-solid fa-check-circle"></i> <%= success %></div>
+            <div class="alert success">
+                <i class="fa-solid fa-check-circle"></i>
+                <%= success %>
+            </div>
         <% } %>
+
         <% if (error) { %>
-            <div class="alert error"><i class="fa-solid fa-exclamation-circle"></i> <%= error %></div>
+            <div class="alert error">
+                <i class="fa-solid fa-exclamation-circle"></i>
+                <%= error %>
+            </div>
         <% } %>
 
         <form method="POST" class="customer-form">
+
             <div class="form-grid">
+
+                <!-- Əməliyyat növü -->
                 <div class="form-group full-width">
-                    <label>Əməliyyat Növü <span class="required">*</span></label>
+                    <label>
+                        Əməliyyat Növü
+                        <span class="required">*</span>
+                    </label>
+
                     <select id="operationType" name="operationType" required>
                         <option value="Qoşulma" selected>Qoşulma</option>
                         <option value="Köçürmə">Köçürmə</option>
                         <option value="Problem">Problem</option>
                     </select>
                 </div>
+
+                <!-- Ödəniş kodu -->
                 <div class="form-group">
-                    <label>Ödəniş kodu <span class="required">*</span></label>
-                    <input type="text" name="odemeKodu" autocomplete="off" required>
+                    <label>
+                        Ödəniş kodu
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="odemeKodu"
+                        autocomplete="off"
+                        required
+                    >
                 </div>
+
+                <!-- Ünvan -->
+                <div class="form-group">
+                    <label>
+                        Ünvan
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="unvan"
+                        autocomplete="street-address"
+                        required
+                    >
+                </div>
+
+                <!-- Ad Soyad -->
+                <div class="form-group">
+                    <label>
+                        Ad Soyad Ata adı
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="adSoyad"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
+
+                <!-- Telefon -->
+                <div class="form-group">
+                    <label>
+                        Telefon nömrəsi
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="tel"
+                        name="telefon"
+                        placeholder="0501234567"
+                        autocomplete="tel"
+                        inputmode="tel"
+                        required
+                    >
+                </div>
+
+                <!-- Aylıq ödəniş -->
                 <div class="form-group problem-dependent">
-                    <label>Aylıq ödəniş <span class="required">*</span></label>
-                    <input type="number" name="ayliqOdenis" step="0.01" inputmode="decimal" required>
+                    <label>
+                        Aylıq ödəniş
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="number"
+                        name="ayliqOdenis"
+                        step="0.01"
+                        inputmode="decimal"
+                        required
+                    >
                 </div>
 
-                <div class="form-group">
-                    <label>Ad Soyad Ata adı <span class="required">*</span></label>
-                    <input type="text" name="adSoyad" autocomplete="name" required>
-                </div>
-                <div class="form-group">
-                    <label>Telefon nömrəsi <span class="required">*</span></label>
-                    <input type="tel" name="telefon" placeholder="0501234567" autocomplete="tel" inputmode="tel" required>
-                </div>
-
-                <div class="form-group problem-dependent">
-                    <label>Ş/V FİN</label>
-                    <input type="text" name="fin" autocomplete="off">
-                </div>
-                <div class="form-group problem-dependent">
-                    <label>Ş/V Seriya</label>
-                    <input type="text" name="seriya" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label>Modem S/N</label>
-                    <input type="text" name="modem" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label>TV Box</label>
-                    <input type="text" name="tvbox" autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label>Ünvan <span class="required">*</span></label>
-                    <input type="text" name="unvan" autocomplete="street-address" required>
-                </div>
+                <!-- Komendant -->
                 <div class="form-group problem-dependent">
                     <label>Komendant</label>
-                    <input type="text" name="komendant" autocomplete="off">
+
+                    <input
+                        type="text"
+                        name="komendant"
+                        autocomplete="off"
+                    >
                 </div>
 
-                <div class="form-group full-width">
+                <!-- FIN -->
+                <div class="form-group problem-dependent">
+                    <label>Ş/V FİN</label>
+
+                    <input
+                        type="text"
+                        name="fin"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- Seriya -->
+                <div class="form-group problem-dependent">
+                    <label>Ş/V Seriya</label>
+
+                    <input
+                        type="text"
+                        name="seriya"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- Modem -->
+                <div class="form-group">
+                    <label>Modem S/N</label>
+
+                    <input
+                        type="text"
+                        name="modem"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- TV Box -->
+                <div class="form-group">
+                    <label>TV Box</label>
+
+                    <input
+                        type="text"
+                        name="tvbox"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- Qeyd -->
+                <div id="qeydGroup" class="form-group full-width">
                     <label>Qeyd</label>
-                    <textarea name="qeyd" placeholder="qoşulma / köçürmə yaz"></textarea>
+
+                    <textarea
+                        name="qeyd"
+                        placeholder="qoşulma / köçürmə yaz"
+                    ></textarea>
                 </div>
 
+                <!-- Drive -->
                 <div class="form-group full-width problem-dependent">
-                    <label>Müqavilə və Modemin şəkli (Drive linkləri)</label>
-                    <textarea class="drive-links" name="driveLinks" placeholder="https://drive.google.com/..."></textarea>
-                    <span class="field-hint">Birdən çox link üçün vergül istifadə et və ya hər sətirdə 1 link yaz.</span>
+                    <label>
+                        Müqavilə və Modemin şəkli (Drive linkləri)
+                    </label>
+
+                    <textarea
+                        class="drive-links"
+                        name="driveLinks"
+                        placeholder="https://drive.google.com/..."
+                    ></textarea>
+
+                    <span class="field-hint">
+                        Birdən çox link üçün vergül istifadə et və ya hər sətirdə 1 link yaz.
+                    </span>
                 </div>
 
+                <!-- Nəticə -->
                 <div id="resultGroup" class="form-group full-width hidden-field">
                     <label>Nəticə</label>
-                    <select name="netice" required>
+
+                    <select name="netice">
                         <option value="Həll olundu">Həll olundu</option>
                         <option value="Həll olunmadı">Həll olunmadı</option>
                     </select>
                 </div>
+
             </div>
 
             <button type="submit" class="btn-submit">
-                <i class="fa-solid fa-floppy-disk"></i> Yadda Saxla
+                <i class="fa-solid fa-floppy-disk"></i>
+                Yadda Saxla
             </button>
+
         </form>
+
     </div>
+
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
         var operationType = document.getElementById('operationType');
         var problemFields = document.querySelectorAll('.problem-dependent');
         var resultGroup = document.getElementById('resultGroup');
+        var qeydGroup = document.getElementById('qeydGroup');
 
         function setSectionVisibility(section, hidden) {
+
             section.classList.toggle('hidden-field', hidden);
-            Array.prototype.forEach.call(section.querySelectorAll('input, select, textarea'), function (element) {
-                element.disabled = hidden;
-            });
+
+            Array.prototype.forEach.call(
+                section.querySelectorAll('input, select, textarea'),
+                function (element) {
+                    element.disabled = hidden;
+                }
+            );
         }
 
         function updateFormFields() {
-            var value = operationType.value;
-            var hideProblemFields = value === 'Problem';
 
+            var value = operationType.value;
+            var isProblem = value === 'Problem';
+
+            /* Problem olanda bunlar gizlənsin */
             problemFields.forEach(function (section) {
-                setSectionVisibility(section, hideProblemFields);
+                setSectionVisibility(section, isProblem);
             });
-            setSectionVisibility(resultGroup, !hideProblemFields);
+
+            /* Problem olanda nəticə açılsın */
+            setSectionVisibility(resultGroup, !isProblem);
+
+            /* Problem olanda qeyd gizlənsin */
+            setSectionVisibility(qeydGroup, isProblem);
         }
 
         operationType.addEventListener('change', updateFormFields);
+
         updateFormFields();
     });
 </script>
+
 </body>
 </html>
