@@ -36,7 +36,12 @@
             box-sizing: border-box;
          }
          body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family:
+               system-ui,
+               -apple-system,
+               BlinkMacSystemFont,
+               "Segoe UI",
+               sans-serif;
             margin: 0;
             background-image: url("[raw.githubusercontent.com](https://raw.githubusercontent.com/AsadAsadov/Selnet/main/home.jpg)");
             background-size: cover;
@@ -107,14 +112,20 @@
             box-shadow: 0 8px 28px rgba(239, 68, 68, 0.25);
             transform: translateY(-1px);
          }
-
          .container {
             padding: 15px;
             max-width: 1000px;
             margin: auto;
          }
-
-         /* Search bölməsi - optimallaşdırılmış dizayn */
+         .search-section,
+         .card,
+         .stat-card,
+         .chart-container,
+         .list-item,
+         .not-found,
+         .error {
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+         }
          .search-section {
             background: rgba(15, 23, 42, 0.55);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -123,423 +134,153 @@
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
          }
-
          .search-filter-section {
             display: flex;
             flex-wrap: wrap;
+            gap: 12px;
             align-items: center;
-            justify-content: center;
-            gap: 14px;
-            margin-bottom: 10px;
+            margin-bottom: 18px;
          }
-
          .search-box {
             display: flex;
             align-items: center;
             gap: 12px;
             flex: 2 1 420px;
             min-width: 260px;
+            padding: 0;
+            border: none;
+            background: transparent;
          }
-
          .brand-logo-container {
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
             padding: 5px 12px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             flex-shrink: 0;
          }
-
          .brand-logo {
             height: 45px;
             width: auto;
             object-fit: contain;
             filter: brightness(0) invert(1);
          }
-
          .search-wrapper {
+            display: flex;
+            align-items: center;
             position: relative;
             flex: 1;
             min-width: 0;
          }
-
          .search-wrapper input {
             width: 100%;
-            padding: 12px 14px 12px 42px;
+            padding: 12px 14px 12px 44px;
             background: rgba(30, 41, 59, 0.5);
             border: 1px solid var(--border);
             border-radius: 14px;
             color: var(--text);
             font-size: 15px;
-            transition: all 0.3s ease;
+            min-width: 0;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
          }
-
          .search-icon {
             position: absolute;
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--green);
+            pointer-events: none;
+            font-size: 16px;
          }
-
-         .search-wrapper input:focus {
+         .search-wrapper input:focus,
+         .date-filter input[type="date"]:focus {
             outline: none;
             border-color: var(--green);
             box-shadow: 0 0 10px var(--glow);
          }
-
+         .date-filter {
+            display: flex;
+            gap: 12px;
+            flex: 1 1 320px;
+            min-width: 260px;
+            align-items: center;
+            padding: 0;
+            border: none;
+            background: transparent;
+         }
          .search-box button {
             padding: 12px 20px;
             background: var(--green);
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             color: #fff;
             font-weight: 800;
             cursor: pointer;
          }
-
          .search-box button:hover {
             background: var(--green-dark);
          }
 
-         .date-filter {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex: 1 1 320px;
-            min-width: 260px;
-         }
-
-         .date-filter input[type="date"] {
-            flex: 1;
-            padding: 12px 14px;
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            color: var(--text);
-            font-size: 14px;
-         }
-
-         .filter-actions {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 10px;
-            width: 100%;
-         }
-
-         .btn-filter,
-         .btn-clear {
-            padding: 11px 16px;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-         }
-
-         .btn-filter {
-            background: var(--green);
-            color: #fff;
-            border: none;
-         }
-
-         .btn-filter:hover {
-            background: var(--green-dark);
-         }
-
-         .btn-clear {
-            background: var(--border);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-         }
-
-         .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-            margin-bottom: 18px;
-         }
-         .stat-card {
-            background: linear-gradient(180deg, var(--card), rgba(30,41,59,.86));
-            border: 1px solid var(--border-soft);
-            padding: 20px;
-            border-radius: 16px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all .22s ease;
-         }
-         .stat-card:before {
-            content:"";
-            position:absolute;
-            inset:0;
-            background:radial-gradient(circle at right top,rgba(255,255,255,.08),transparent 40%);
-         }
-         .stat-card:hover {
-            border-color: var(--green);
-            transform: translateY(-2px);
-            box-shadow: 0 18px 38px rgba(0,0,0,.22),0 0 22px var(--glow);
-         }
-         .stat-card h3 {
-            margin: 0 0 5px;
-            color: var(--muted-2);
-            font-size: 14px;
-            font-weight: 600;
-         }
-         .stat-card p {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 900;
-         }
-         .stat-card.purple { border-left:4px solid var(--purple); }
-         .stat-card.green { border-left:4px solid var(--green); }
-         .stat-card.gray { border-left:4px solid var(--gray); }
-
-         .chart-container {
-            background: rgba(15,23,42,0.82);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 22px;
-            margin-bottom: 25px;
-            overflow: hidden;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.22);
-            backdrop-filter: blur(6px);
-         }
-         .chart-toggle {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text);
-            padding: 16px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-         }
-         .chart-toggle-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 18px;
-            font-weight: 800;
-         }
-         .chart-toggle-icon {
-            width: 34px;height:34px;
-            display:flex;align-items:center;justify-content:center;
-            border-radius:10px;
-            background:rgba(15,23,42,0.78);
-            border:1px solid var(--border-soft);
-            color:var(--muted-2);
-            transition: transform .25s ease,color .25s ease;
-         }
-         .chart-container.is-open .chart-toggle-icon {
-            transform: rotate(180deg);
-            color: var(--green);
-         }
-         .chart-panel {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: max-height .42s ease,opacity .28s ease;
-         }
-         .chart-container.is-open .chart-panel {
-            max-height: 520px;
-            opacity: 1;
-         }
-         .chart-inner {
-            padding:18px;
-            background:rgba(15,23,42,0.18);
-            border-radius:0 0 22px 22px;
-         }
-         .chart-scroll {
-            overflow-x:hidden;
-            overflow-y:hidden;
-            width:100%;
-            padding-bottom:6px;
-         }
-         .chart-wrapper {width:100%!important;min-width:0!important;height:320px;position:relative;}
-         .chart-wrapper canvas{width:100%!important;height:100%!important;display:block;}
-         .chart-empty {
-            height:220px;
-            border: 1px dashed var(--border);
-            border-radius:14px;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            flex-direction:column;
-            color:var(--muted);
-            gap:10px;
-         }
-
-         .list-item {
-            background:linear-gradient(180deg,var(--card),rgba(30,41,59,0.9));
-            border:1px solid var(--border-soft);
-            padding:12px 14px;
-            border-radius:14px;
-            margin-bottom:10px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            cursor:pointer;
-            position:relative;
-            transition:all .2s ease;
-         }
-         .list-item:hover {
-            border-color:rgba(16,185,129,.82);
-            background:#273549;
-            transform:translateX(5px);
-            box-shadow:0 10px 26px rgba(0,0,0,.18),0 0 18px rgba(16,185,129,.16);
-         }
-
-         .list-main {flex:1;min-width:0;}
-         .list-top {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:8px;
-            min-width:0;
-         }
-         .list-item .name {
-            font-weight:850;
-            color:#f8fafc;
-            font-size:15px;
-            line-height:1.25;
-         }
-         .meta {
-            font-size:13px;
-            color:var(--muted);
-            margin-top:5px;
-         }
-         .list-date {
-            font-size:11px;
-            color:#d1fae5;
-            background:rgba(16,185,129,.13);
-            border:1px solid rgba(16,185,129,.28);
-            border-radius:999px;
-            padding:4px 8px;
-            font-weight:800;
-            white-space:nowrap;
-         }
-
-         .badge {
-            display:inline-flex;
-            align-items:center;
-            gap:5px;
-            padding:6px 12px;
-            border-radius:10px;
-            font-size:12px;
-            font-weight:800;
-            border:1.5px solid;
-         }
-         .badge.qosulma {
-            background:rgba(16,185,129,.2);
-            color:var(--green);
-            border-color:var(--green);
-         }
-         .badge.kocurme {
-            background:rgba(245,158,11,.2);
-            color:var(--orange);
-            border-color:var(--orange);
-         }
-         .badge.archived {
-            background:rgba(107,114,128,.2);
-            color:var(--gray);
-            border-color:var(--gray);
-         }
-
-         .pagination {
-            display:flex;
-            justify-content:center;
-            gap:10px;
-            margin-top:20px;
-         }
-         .pagination a,
-         .pagination button {
-            padding:8px 15px;
-            background:var(--card);
-            border:1px solid var(--border);
-            border-radius:8px;
-            color:var(--text);
-            cursor:pointer;
-         }
-         .pagination a.active {
-            background:var(--green);
-            border-color:var(--green);
-         }
-
-         /* --- Mobil optimizasiya --- */
+         /* === Mobil görünüş üçün düzəlişlər (max-width:768px) === */
          @media (max-width: 768px) {
             .search-filter-section {
-               flex-direction: column;
+               flex-direction: column !important;
+               align-items: center !important;
                justify-content: center !important;
-               align-items: center;
+               width: 100% !important;
+               gap: 14px !important;
             }
             .brand-logo {
-               display:block;
-               margin: 0 auto 14px auto;
-               height: 42px;
-               width:auto;
+               display: block !important;
+               margin: 0 auto 16px auto !important;
+               height: 38px !important;
             }
             .search-box {
-               flex-direction: column;
-               width: 100%;
-               gap: 10px;
+               flex-direction: column !important;
+               width: 100% !important;
+               gap: 10px !important;
             }
             .search-wrapper input {
-               width: 100% !important;
-               height: 44px;
-               font-size: 14px;
+               width: 100%;
+               height: 42px !important;
+               border-radius: 10px !important;
+               font-size: 14px !important;
             }
             .search-box button {
                width: 100%;
-               height: 44px;
-               font-size: 14px;
+               height: 42px;
                border-radius: 10px;
+               font-size: 14px;
             }
             .date-filter {
-               width: 100%;
-               flex-direction: row;
-               justify-content: center;
-               gap: 10px;
+               display: grid !important;
+               grid-template-columns: repeat(2, 1fr) !important;
+               gap: 10px !important;
+               width: 100% !important;
             }
             .date-filter input[type="date"] {
-               flex: 1;
-               width: 48%;
-               font-size: 13px;
-               text-align:center;
-               height: 40px;
+               height: 40px !important;
+               font-size: 13px !important;
+               text-align: center !important;
+               border-radius: 8px !important;
             }
             .filter-actions {
-               flex-direction: column;
-               gap: 8px;
-               width: 100%;
-               margin-top: 14px;
+               display: flex !important;
+               flex-direction: row !important;
+               justify-content: center !important;
+               width: 100% !important;
+               gap: 10px !important;
+               margin-top: 14px !important;
             }
-            .btn-filter, .btn-clear {
-               width: 100%;
-               height: 42px;
-               font-size: 14px;
-            }
-         }
-
-         @media (max-width: 600px) {
-            .container {
-               padding: 12px;
-            }
-            .search-section {
-               padding: 18px;
-            }
-            .brand-logo {
-               height: 36px;
-            }
-            .date-filter input[type="date"] {
-               padding: 8px 8px;
-               font-size: 12px;
+            .btn-filter,
+            .btn-clear {
+               flex: 1;
+               height: 42px !important;
+               font-size: 14px !important;
             }
          }
       </style>
@@ -547,35 +288,36 @@
    <body>
       <div class="header">
          <div class="logo">
-            <h1><i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi</h1>
+            <h1>
+               <i class="fa-solid fa-database"></i> Müştəri Axtarış Sistemi
+            </h1>
          </div>
          <div class="actions">
-            <a href="/add">
-               <i class="fa-solid fa-plus"></i><span>Əlavə Et</span>
-            </a>
-            <a href="/logout" class="btn-logout">
-               <i class="fa-solid fa-right-from-bracket"></i><span>Çıxış</span>
-            </a>
+            <a href="/add"
+               ><i class="fa-solid fa-plus"></i><span>Əlavə Et</span></a
+            >
+            <a href="/logout" class="btn-logout"
+               ><i class="fa-solid fa-right-from-bracket"></i
+               ><span>Çıxış</span></a
+            >
          </div>
       </div>
 
-      <% const dateText = (item) => formatDate(item && item['Timestamp']);
-      const getType = (item) => {
-        const qeydText = (item && item['Qeyd'] || '').toLowerCase();
-        const isArchived = (item && item['Arxiv'] || '').toLowerCase() === 'hə';
-        const typeClass = isArchived ? 'archived-item' : (qeydText.includes('köç') ? 'kocurme' : 'qosulma');
-        const badgeClass = isArchived ? 'archived' : typeClass;
-        const typeLabel = isArchived ? 'Arxivdə' : (qeydText.includes('köç') ? 'Köçürmə' : 'Qoşulma');
-        const iconClass = isArchived ? 'fa-box-archive' : (typeClass === 'kocurme' ? 'fa-truck-moving' : 'fa-plug');
-        return { typeClass, badgeClass, typeLabel, iconClass };
-      }; %>
+      <% const dateText = (item) => formatDate(item && item['Timestamp']); const
+      getType = (item) => { const qeydText = (item && item['Qeyd'] ||
+      '').toLowerCase(); const isArchived = (item && item['Arxiv'] ||
+      '').toLowerCase() === 'hə'; const typeClass = isArchived ? 'archived-item'
+      : (qeydText.includes('köç') ? 'kocurme' : 'qosulma'); const badgeClass =
+      isArchived ? 'archived' : typeClass; const typeLabel = isArchived ?
+      'Arxivdə' : (qeydText.includes('köç') ? 'Köçürmə' : 'Qoşulma'); const
+      iconClass = isArchived ? 'fa-box-archive' : (typeClass === 'kocurme' ?
+      'fa-truck-moving' : 'fa-plug'); return { typeClass, badgeClass, typeLabel,
+      iconClass }; }; %>
 
       <div class="container">
-         <!-- 🔍 Axtarış və Filter bölməsi -->
          <div class="search-section">
             <div class="search-filter-section">
-
-               <!-- Axtarış qutusu -->
+               <!-- 🔍 Axtarış qutusu -->
                <form class="search-box" method="GET">
                   <div class="brand-logo-container">
                      <img
@@ -598,7 +340,7 @@
                   </button>
                </form>
 
-               <!-- Tarix Filterləri -->
+               <!-- 📅 Tarix filterləri -->
                <form class="date-filter" method="GET">
                   <input type="hidden" name="q" value="<%= q || '' %>" />
                   <input
@@ -622,48 +364,49 @@
                      <% } %>
                   </div>
                </form>
-
             </div>
          </div>
 
-         <!-- 🧩 Xəta və nəticə hissələri -->
          <% if (errorMsg) { %>
          <div class="error">
-            <p><i class="fa-solid fa-triangle-exclamation"></i> <%= errorMsg %></p>
+            <p>
+               <i class="fa-solid fa-triangle-exclamation"></i> <%= errorMsg %>
+            </p>
          </div>
          <% } else if (q || startDate || endDate) { %>
          <% if (results.length > 0) { %>
+
          <div class="search-info">
-            <% if (q) { %>Axtarış: "<%= q %>" – <% } %>
+            <% if (q) { %>Axtarış: "<%= q %>" - <% } %> 
             <% if (startDate || endDate) { %>
-            Tarix: <%= startDate || '...' %> - <%= endDate || '...' %> –
+              Tarix: <%= startDate || '...' %> - <%= endDate || '...' %> - 
             <% } %>
-            <%= totalResults %> nəticə tapıldı.
+            <%= totalResults %> nəticə tapıldı
          </div>
 
-         <!-- ✅ Tək nəticə (detallı karta çıxaq) -->
          <% if (results.length === 1) { %>
          <% const result = results[0];
             const isArchived = (result['Arxiv'] || '').toLowerCase() === 'hə';
          %>
+
          <% if (isArchived) { %>
          <div class="archive-notice">
             <i class="fa-solid fa-box-archive"></i>
             <span>Bu müştəri arxivdədir</span>
          </div>
          <% } %>
+
          <div class="card">
             <div class="card-header">
                <h2><%= result['Ad, Soyad, Ata adı'] || 'Adsız müştəri' %></h2>
-               <span>
-                  Ödəniş kodu: <%= result['Ödəniş kodu'] %> | Qeydiyyat:
-                  <%= dateText(result) %>
-               </span>
-               <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+               <span>Ödəniş kodu: <%= result['Ödəniş kodu'] %> | Qeydiyyat:
+                     <%= dateText(result) %></span>
+               <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
                   <a href="/edit/<%= result['Ödəniş kodu'] %>" class="btn-edit">
                      <i class="fa-solid fa-pen"></i> Redaktə
                   </a>
-                  <button class="btn-delete"
+                  <button
+                     class="btn-delete"
                      onclick="deleteCustomer('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>)">
                      <i class="fa-solid fa-trash"></i> Sil
                   </button>
@@ -681,12 +424,13 @@
                </div>
             </div>
             <div class="card-body">
-               <%- include('card-content', { result: result }) %>
+               <%- include('card-content', {result: result}) %>
             </div>
          </div>
 
          <% } else { %>
-         <!-- 📋 Birdən çox nəticə üçün siyahı -->
+
+         <!-- 📋 Birdən çox nəticə (siyahı görünüşü) -->
          <div class="result-list" id="searchResults">
             <% results.forEach((item, index) => { const t = getType(item); %>
             <div
@@ -702,19 +446,17 @@
                      <div class="name list-item-name">
                         <%= item['Ad, Soyad, Ata adı'] || 'Adsız müştəri' %>
                         <span class="badge <%= t.badgeClass %>">
-                           <i class="fa-solid <%= t.iconClass %>"></i>
-                           <%= t.typeLabel %>
+                           <i class="fa-solid <%= t.iconClass %>"></i> <%= t.typeLabel %>
                         </span>
                      </div>
-                     <span class="list-date">
-                        <i class="fa-regular fa-calendar"></i> <%= dateText(item) %>
-                     </span>
+                     <span class="list-date"
+                        ><i class="fa-regular fa-calendar"></i> <%= dateText(item) %></span>
                   </div>
                   <div class="meta">
                      <strong>Kod:</strong> <%= item['Ödəniş kodu'] || '-' %> ·
                      <strong>Tel:</strong> <%= item['Telefon nömrəsi'] || '-' %>
                      <% if (item['Ünvan']) { %>
-                        · <%= item['Ünvan'] %>
+                     · <%= item['Ünvan'] %>
                      <% } %>
                   </div>
                </div>
@@ -723,7 +465,7 @@
             <% }) %>
          </div>
 
-         <!-- Səhifələmə -->
+         <!-- 📄 Səhifələmə -->
          <% if (totalPages > 1) { %>
          <div class="pagination">
             <% if (currentPage > 1) { %>
@@ -752,38 +494,55 @@
 
          <!-- 📊 Statistik kartlar -->
          <div class="stats">
-            <div class="stat-card purple" onclick="openCustomerListModal('all')">
+            <div
+               class="stat-card purple"
+               onclick="openCustomerListModal('all')"
+            >
                <h3>Ümumi Müştəri Sayı</h3>
                <p><%= totalCount %></p>
-               <span style="font-size:12px;color:var(--muted)">Kliklə hamısına bax</span>
+               <span style="font-size: 12px; color: var(--muted)"
+                  >Kliklə hamısına bax</span>
             </div>
-            <div class="stat-card green" onclick="openCustomerListModal('today')">
+            <div
+               class="stat-card green"
+               onclick="openCustomerListModal('today')"
+            >
                <h3>Bu gün əlavə olunanlar</h3>
                <p><%= todayCustomers.length %></p>
-               <span style="font-size:12px;color:var(--muted)">Kliklə siyahıya bax</span>
+               <span style="font-size: 12px; color: var(--muted)"
+                  >Kliklə siyahıya bax</span>
             </div>
-            <div class="stat-card gray" onclick="openCustomerListModal('archive')">
+            <div
+               class="stat-card gray"
+               onclick="openCustomerListModal('archive')"
+            >
                <h3>Arxivdə olanlar</h3>
                <p><%= archivedCustomers.length %></p>
-               <span style="font-size:12px;color:var(--muted)">Kliklə arxivə bax</span>
+               <span style="font-size: 12px; color: var(--muted)"
+                  >Kliklə arxivə bax</span>
             </div>
          </div>
 
-         <!-- 📈 Qrafik (Aylıq qoşulma statistikası) -->
+         <!-- 📈 Qrafik - Aylıq Qoşulma Statistikası -->
          <div class="chart-container" id="monthlyStatsCard">
-            <button class="chart-toggle" type="button" id="chartToggle" aria-expanded="false" aria-controls="chartPanel">
-               <span class="chart-toggle-title">
-                  <i class="fa-solid fa-chart-line"></i> Aylıq Qoşulma Statistikası
-               </span>
-               <span class="chart-toggle-icon">
-                  <i class="fa-solid fa-chevron-down"></i>
-               </span>
+            <button
+               class="chart-toggle"
+               type="button"
+               id="chartToggle"
+               aria-expanded="false"
+               aria-controls="chartPanel"
+            >
+               <span class="chart-toggle-title"
+                  ><i class="fa-solid fa-chart-line"></i> Aylıq Qoşulma Statistikası</span
+               >
+               <span class="chart-toggle-icon"
+                  ><i class="fa-solid fa-chevron-down"></i
+               ></span>
             </button>
-
             <div class="chart-panel" id="chartPanel">
                <div class="chart-inner">
                   <% if (monthlyStats.labels.length > 0) { %>
-                  <div class="chart-actions" style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+                  <div class="chart-actions">
                      <button class="btn-expand" onclick="openChartModal()">
                         <i class="fa-solid fa-expand"></i> Böyüt
                      </button>
@@ -791,15 +550,17 @@
                   <div class="chart-scroll">
                      <div
                         class="chart-wrapper"
-                        style="min-width:<%= Math.max(560, monthlyStats.labels.length * 92) %>px;"
-                     >
+                        style="min-width:<%= Math.max(560, monthlyStats.labels.length * 92) %>px;">
                         <canvas id="monthlyChart"></canvas>
                      </div>
                   </div>
                   <div class="chart-buttons" data-chart-scope="main">
-                     <button class="chart-btn active" data-type="total" onclick="updateChart('total','main')">Ümumi</button>
-                     <button class="chart-btn green" data-type="qosulma" onclick="updateChart('qosulma','main')">Qoşulma</button>
-                     <button class="chart-btn orange" data-type="kocurme" onclick="updateChart('kocurme','main')">Köçürmə</button>
+                     <button class="chart-btn active" data-type="total"
+                        onclick="updateChart('total','main')">Ümumi</button>
+                     <button class="chart-btn green" data-type="qosulma"
+                        onclick="updateChart('qosulma','main')">Qoşulma</button>
+                     <button class="chart-btn orange" data-type="kocurme"
+                        onclick="updateChart('kocurme','main')">Köçürmə</button>
                   </div>
                   <% } else { %>
                   <div class="chart-empty">
@@ -821,9 +582,13 @@
             <div class="modal-header">
                <h2 id="modalTitle"></h2>
                <div class="modal-controls">
-                  <button onclick="navigateModal(-1)" id="prevBtn"><i class="fa-solid fa-chevron-left"></i></button>
-                  <span id="modalCounter" style="color:var(--muted);font-size:14px"></span>
-                  <button onclick="navigateModal(1)" id="nextBtn"><i class="fa-solid fa-chevron-right"></i></button>
+                  <button onclick="navigateModal(-1)" id="prevBtn">
+                     <i class="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <span id="modalCounter" style="color: var(--muted); font-size: 14px"></span>
+                  <button onclick="navigateModal(1)" id="nextBtn">
+                     <i class="fa-solid fa-chevron-right"></i>
+                  </button>
                   <span class="close-btn" onclick="closeModal('customerModal')">&times;</span>
                </div>
             </div>
@@ -831,7 +596,7 @@
          </div>
       </div>
 
-      <!-- 🔎 Chart Modal -->
+      <!-- 📊 Chart Modal -->
       <div id="chartModal" class="modal" aria-hidden="true">
          <div class="modal-content large">
             <div class="modal-header">
@@ -841,17 +606,17 @@
             <div class="modal-body">
                <% if (monthlyStats.labels.length > 0) { %>
                <div class="chart-scroll">
-                  <div
-                     class="modal-chart-frame"
-                     style="min-width:<%= Math.max(620, monthlyStats.labels.length * 96) %>px;"
-                  >
+                  <div class="modal-chart-frame" style="min-width:<%= Math.max(620, monthlyStats.labels.length * 96) %>px;">
                      <canvas id="modalChart"></canvas>
                   </div>
                </div>
                <div class="chart-buttons" data-chart-scope="modal">
-                  <button class="chart-btn active" data-type="total" onclick="updateChart('total','modal')">Ümumi</button>
-                  <button class="chart-btn green" data-type="qosulma" onclick="updateChart('qosulma','modal')">Qoşulma</button>
-                  <button class="chart-btn orange" data-type="kocurme" onclick="updateChart('kocurme','modal')">Köçürmə</button>
+                  <button class="chart-btn active" data-type="total"
+                     onclick="updateChart('total','modal')">Ümumi</button>
+                  <button class="chart-btn green" data-type="qosulma"
+                     onclick="updateChart('qosulma','modal')">Qoşulma</button>
+                  <button class="chart-btn orange" data-type="kocurme"
+                     onclick="updateChart('kocurme','modal')">Köçürmə</button>
                </div>
                <% } else { %>
                <div class="chart-empty">
@@ -863,7 +628,7 @@
          </div>
       </div>
 
-      <!-- 📋 Bütün Müştərilər Modal -->
+      <!-- 🧾 Müştəri Siyahısı Modal -->
       <div id="customerListModal" class="modal" aria-hidden="true">
          <div class="modal-content customer-list-modal-content">
             <div class="modal-header customer-list-header">
@@ -879,9 +644,9 @@
 
             <div class="customer-modal-search">
                <i class="fa-solid fa-magnifying-glass"></i>
-               <input id="customerListSearch" type="search" autocomplete="off"
-                  placeholder="Ad, telefon və ya ödəniş kodu üzrə axtar..."
-               />
+               <input id="customerListSearch" type="search"
+                  autocomplete="off"
+                  placeholder="Ad, telefon və ya ödəniş kodu üzrə axtar..." />
             </div>
 
             <div class="modal-body customer-list-body" id="customerListBody">
@@ -896,7 +661,7 @@
          </div>
       </div>
 
-      <!-- 📜 Scriptlər -->
+      <!-- 📜 Skriptlər -->
       <script>
          let currentModalIndex = 0;
          let currentModalList = [];
@@ -909,9 +674,14 @@
          let mainChartInitialized = false;
          let activeChartType = 'total';
          let customerListState = {
-            type: 'all', page: 1, limit: 10,
-            totalPages: 1, totalCustomers: 0,
-            customers: [], filteredCustomers: [], search: ''
+            type: 'all',
+            page: 1,
+            limit: 10,
+            totalPages: 1,
+            totalCustomers: 0,
+            customers: [],
+            filteredCustomers: [],
+            search: ''
          };
 
          const chartData = <%- JSON.stringify(monthlyStats) %>;
@@ -927,179 +697,287 @@
          const embeddedSearchCustomers = <%- JSON.stringify(results || []) %>;
 
          const customerListConfig = {
-            all: { title: 'Bütün Müştərilər', icon: 'fa-users', endpoint: '/api/all-customers', subtitle: 'Bütün müştəri bazası' },
-            today: { title: 'Bu gün əlavə olunanlar', icon: 'fa-calendar-day', endpoint: '/api/today-customers', subtitle: 'Bugünkü aktiv qeydiyyatlar' },
-            archive: { title: 'Arxivdə olanlar', icon: 'fa-box-archive', endpoint: '/api/archive-customers', subtitle: 'Arxiv statuslu müştərilər' },
-            search: { title: 'Axtarış nəticələri', icon: 'fa-magnifying-glass', endpoint: null, subtitle: 'Cari axtarış nəticələri' }
+            all: {
+               title: 'Bütün Müştərilər',
+               icon: 'fa-users',
+               endpoint: '/api/all-customers',
+               subtitle: 'Bütün müştəri bazası'
+            },
+            today: {
+               title: 'Bu gün əlavə olunanlar',
+               icon: 'fa-calendar-day',
+               endpoint: '/api/today-customers',
+               subtitle: 'Bugünkü aktiv qeydiyyatlar'
+            },
+            archive: {
+               title: 'Arxivdə olanlar',
+               icon: 'fa-box-archive',
+               endpoint: '/api/archive-customers',
+               subtitle: 'Arxiv statuslu müştərilər'
+            },
+            search: {
+               title: 'Axtarış nəticələri',
+               icon: 'fa-magnifying-glass',
+               endpoint: null,
+               subtitle: 'Cari axtarış nəticələri'
+            }
          };
 
-         // --- Yardımçı funksiyalar ---
-         function escapeHtml(v){return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
-         function formatDate(timestamp){
-           if(!timestamp) return 'Tarix yoxdur';
-           const raw = String(timestamp).trim();
-           const match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-           if(match){ return match[3].padStart(2,'0')+'.'+match[2].padStart(2,'0')+'.'+match[1]; }
-           const d = new Date(raw);
-           return isNaN(d.getTime()) ? 'Tarix yoxdur' :
-              `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+         function escapeHtml(value) {
+            return String(value ?? '')
+               .replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&#039;');
          }
 
-         function getCustomerType(item){
-           const q = (item?.['Qeyd']||'').toLowerCase();
-           const arx = (item?.['Arxiv']||'').toLowerCase()==='hə';
-           const type = arx ? 'archived-item' : q.includes('köç') ? 'kocurme' : 'qosulma';
-           const label = arx ? 'Arxivdə' : q.includes('köç') ? 'Köçürmə' : 'Qoşulma';
-           const icon = arx ? 'fa-box-archive' : (type==='kocurme'?'fa-truck-moving':'fa-plug');
-           return {typeClass:type,badgeClass:arx?'archived':type,typeLabel:label,iconClass:icon};
+         function formatDate(timestamp) {
+            if (!timestamp) return 'Tarix yoxdur';
+            const raw = String(timestamp).trim();
+            const iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (iso)
+               return `${iso[3].padStart(2, '0')}.${iso[2].padStart(2, '0')}.${iso[1]}`;
+            const parsed = new Date(raw);
+            if (!Number.isNaN(parsed.getTime()))
+               return `${String(parsed.getDate()).padStart(2, '0')}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${parsed.getFullYear()}`;
+            return 'Tarix yoxdur';
          }
 
-         function debounce(fn,wait=180){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),wait);};}
-
-         // --- Chart funksiyaları ---
-         function chartConfig(type='total'){
-            const map={total:{bg:'rgba(59,130,246,.46)',b:'#3b82f6'},
-                       qosulma:{bg:'rgba(16,185,129,.52)',b:'#10b981'},
-                       kocurme:{bg:'rgba(245,158,11,.55)',b:'#f59e0b'}};
-            const n={total:'Ümumi',qosulma:'Qoşulma',kocurme:'Köçürmə'};
-            return{label:n[type],color:map[type]};
+         function getCustomerType(item) {
+            const qeydText = String(item?.['Qeyd'] || '').toLowerCase();
+            const isArchived = String(item?.['Arxiv'] || '').toLowerCase() === 'hə';
+            const typeClass = isArchived
+               ? 'archived-item'
+               : qeydText.includes('köç')
+               ? 'kocurme'
+               : 'qosulma';
+            const badgeClass = isArchived ? 'archived' : typeClass;
+            const typeLabel = isArchived
+               ? 'Arxivdə'
+               : qeydText.includes('köç')
+               ? 'Köçürmə'
+               : 'Qoşulma';
+            const iconClass = isArchived
+               ? 'fa-box-archive'
+               : typeClass === 'kocurme'
+               ? 'fa-truck-moving'
+               : 'fa-plug';
+            return { typeClass, badgeClass, typeLabel, iconClass };
          }
 
-         function buildChart(ctx,type='total'){
-           const cfg=chartConfig(type);
-           return new Chart(ctx,{
-             type:'bar',
-             data:{labels:chartData.labels,
-                   datasets:[{label:cfg.label,data:chartData[type],backgroundColor:cfg.color.bg,borderColor:cfg.color.b,borderWidth:2,borderRadius:8}]},
-             options:{responsive:true,maintainAspectRatio:false,
-               plugins:{legend:{labels:{color:'#e2e8f0'}}},
-               scales:{y:{beginAtZero:true,ticks:{color:'#94a3b8'}},
-                       x:{ticks:{color:'#cbd5e1'},grid:{color:'rgba(51,65,85,.45)'}}}}
-           });
+         function createBadge(type) {
+            return `<span class="badge ${type.badgeClass}">
+               <i class="fa-solid ${type.iconClass}"></i> ${escapeHtml(type.typeLabel)}</span>`;
          }
 
-         function initChart(){
-            if(!chartHasData||mainChartInitialized) return;
-            const ctx=document.getElementById('monthlyChart');
-            if(!ctx) return;
-            mainChart=buildChart(ctx,activeChartType);
-            mainChartInitialized=true;
+         function debounce(fn, wait = 180) {
+            let t;
+            return (...args) => {
+               clearTimeout(t);
+               t = setTimeout(() => fn(...args), wait);
+            };
          }
 
-         function openChartModal(){
-            setModalOpen('chartModal',true);
-            if(chartHasData&&!modalChartInstance){
-               const ctx=document.getElementById('modalChart');
-               if(ctx) modalChartInstance=buildChart(ctx,activeChartType);
-            }
+         /* ███ CHART FUNKSİYALARI ███ */
+
+         function chartConfig(type = 'total') {
+            const colors = {
+               total: { bg: 'rgba(59,130,246,.46)', border: '#3b82f6' },
+               qosulma: { bg: 'rgba(16,185,129,.52)', border: '#10b981' },
+               kocurme: { bg: 'rgba(245,158,11,.55)', border: '#f59e0b' }
+            };
+            const labels = {
+               total: 'Ümumi',
+               qosulma: 'Qoşulma',
+               kocurme: 'Köçürmə'
+            };
+            return { label: labels[type], color: colors[type] };
          }
 
-         function updateChart(type,scope='main'){
-            activeChartType=type;
-            const cfg=chartConfig(type);
-            [mainChart,modalChartInstance].forEach(ch=>{
-               if(ch){ ch.data.datasets[0].label=cfg.label;
-                       ch.data.datasets[0].data=chartData[type];
-                       ch.data.datasets[0].backgroundColor=cfg.color.bg;
-                       ch.data.datasets[0].borderColor=cfg.color.b;
-                       ch.update();}
+         function buildChart(ctx, type = 'total') {
+            const cfg = chartConfig(type);
+            return new Chart(ctx, {
+               type: 'bar',
+               data: {
+                  labels: chartData.labels,
+                  datasets: [
+                     {
+                        label: cfg.label,
+                        data: chartData[type],
+                        backgroundColor: cfg.color.bg,
+                        borderColor: cfg.color.border,
+                        borderWidth: 2,
+                        borderRadius: 8
+                     }
+                  ]
+               },
+               options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { labels: { color: '#e2e8f0' } } },
+                  scales: {
+                     y: {
+                        beginAtZero: true,
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: 'rgba(51,65,85,.7)' }
+                     },
+                     x: {
+                        ticks: { color: '#cbd5e1' },
+                        grid: { color: 'rgba(51,65,85,.45)' }
+                     }
+                  }
+               }
             });
          }
 
-         // --- Modal idarəetmə ---
-         function setModalOpen(id,open){
-            const m=document.getElementById(id);
-            if(m){ m.classList.toggle('is-open',open); m.setAttribute('aria-hidden',!open); }
-            document.body.classList.toggle('modal-open',open);
+         function initChart() {
+            if (!chartHasData || mainChartInitialized) return;
+            const ctx = document.getElementById('monthlyChart');
+            if (!ctx) return;
+            mainChart = buildChart(ctx, activeChartType);
+            mainChartInitialized = true;
          }
-         function closeModal(id){ setModalOpen(id,false); }
 
-         function navigateModal(dir){
-            const n=currentModalIndex+dir;
-            if(n>=0&&n<currentModalList.length){
-               currentModalIndex=n;
-               loadModalCustomer(currentModalList[n]);
+         function openChartModal() {
+            setModalOpen('chartModal', true);
+            if (chartHasData && !modalChartInstance) {
+               const ctx = document.getElementById('modalChart');
+               if (ctx) modalChartInstance = buildChart(ctx, activeChartType);
             }
          }
 
-         // --- Detal Modal üçün müştəri yüklənməsi ---
+         function updateChart(type, scope = 'main') {
+            activeChartType = type;
+            const cfg = chartConfig(type);
+            [mainChart, modalChartInstance]
+               .filter(Boolean)
+               .forEach(chart => {
+                  chart.data.datasets[0].label = cfg.label;
+                  chart.data.datasets[0].data = chartData[type] || [];
+                  chart.data.datasets[0].backgroundColor = cfg.color.bg;
+                  chart.data.datasets[0].borderColor = cfg.color.border;
+                  chart.update();
+               });
+         }
+
+         /* ███ MODAL FUNKSİYALARI ███ */
+
+         function setModalOpen(id, open) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.toggle('is-open', open);
+            el.setAttribute('aria-hidden', !open);
+            document.body.classList.toggle('modal-open', open);
+         }
+
+         function closeModal(id) {
+            setModalOpen(id, false);
+         }
+
+         function navigateModal(direction) {
+            const newIndex = currentModalIndex + direction;
+            if (newIndex >= 0 && newIndex < currentModalList.length) {
+               currentModalIndex = newIndex;
+               loadModalCustomer(currentModalList[newIndex]);
+            }
+         }
+
+         /* ███ MÜŞTƏRİ DETAL MODALI ███ */
          async function loadModalCustomer(code){
-            const modalBody=document.getElementById('modalBody');
-            const modalTitle=document.getElementById('modalTitle');
+            const body=document.getElementById('modalBody');
+            const title=document.getElementById('modalTitle');
             const counter=document.getElementById('modalCounter');
             const prevBtn=document.getElementById('prevBtn');
             const nextBtn=document.getElementById('nextBtn');
+            if(!body||!title)return;
             setModalOpen('customerModal',true);
-            modalBody.innerHTML='<div class="loader-inline"><span class="spinner"></span>Məlumat yüklənir...</div>';
-            modalTitle.textContent='Müştəri məlumatı';
+            body.innerHTML=`<div class="loader-inline"><span class="spinner"></span>Məlumat yüklənir...</div>`;
+            title.textContent='Müştəri məlumatı';
+            counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';
             prevBtn.disabled=currentModalIndex<=0;
             nextBtn.disabled=currentModalIndex>=currentModalList.length-1;
-            counter.textContent=currentModalList.length ? `${currentModalIndex+1} / ${currentModalList.length}` : '';
 
             try{
-              const res=await fetch(`/customer/${encodeURIComponent(code)}`,{headers:{'Accept':'application/json'}});
-              const json=await res.json();
-              if(!res.ok||!json.success) throw new Error(json.error||'Xəta baş verdi');
-              const r=json.data;
-              const isA=(r['Arxiv']||'').toLowerCase()==='hə';
-              modalTitle.innerHTML=`${escapeHtml(r['Ad, Soyad, Ata adı']||'Adsız')} ${isA?'<span class="badge archived"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;
-              let html='';
-              const f=[{k:'Ödəniş kodu','l':'Ödəniş Kodu'},
-                       {k:'Telefon nömrəsi','l':'Telefon'},
-                       {k:'Aylıq ödəniş','l':'Aylıq Ödəniş',s:' AZN'},
-                       {k:'Ünvan','l':'Ünvan',full:true},
-                       {k:'Qeyd','l':'Qeyd',full:true}];
-              f.forEach(x=>{
-                 const val=r[x.k];
-                 if(val&&String(val).trim()!==''){
-                   html+=`<div class="info-item ${x.full?'full-width':''}">
-                   <label>${x.l}</label>
-                   <p class="info-text">${escapeHtml(String(val))}${x.s||''}</p></div>`;
-                 }
-              });
-              modalBody.innerHTML=html;
+               const res=await fetch(`/customer/${encodeURIComponent(code)}`,{headers:{Accept:'application/json'}});
+               const json=await res.json();
+               if(!res.ok||!json.success)throw new Error(json.error||'Xəta');
+               const r=json.data;
+               const isArchived=(r['Arxiv']||'').toLowerCase()==='hə';
+               title.innerHTML=`${escapeHtml(r['Ad, Soyad, Ata adı']||'Adsız')}
+                  ${isArchived?'<span class="badge archived"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;
+               let html='';
+               const fields=[
+                  { key:'Ödəniş kodu', label:'Ödəniş Kodu' },
+                  { key:'Telefon nömrəsi', label:'Telefon', type:'tel' },
+                  { key:'Aylıq ödəniş', label:'Aylıq Ödəniş', suffix:' AZN' },
+                  { key:'Ünvan', label:'Ünvan', full:true },
+                  { key:'Qeyd', label:'Qeyd', full:true }
+               ];
+               fields.forEach(f=>{
+                  let val=r[f.key];
+                  if(val&&String(val).trim()!==''){
+                     html+=`<div class="info-item ${f.full?'full-width':''}">
+                        <label>${f.label}</label><p class="info-text">${escapeHtml(val)}${f.suffix||''}</p></div>`;
+                  }
+               });
+               body.innerHTML=html;
             }catch(e){
-              modalBody.innerHTML=`<div class="not-found"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(e.message)}</p></div>`;
+               body.innerHTML=`<div class="not-found"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(e.message)}</p></div>`;
             }
          }
 
-         // --- Məlumat əməliyyatları (Sil / Arxiv) ---
+         /* ███ CRUD ƏMƏLİYYATLARI ███ */
          async function postJson(url,body){
-            const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-            const j=await r.json(); if(!r.ok||!j.success) throw new Error(j.error||'Xəta');
+            const r=await fetch(url,{
+               method:'POST',
+               headers:{'Content-Type':'application/json'},
+               body:JSON.stringify(body)
+            });
+            const j=await r.json();
+            if(!r.ok||!j.success)throw new Error(j.error||'Xəta');
             return j;
          }
+
          async function deleteCustomer(code,row){
-            if(!confirm(`${code} kodlu müştərini silmək istəyirsiniz?`)) return;
-            try{ await postJson(`/delete/${encodeURIComponent(code)}`,{rowIndex:row}); alert('Müştəri silindi'); location.reload(); }
-            catch(e){ alert('Xəta: '+e.message); }
-         }
-         async function toggleArchive(code,row,arch){
-            const yazi=arch?'arxivə göndərmək':'arxivdən çıxartmaq';
-            if(!confirm(`${code} kodlu müştərini ${yazi} istəyirsiniz?`)) return;
+            if(!confirm(`${code} kodlu müştərini silmək istəyirsiniz?`))return;
             try{
-               await postJson(`/archive/${encodeURIComponent(code)}`,{rowIndex:row,archive:arch});
-               alert(arch?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');
+               await postJson(`/delete/${encodeURIComponent(code)}`,{rowIndex:row});
+               alert('Müştəri silindi');
                location.reload();
-            }catch(e){ alert('Xəta: '+e.message); }
+            }catch(e){alert('Xəta: '+e.message);}
          }
 
-         // --- Kliklə açma ---
+         async function toggleArchive(code,row,archive){
+            const txt=archive?'arxivə göndərmək':'arxivdən çıxartmaq';
+            if(!confirm(`${code} kodlu müştərini ${txt} istəyirsiniz?`))return;
+            try{
+               await postJson(`/archive/${encodeURIComponent(code)}`,{rowIndex:row,archive});
+               alert(archive?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');
+               location.reload();
+            }catch(e){alert('Xəta: '+e.message);}
+         }
+
+         /* ███ HADİSƏ DİNLƏYİCİLƏR ███ */
          document.addEventListener('click',e=>{
-            const item=e.target.closest('.list-item[data-code]');
-            if(item){
-               openModal(item.dataset.code,Number(item.dataset.index||0),'search');
+            const el=e.target.closest('.list-item[data-code]');
+            if(el){
+               openModal(el.dataset.code,Number(el.dataset.index||0),'search');
+               return;
             }
-            if(e.target.classList.contains('modal')) closeModal(e.target.id);
+            if(e.target.classList.contains('modal'))closeModal(e.target.id);
          });
 
          document.addEventListener('keydown',e=>{
             if(e.key==='Escape'){
                ['customerModal','chartModal','customerListModal']
-                  .forEach(id=>{ if(document.getElementById(id)?.classList.contains('is-open')) closeModal(id); });
+               .forEach(id=>{
+                  if(document.getElementById(id)?.classList.contains('is-open'))
+                     closeModal(id);
+               });
             }
-            if(e.key==='ArrowLeft') navigateModal(-1);
-            if(e.key==='ArrowRight') navigateModal(1);
+            if(e.key==='ArrowLeft')navigateModal(-1);
+            if(e.key==='ArrowRight')navigateModal(1);
          });
 
          document.addEventListener('DOMContentLoaded',()=>{
