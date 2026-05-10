@@ -18,8 +18,22 @@ const fields = [
 <% fields.forEach(field => { %>
   <% const rawValue = result[field.key]; %>
   <% const value = field.type === 'date' ? formatDate(rawValue) : rawValue; %>
-  <% if (value && value.toString().trim()!== '' && value.toString().toLowerCase()!== 'yox') { %>
-    <div class="info-item <%= field.full? 'full-width' : '' %>">
+  
+  <% 
+    // Yeni Şərt: Əgər bu sahə 'netice' (İşin Nəticəsi) sahəsidirsə, 
+    // yalnız 'qeyd' hissəsi 'Problem' olanda göstərsin.
+    let shouldShow = value && value.toString().trim() !== '' && value.toString().toLowerCase() !== 'yox';
+    
+    if (field.key === 'netice') {
+      const qeydValue = (result['qeyd'] || '').toString().toLowerCase();
+      if (qeydValue !== 'problem') {
+        shouldShow = false;
+      }
+    }
+  %>
+
+  <% if (shouldShow) { %>
+    <div class="info-item <%= field.full ? 'full-width' : '' %>">
       <label><%= field.label %></label>
       <p class="info-value <%= field.type === 'tel' ? 'info-value--contact' : (field.type === 'link' ? 'info-value--links' : '') %>">
         <% if (field.type === 'tel') { %>
