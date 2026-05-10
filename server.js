@@ -495,9 +495,14 @@ app.get('/', checkAuth, async (req, res) => {
   let todayCustomers = [];
   let archivedCustomers = [];
   let totalCount = 0;
-    let problemCount = 0;
+  let problemCount = 0;
+  let monthlyStats = { labels: [], total: [], qosulma: [], kocurme: [] };
+  let errorMsg = req.query.error || null;
+  const q = req.query.q ? req.query.q.trim() : '';
+  const startDate = req.query.startDate || '';
   const endDate = req.query.endDate || '';
-  const page = parseInt(req.query.page) || 1;
+  const status = req.query.status ? req.query.status.trim().toLowerCase() : '';
+  const page = parseInt(req.query.page, 10) || 1;
   const limit = 10;
 
   try {
@@ -511,7 +516,9 @@ app.get('/', checkAuth, async (req, res) => {
     const activeData = data.filter(r => !isArchivedCustomer(r));
     archivedCustomers = data.filter(isArchivedCustomer);
 
-    if (q) {
+    if (status === 'problem') {
+      results = data.filter(isProblemCustomer);
+    } else if (q) {
       const sq = q.toLowerCase().replace(/\s/g, '');
       results = data.filter(c => {
         const ok = cleanSheetValue(c['Ödəniş kodu']).toLowerCase();
@@ -525,9 +532,9 @@ app.get('/', checkAuth, async (req, res) => {
       todayCustomers = activeData.filter(isTodayCustomer);
       results = activeData;
     }
-  } catch (err) { 
+  } catch (err) {
     console.error(err);
-    errorMsg = 'Xəta: ' + err.message; 
+    errorMsg = 'Xəta: ' + err.message;
   }
 
   const totalResults = results.length;
@@ -535,8 +542,21 @@ app.get('/', checkAuth, async (req, res) => {
   const paginatedResults = results.slice((page - 1) * limit, page * limit);
 
   res.render('dashboard', {
-    results: paginatedResults, q, startDate, endDate, errorMsg,
-    totalResults, currentPage: page, totalPages, todayCustomers, archivedCustomers, totalCount, problemCount, monthlyStats, formatDate
+    results: paginatedResults,
+    q,
+    startDate,
+    endDate,
+    status,
+    errorMsg,
+    totalResults,
+    currentPage: page,
+    totalPages,
+    todayCustomers,
+    archivedCustomers,
+    totalCount,
+    problemCount,
+    monthlyStats,
+    formatDate
   });
 });
 
