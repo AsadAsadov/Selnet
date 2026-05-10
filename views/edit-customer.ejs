@@ -110,6 +110,15 @@
                         </div>
                     <% } %>
                 </div>
+
+                <div class="form-group full-width">
+                    <label>Nəticə</label>
+                    <% const neticeValue = customer['Netice'] || 'Həll olunmadı'; %>
+                    <select name="netice" required>
+                        <option value="Həll olundu" <%= neticeValue === 'Həll olundu' ? 'selected' : '' %>>Həll olundu</option>
+                        <option value="Həll olunmadı" <%= neticeValue === 'Həll olunmadı' ? 'selected' : '' %>>Həll olunmadı</option>
+                    </select>
+                </div>
             </div>
 
             <button type="submit" class="btn-submit">
