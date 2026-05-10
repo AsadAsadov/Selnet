@@ -16,17 +16,26 @@ const fields = [
 %>
 
 <% fields.forEach(field => { %>
-  <% const rawValue = result[field.key]; %>
-  <% const value = field.type === 'date' ? formatDate(rawValue) : rawValue; %>
-  
   <% 
-    // Yeni Şərt: Əgər bu sahə 'netice' (İşin Nəticəsi) sahəsidirsə, 
-    // yalnız 'qeyd' hissəsi 'Problem' olanda göstərsin.
-    let shouldShow = value && value.toString().trim() !== '' && value.toString().toLowerCase() !== 'yox';
-    
+    const rawValue = result[field.key]; 
+    const value = field.type === 'date' ? formatDate(rawValue) : rawValue; 
+
+    // 1. Dəyərin mövcudluğunu yoxlayaq (NULL, undefined və boşluqları filtrleyek)
+    let isValueValid = value !== null && value !== undefined && value.toString().trim() !== '' && value.toString().toLowerCase() !== 'null';
+    let shouldShow = isValueValid && value.toString().toLowerCase() !== 'yox';
+
+    // 2. 'netice' sütunu üçün xüsusi şərtlər
     if (field.key === 'netice') {
-      const qeydValue = (result['qeyd'] || '').toString().toLowerCase();
-      if (qeydValue !== 'problem') {
+      const qeydVal = (result.qeyd || '').toString().trim().toLowerCase();
+      const neticeVal = (value || '').toString().trim().toLowerCase();
+
+      // Şərt A: Əgər əməliyyat növü 'problem' deyilsə (məsələn: qoşulma və ya köçürmədirsə) GİZLƏT
+      if (qeydVal !== 'problem') {
+        shouldShow = false;
+      }
+      
+      // Şərt B: Əgər mətn olaraq 'nəticə yoxdur' yazılıbsa GİZLƏT
+      if (neticeVal === 'nəticə yoxdur') {
         shouldShow = false;
       }
     }
