@@ -33,6 +33,24 @@
             align-items: center;
             gap: 8px;
         }
+        .form-group {
+            transition: all 0.25s ease;
+        }
+        .hidden-field {
+            max-height: 0;
+            opacity: 0;
+            visibility: hidden;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .hidden-field .field-hint,
+        .hidden-field label,
+        .hidden-field input,
+        .hidden-field select,
+        .hidden-field textarea {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -55,11 +73,19 @@
 
         <form method="POST" class="customer-form">
             <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Əməliyyat Növü <span class="required">*</span></label>
+                    <select id="operationType" name="operationType" required>
+                        <option value="Qoşulma" selected>Qoşulma</option>
+                        <option value="Köçürmə">Köçürmə</option>
+                        <option value="Problem">Problem</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>Ödəniş kodu <span class="required">*</span></label>
                     <input type="text" name="odemeKodu" autocomplete="off" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group problem-dependent">
                     <label>Aylıq ödəniş <span class="required">*</span></label>
                     <input type="number" name="ayliqOdenis" step="0.01" inputmode="decimal" required>
                 </div>
@@ -73,11 +99,11 @@
                     <input type="tel" name="telefon" placeholder="0501234567" autocomplete="tel" inputmode="tel" required>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group problem-dependent">
                     <label>Ş/V FİN</label>
                     <input type="text" name="fin" autocomplete="off">
                 </div>
-                <div class="form-group">
+                <div class="form-group problem-dependent">
                     <label>Ş/V Seriya</label>
                     <input type="text" name="seriya" autocomplete="off">
                 </div>
@@ -95,7 +121,7 @@
                     <label>Ünvan <span class="required">*</span></label>
                     <input type="text" name="unvan" autocomplete="street-address" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group problem-dependent">
                     <label>Komendant</label>
                     <input type="text" name="komendant" autocomplete="off">
                 </div>
@@ -105,13 +131,13 @@
                     <textarea name="qeyd" placeholder="qoşulma / köçürmə yaz"></textarea>
                 </div>
 
-                <div class="form-group full-width">
+                <div class="form-group full-width problem-dependent">
                     <label>Müqavilə və Modemin şəkli (Drive linkləri)</label>
                     <textarea class="drive-links" name="driveLinks" placeholder="https://drive.google.com/..."></textarea>
                     <span class="field-hint">Birdən çox link üçün vergül istifadə et və ya hər sətirdə 1 link yaz.</span>
                 </div>
 
-                <div class="form-group full-width">
+                <div id="resultGroup" class="form-group full-width hidden-field">
                     <label>Nəticə</label>
                     <select name="netice" required>
                         <option value="Həll olundu">Həll olundu</option>
@@ -126,5 +152,32 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var operationType = document.getElementById('operationType');
+        var problemFields = document.querySelectorAll('.problem-dependent');
+        var resultGroup = document.getElementById('resultGroup');
+
+        function setSectionVisibility(section, hidden) {
+            section.classList.toggle('hidden-field', hidden);
+            Array.prototype.forEach.call(section.querySelectorAll('input, select, textarea'), function (element) {
+                element.disabled = hidden;
+            });
+        }
+
+        function updateFormFields() {
+            var value = operationType.value;
+            var hideProblemFields = value === 'Problem';
+
+            problemFields.forEach(function (section) {
+                setSectionVisibility(section, hideProblemFields);
+            });
+            setSectionVisibility(resultGroup, !hideProblemFields);
+        }
+
+        operationType.addEventListener('change', updateFormFields);
+        updateFormFields();
+    });
+</script>
 </body>
 </html>
