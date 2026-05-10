@@ -1924,9 +1924,9 @@
          </div>
       </div>
 
-      <% const dateText = (item) => formatDate(item && item['Timestamp']); const
-      getType = (item) => { const qeydText = (item && item['Qeyd'] ||
-      '').toLowerCase(); const isArchived = (item && item['Arxiv'] ||
+      <% const dateText = (item) => formatDate(item && item.timestamp); const
+      getType = (item) => { const qeydText = (item && item.qeyd ||
+      '').toLowerCase(); const isArchived = (item && item.arxiv ||
       '').toLowerCase() === 'hə'; const isProblem = !isArchived && qeydText.includes('problem'); const typeClass = isArchived ? 'archived-item'
       : (isProblem ? 'problem' : (qeydText.includes('köç') ? 'kocurme' : 'qosulma')); const badgeClass =
       isArchived ? 'archived' : (isProblem ? 'problem' : typeClass); const typeLabel = isArchived ?
@@ -1997,7 +1997,7 @@
          </div>
 
          <% if (results.length === 1) { %> <% const result = results[0]; const
-         isArchived = (result['Arxiv'] || '').toLowerCase() === 'hə'; %> <% if
+         isArchived = (result.arxiv || '').toLowerCase() === 'hə'; %> <% if
          (isArchived) { %>
          <div class="archive-notice">
             <i class="fa-solid fa-box-archive"></i
@@ -2006,9 +2006,9 @@
          <% } %>
          <div class="card">
             <div class="card-header">
-               <h2><%= result['Ad, Soyad, Ata adı'] %></h2>
+               <h2><%= result.ad_soyad %></h2>
                <span
-                  >Ödəniş kodu: <%= result['Ödəniş kodu'] %> | Qeydiyyat: <%=
+                  >Ödəniş kodu: <%= result.odeme_kodu %> | Qeydiyyat: <%=
                   dateText(result) %></span
                >
                <div
@@ -2019,23 +2019,23 @@
                      flex-wrap: wrap;
                   "
                >
-                  <a href="/edit/<%= result['Ödəniş kodu'] %>" class="btn-edit"
+                  <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit"
                      ><i class="fa-solid fa-pen"></i> Redaktə</a
                   >
                   <button
                      class="btn-delete"
-                     onclick="deleteCustomer('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>)"
+                     onclick="deleteCustomer('<%= result.odeme_kodu %>', <%= result.id %>)"
                   >
                      <i class="fa-solid fa-trash"></i> Sil
                   </button>
                   <% if (isArchived) { %><button
                      class="btn-unarchive"
-                     onclick="toggleArchive('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>, false)"
+                     onclick="toggleArchive('<%= result.odeme_kodu %>', <%= result.id %>, false)"
                   >
                      <i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button
                   ><% } else { %><button
                      class="btn-archive"
-                     onclick="toggleArchive('<%= result['Ödəniş kodu'] %>', <%= result.rowIndex %>, true)"
+                     onclick="toggleArchive('<%= result.odeme_kodu %>', <%= result.id %>, true)"
                   >
                      <i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button
                   ><% } %>
@@ -2050,7 +2050,7 @@
             <% results.forEach((item, index) => { const t = getType(item); %>
             <div
                class="list-item <%= t.typeClass %>"
-               data-code="<%= item['Ödəniş kodu'] %>"
+               data-code="<%= item.odeme_kodu %>"
                data-index="<%= index %>"
                data-list="search"
                role="button"
@@ -2059,7 +2059,7 @@
                <div class="list-main">
                   <div class="list-top">
                      <div class="name list-item-name">
-                        <%= item['Ad, Soyad, Ata adı'] || '' %>
+                        <%= item.ad_soyad || '' %>
                         %><span class="badge <%= t.badgeClass %>"
                            ><i class="fa-solid <%= t.iconClass %>"></i> <%=
                            t.typeLabel %></span
@@ -2071,9 +2071,9 @@
                      >
                   </div>
                   <div class="meta">
-                     <strong>Kod:</strong> <%= item['Ödəniş kodu'] || '-' %> ·
-                     <strong>Tel:</strong> <%= item['Telefon nömrəsi'] || '-' %>
-                     <% if (item['Ünvan']) { %> · <%= item['Ünvan'] %><% } %>
+                     <strong>Kod:</strong> <%= item.odeme_kodu || '-' %> ·
+                     <strong>Tel:</strong> <%= item.telefon || '-' %>
+                     <% if (item.unvan) { %> · <%= item.unvan %><% } %>
                   </div>
                </div>
                <i class="fa-solid fa-chevron-right chevron"></i>
@@ -2386,9 +2386,9 @@
            return 'Tarix yoxdur';
          }
          function getCustomerType(item){
-           const note = String(item?.['Qeyd'] || '').trim();
+           const note = String(item?.qeyd || '').trim();
            const noteText = note.toLowerCase();
-           const isArchived = String(item?.['Arxiv'] || '').toLowerCase() === 'hə';
+           const isArchived = String(item?.arxiv || '').toLowerCase() === 'hə';
            const isProblem = !isArchived && noteText.includes('problem');
            const typeClass = isArchived ? 'archived-item' : (isProblem ? 'problem' : (noteText.includes('köç') || noteText.includes('kocurme') ? 'kocurme' : (noteText.includes('qoşulma') ? 'qosulma' : 'qosulma')));
            const badgeClass = isArchived ? 'archived' : (isProblem ? 'problem' : typeClass);
@@ -2401,18 +2401,18 @@
          function createSpinner(text='Yüklənir...'){return `<div class="loader-inline"><span class="spinner"></span><span>${escapeHtml(text)}</span></div>`;}
          function debounce(fn, wait=180){let timeout;return (...args)=>{clearTimeout(timeout);timeout=setTimeout(()=>fn(...args),wait);};}
          function normalizeSearch(value){return String(value ?? '').toLowerCase().replace(/\s+/g,'').trim();}
-         function customerMatchesSearch(item, query){if(!query)return true;const haystack=[item?.['Ad, Soyad, Ata adı'],item?.['Telefon nömrəsi'],item?.['Ödəniş kodu']].map(normalizeSearch).join('|');return haystack.includes(query);}
+         function customerMatchesSearch(item, query){if(!query)return true;const haystack=[item?.ad_soyad,item?.telefon,item?.odeme_kodu].map(normalizeSearch).join('|');return haystack.includes(query);}
          function createCustomerListItem(item,index,listType='all'){
            const type=getCustomerType(item);
-           const odemeKodu=String(item?.['Ödəniş kodu']??'');
-           const adSoyad=item?.['Ad, Soyad, Ata adı']||'';
-           const telefon=item?.['Telefon nömrəsi']||'-';
-           const unvan=item?.['Ünvan']||'';
-           const netice=String(item?.['Nəticə']||'').trim();
+           const odemeKodu=String(item?.odeme_kodu??'');
+           const adSoyad=item?.ad_soyad||'';
+           const telefon=item?.telefon||'-';
+           const unvan=item?.unvan||'';
+           const netice=String(item?.netice||'').trim();
            const resultClass=netice.toLowerCase()=== 'həll olundu' ? 'result-success' : 'result-failed';
            const resultText=netice || 'Nəticə yoxdur';
            const resultHtml=`<div class="result-label ${resultClass}"><span class="fa-solid fa-circle-check"></span> Nəticə: ${escapeHtml(resultText)}</div>`;
-           return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.['Timestamp']))}</span></div><div class="meta"><strong>Kod:</strong> ${escapeHtml(odemeKodu||'-')} · <strong>Tel:</strong> ${escapeHtml(telefon)}${unvan?` · ${escapeHtml(unvan)}`:''}</div>${resultHtml}</div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
+           return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.timestamp))}</span></div><div class="meta"><strong>Kod:</strong> ${escapeHtml(odemeKodu||'-')} · <strong>Tel:</strong> ${escapeHtml(telefon)}${unvan?` · ${escapeHtml(unvan)}`:''}</div>${resultHtml}</div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
          }
 
          function syncModalLock(){const hasOpenModal=Boolean(document.querySelector('.modal.is-open'));document.body.classList.toggle('modal-open',hasOpenModal);}
@@ -2438,12 +2438,12 @@
          const handleCustomerListSearch=debounce((event)=>{customerListState.search=normalizeSearch(event.target.value);applyCustomerListFilter();},180);
 
          function openModal(odemeKodu,index,type='search'){currentModalType=type;currentModalList=Array.isArray(modalLists[type])?[...modalLists[type]]:[];if(!currentModalList.length&&odemeKodu)currentModalList=[String(odemeKodu)];currentModalIndex=currentModalList.map(String).indexOf(String(odemeKodu));if(currentModalIndex<0)currentModalIndex=Number.isInteger(index)?index:0;loadModalCustomer(odemeKodu);}
-         async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';prevBtn.disabled=currentModalIndex<=0;nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=String(r['Arxiv']||'').toLowerCase()==='hə';const customerName=String(r['Ad, Soyad, Ata adı']||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`${escapeHtml(customerName)} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const fields=[{key:'Ödəniş kodu',label:'Ödəniş Kodu'},{key:'Telefon nömrəsi',label:'Telefon',type:'tel'},{key:'Aylıq ödəniş',label:'Aylıq Ödəniş',suffix:' AZN'},{key:'Ş/V FİN',label:'Ş/V FİN'},{key:'Ş/V Seriya',label:'Ş/V Seriya'},{key:'Modem S/N',label:'Modem S/N'},{key:'Tv Box',label:'TV Box'},{key:'Komendant',label:'Komendant'},{key:'Timestamp',label:'Qeydiyyat tarixi',type:'date'},{key:'Ünvan',label:'Ünvan',full:true},{key:'Qeyd',label:'Qeyd',full:true},{key:'Müqavilə və Modemin şəkli',label:'Müqavilə Şəkli',type:'image',full:true}];let html='';fields.forEach(f=>{let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r['Ödəniş kodu']||'')).replace(/'/g,'\u0027');html+=`<div class="info-item full-width modal-actions"><a href="/edit/${encodeURIComponent(r['Ödəniş kodu'])}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a><button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${Number(r.rowIndex)||0})'><i class="fa-solid fa-trash"></i> Sil</button>${isArchived?`<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex)||0}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`:`<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${Number(r.rowIndex)||0}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
+         async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';prevBtn.disabled=currentModalIndex<=0;nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=String(r.arxiv||'').toLowerCase()==='hə';const customerName=String(r.ad_soyad||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`${escapeHtml(customerName)} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const fields=[{key:'odeme_kodu',label:'Ödəniş Kodu'},{key:'telefon',label:'Telefon',type:'tel'},{key:'ayliq_odenis',label:'Aylıq Ödəniş',suffix:' AZN'},{key:'fin',label:'Ş/V FİN'},{key:'seriya',label:'Ş/V Seriya'},{key:'modem',label:'Modem S/N'},{key:'tvbox',label:'TV Box'},{key:'komendant',label:'Komendant'},{key:'timestamp',label:'Qeydiyyat tarixi',type:'date'},{key:'unvan',label:'Ünvan',full:true},{key:'qeyd',label:'Qeyd',full:true},{key:'drive_links',label:'Müqavilə Şəkli',type:'image',full:true}];let html='';fields.forEach(f=>{let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r.odeme_kodu||'')).replace(/'/g,'\u0027');html+=`<div class="info-item full-width modal-actions"><a href="/edit/${encodeURIComponent(r.odeme_kodu)}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a><button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${Number(r.id)||0})'><i class="fa-solid fa-trash"></i> Sil</button>${isArchived?`<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${Number(r.id)||0}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`:`<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${Number(r.id)||0}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
          function navigateModal(direction){const newIndex=currentModalIndex+direction;if(newIndex>=0&&newIndex<currentModalList.length){currentModalIndex=newIndex;loadModalCustomer(currentModalList[currentModalIndex]);}}
 
          async function postJson(url,body){const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},credentials:'same-origin',body:JSON.stringify(body)});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error('Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(!res.ok||json.success!==true)throw new Error(json.error||`Server xətası (${res.status})`);return json;}
-         async function deleteCustomer(odemeKodu,rowIndex){if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini silmək istəyirsiniz?`))return;try{await postJson(`/delete/${encodeURIComponent(odemeKodu)}`,{rowIndex});alert('Müştəri silindi');location.reload();}catch(error){alert('Xəta: '+error.message);}}
-         async function toggleArchive(odemeKodu,rowIndex,archive){const action=archive?'arxivə göndərmək':'arxivdən çıxartmaq';if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`))return;try{await postJson(`/archive/${encodeURIComponent(odemeKodu)}`,{rowIndex,archive});alert(archive?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');location.reload();}catch(error){alert('Xəta: '+error.message);}}
+         async function deleteCustomer(odemeKodu,id){if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini silmək istəyirsiniz?`))return;try{await postJson(`/delete/${encodeURIComponent(odemeKodu)}`,{id});alert('Müştəri silindi');location.reload();}catch(error){alert('Xəta: '+error.message);}}
+         async function toggleArchive(odemeKodu,id,archive){const action=archive?'arxivə göndərmək':'arxivdən çıxartmaq';if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`))return;try{await postJson(`/archive/${encodeURIComponent(odemeKodu)}`,{id,archive});alert(archive?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');location.reload();}catch(error){alert('Xəta: '+error.message);}}
 
          document.addEventListener('click',(e)=>{const item=e.target.closest('.list-item[data-code]');if(item){openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}if(e.target.classList.contains('modal'))closeModal(e.target.id);});
          document.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){const item=e.target.closest?.('.list-item[data-code]');if(item){e.preventDefault();openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}}const customerOpen=document.getElementById('customerModal')?.classList.contains('is-open');if(customerOpen){if(e.key==='Escape'){closeModal('customerModal');return;}if(e.key==='ArrowLeft')navigateModal(-1);if(e.key==='ArrowRight')navigateModal(1);}if(e.key==='Escape'){if(document.getElementById('chartModal')?.classList.contains('is-open')){closeModal('chartModal');return;}if(document.getElementById('customerListModal')?.classList.contains('is-open'))closeModal('customerListModal');}});

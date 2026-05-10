@@ -34,7 +34,7 @@
     <a href="/" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Geri</a>
 
     <div class="form-card">
-        <h2><i class="fa-solid fa-pen"></i> <%= customer['Ad, Soyad, Ata adı'] %></h2>
+        <h2><i class="fa-solid fa-pen"></i> <%= customer.ad_soyad %></h2>
 
         <% if (success) { %>
             <div class="alert success"><i class="fa-solid fa-check-circle"></i> <%= success %></div>
@@ -44,64 +44,64 @@
         <% } %>
 
         <form method="POST" class="customer-form">
-            <input type="hidden" name="rowIndex" value="<%= customer.rowIndex %>">
+            <input type="hidden" name="customerId" value="<%= customer.id %>">
 
             <div class="form-grid">
                 <div class="form-group">
                     <label>Ödəniş kodu <span class="required">*</span></label>
-                    <input type="text" name="odemeKodu" value="<%= customer['Ödəniş kodu'] %>" required readonly>
+                    <input type="text" name="odemeKodu" value="<%= customer.odeme_kodu %>" required readonly>
                 </div>
                 <div class="form-group">
                     <label>Aylıq ödəniş <span class="required">*</span></label>
-                    <input type="number" name="ayliqOdenis" step="0.01" inputmode="decimal" value="<%= customer['Aylıq ödəniş'] || customer.ayliqOdenis || '' %>" required>
+                    <input type="number" name="ayliqOdenis" step="0.01" inputmode="decimal" value="<%= customer.ayliq_odenis || '' %>" required>
                 </div>
 
                 <div class="form-group">
                     <label>Ad Soyad Ata adı <span class="required">*</span></label>
-                    <input type="text" name="adSoyad" value="<%= customer['Ad, Soyad, Ata adı'] %>" autocomplete="name" required>
+                    <input type="text" name="adSoyad" value="<%= customer.ad_soyad %>" autocomplete="name" required>
                 </div>
                 <div class="form-group">
                     <label>Telefon nömrəsi <span class="required">*</span></label>
-                    <input type="tel" name="telefon" value="<%= customer['Telefon nömrəsi'] %>" autocomplete="tel" inputmode="tel" required>
+                    <input type="tel" name="telefon" value="<%= customer.telefon %>" autocomplete="tel" inputmode="tel" required>
                 </div>
 
                 <div class="form-group">
                     <label>Ş/V FİN</label>
-                    <input type="text" name="fin" value="<%= customer['Ş/V FİN'] %>" autocomplete="off">
+                    <input type="text" name="fin" value="<%= customer.fin %>" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label>Ş/V Seriya</label>
-                    <input type="text" name="seriya" value="<%= customer['Ş/V Seriya'] %>" autocomplete="off">
+                    <input type="text" name="seriya" value="<%= customer.seriya %>" autocomplete="off">
                 </div>
 
                 <div class="form-group">
                     <label>Modem S/N</label>
-                    <input type="text" name="modem" value="<%= customer['Modem S/N'] %>" autocomplete="off">
+                    <input type="text" name="modem" value="<%= customer.modem %>" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label>TV Box</label>
-                    <input type="text" name="tvbox" value="<%= customer['Tv Box'] %>" autocomplete="off">
+                    <input type="text" name="tvbox" value="<%= customer.tvbox %>" autocomplete="off">
                 </div>
 
                 <div class="form-group">
                     <label>Ünvan <span class="required">*</span></label>
-                    <input type="text" name="unvan" value="<%= customer['Ünvan'] %>" autocomplete="street-address" required>
+                    <input type="text" name="unvan" value="<%= customer.unvan %>" autocomplete="street-address" required>
                 </div>
                 <div class="form-group">
                     <label>Komendant</label>
-                    <input type="text" name="komendant" value="<%= customer['Komendant'] %>" autocomplete="off">
+                    <input type="text" name="komendant" value="<%= customer.komendant %>" autocomplete="off">
                 </div>
 
                 <div class="form-group full-width">
                     <label>Qeyd</label>
-                    <textarea name="qeyd"><%= customer['Qeyd'] %></textarea>
+                    <textarea name="qeyd"><%= customer.qeyd %></textarea>
                 </div>
 
                 <div class="form-group full-width">
                     <label>Müqavilə və Modemin şəkli (Drive linkləri)</label>
-                    <textarea class="drive-links" name="driveLinks" placeholder="https://drive.google.com/..."><%= (customer['Müqavilə və Modemin şəkli'] || '').split(',').map(link => link.trim()).filter(Boolean).join('\n') %></textarea>
+                    <textarea class="drive-links" name="driveLinks" placeholder="https://drive.google.com/..."><%= (customer.drive_links || '').split(',').map(link => link.trim()).filter(Boolean).join('\n') %></textarea>
                     <span class="field-hint">Birdən çox link üçün vergül istifadə et və ya hər sətirdə 1 link yaz.</span>
-                    <% const existingLinks = (customer['Müqavilə və Modemin şəkli'] || '').split(',').map(link => link.trim()).filter(Boolean); %>
+                    <% const existingLinks = (customer.drive_links || '').split(',').map(link => link.trim()).filter(Boolean); %>
                     <% if (existingLinks.length) { %>
                         <div class="current-links">
                             <% existingLinks.forEach((link, i) => { %>
@@ -113,7 +113,7 @@
 
                 <div class="form-group full-width">
                     <label>Nəticə</label>
-                    <% const neticeValue = customer['Netice'] || '' ; %>
+                    <% const neticeValue = customer.netice || '' ; %>
                     <select name="netice">
                         <option value="" <%= neticeValue === '' ? 'selected' : '' %>>-- Seçin --</option>
                         <option value="Həll olundu" <%= neticeValue === 'Həll olundu' ? 'selected' : '' %>>Həll olundu</option>

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="az">
+<html>
 <head>
-    <title>Müştəri Əlavə Et | Selnet</title>
+    <title>Müştəri Əlavə Et</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <%- include('partials/customer-form-styles') %>
-
     <style>
         body {
             background-image: url("https://raw.githubusercontent.com/AsadAsadov/Selnet/main/home.jpg");
@@ -14,220 +13,171 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         .header {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.78);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+            padding: 18px 22px;
         }
-
-        .header .logo h1 {
-            color: #fff;
-            margin: 0;
-            font-size: 1.5rem;
+        .header .logo h1,
+        .header > a {
+            color: #f8fafc;
         }
-
-        .header a {
-            color: #fff;
+        .header > a {
             text-decoration: none;
-            font-weight: 600;
-            display: flex;
+            font-weight: 700;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
         }
-
+        .form-group {
+            transition: all 0.25s ease;
+        }
         .hidden-field {
-            display: none !important;
+            max-height: 0;
+            opacity: 0;
+            visibility: hidden;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
         }
-
-        /* Grid sistemi */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+        .hidden-field .field-hint,
+        .hidden-field label,
+        .hidden-field input,
+        .hidden-field select,
+        .hidden-field textarea {
+            display: none;
         }
-
-        .full-width {
-            grid-column: 1 / -1;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Alert dizaynı */
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
-        .error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
     </style>
 </head>
-
 <body>
-
 <div class="header">
-    <div class="logo">
-        <h1><i class="fa-solid fa-user-plus"></i> Yeni Müştəri</h1>
-    </div>
-    <a href="/"><i class="fa-solid fa-house"></i> Ana Səhifə</a>
+    <div class="logo"><h1><i class="fa-solid fa-user-plus"></i> Yeni Müştəri</h1></div>
+    <a href="/"><i class="fa-solid fa-home"></i> Ana Səhifə</a>
 </div>
+<div class="container">
+    <a href="/" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Geri</a>
 
-<div class="container" style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
-
-    <div class="form-card" style="background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
-
-        <h2 style="margin-top: 0; margin-bottom: 25px;"><i class="fa-solid fa-plus-circle"></i> Müştəri Məlumatları</h2>
+    <div class="form-card">
+        <h2><i class="fa-solid fa-plus-circle"></i> Müştəri Əlavə Et</h2>
 
         <% if (success) { %>
-            <div class="alert success"><i class="fa-solid fa-circle-check"></i> <%= success %></div>
+            <div class="alert success"><i class="fa-solid fa-check-circle"></i> <%= success %></div>
         <% } %>
-
         <% if (error) { %>
-            <div class="alert error"><i class="fa-solid fa-triangle-exclamation"></i> <%= error %></div>
+            <div class="alert error"><i class="fa-solid fa-exclamation-circle"></i> <%= error %></div>
         <% } %>
 
-        <form method="POST" id="customerForm">
+        <form method="POST" class="customer-form">
             <div class="form-grid">
-
                 <div class="form-group full-width">
-                    <label>Əməliyyat Növü <span style="color:red">*</span></label>
-                    <select id="operationType" name="operationType" required style="width:100%; padding:12px; border-radius:10px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                    <label>Əməliyyat Növü <span class="required">*</span></label>
+                    <select id="operationType" name="operationType" required>
                         <option value="Qoşulma" selected>Qoşulma</option>
                         <option value="Köçürmə">Köçürmə</option>
                         <option value="Problem">Problem</option>
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>Ödəniş kodu <span style="color:red">*</span></label>
-                    <input type="text" name="odemeKodu" required style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                    <label>Ödəniş kodu <span class="required">*</span></label>
+                    <input type="text" name="odemeKodu" autocomplete="off" required>
                 </div>
-
-                <div class="form-group">
-                    <label>Ünvan <span style="color:red">*</span></label>
-                    <input type="text" name="unvan" required style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
-                </div>
-
-                <div class="form-group">
-                    <label>Ad Soyad Ata adı <span style="color:red">*</span></label>
-                    <input type="text" name="adSoyad" required style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
-                </div>
-
-                <div class="form-group">
-                    <label>Telefon <span style="color:red">*</span></label>
-                    <input type="tel" name="telefon" placeholder="0501234567" required style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
-                </div>
-
                 <div class="form-group problem-dependent">
-                    <label>Aylıq ödəniş</label>
-                    <input type="number" name="ayliqOdenis" step="0.01" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                    <label>Aylıq ödəniş <span class="required">*</span></label>
+                    <input type="number" name="ayliqOdenis" step="0.01" inputmode="decimal" required>
                 </div>
 
-                <div class="form-group problem-dependent">
-                    <label>Komendant</label>
-                    <input type="text" name="komendant" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                <div class="form-group">
+                    <label>Ad Soyad Ata adı <span class="required">*</span></label>
+                    <input type="text" name="adSoyad" autocomplete="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefon nömrəsi <span class="required">*</span></label>
+                    <input type="tel" name="telefon" placeholder="0501234567" autocomplete="tel" inputmode="tel" required>
                 </div>
 
                 <div class="form-group problem-dependent">
                     <label>Ş/V FİN</label>
-                    <input type="text" name="fin" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                    <input type="text" name="fin" autocomplete="off">
                 </div>
-
                 <div class="form-group problem-dependent">
                     <label>Ş/V Seriya</label>
-                    <input type="text" name="seriya" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                    <input type="text" name="seriya" autocomplete="off">
                 </div>
 
                 <div class="form-group">
                     <label>Modem S/N</label>
-                    <input type="text" name="modem" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                    <input type="text" name="modem" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>TV Box</label>
+                    <input type="text" name="tvbox" autocomplete="off">
                 </div>
 
                 <div class="form-group">
-                    <label>TV Box</label>
-                    <input type="text" name="tvbox" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;">
+                    <label>Ünvan <span class="required">*</span></label>
+                    <input type="text" name="unvan" autocomplete="street-address" required>
+                </div>
+                <div class="form-group problem-dependent">
+                    <label>Komendant</label>
+                    <input type="text" name="komendant" autocomplete="off">
                 </div>
 
-                <div id="qeydGroup" class="form-group full-width">
+                <div class="form-group full-width">
                     <label>Qeyd</label>
-                    <textarea name="qeyd" placeholder="Əlavə məlumat..." style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155; min-height:80px;"></textarea>
+                    <textarea name="qeyd" placeholder="qoşulma / köçürmə yaz"></textarea>
                 </div>
 
                 <div class="form-group full-width problem-dependent">
-                    <label>Drive Linkləri</label>
-                    <textarea name="driveLinks" placeholder="https://drive.google.com/..." style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid #334155;"></textarea>
+                    <label>Müqavilə və Modemin şəkli (Drive linkləri)</label>
+                    <textarea class="drive-links" name="driveLinks" placeholder="https://drive.google.com/..."></textarea>
+                    <span class="field-hint">Birdən çox link üçün vergül istifadə et və ya hər sətirdə 1 link yaz.</span>
                 </div>
 
                 <div id="resultGroup" class="form-group full-width hidden-field">
-                    <label>Nəticə (Sheet P sütunu)</label>
-                    <select name="netice" style="width:100%; padding:12px; border-radius:10px; background:#1e293b; color:#fff; border:1px solid #334155;">
-                        <option value="">Seçin...</option>
+                    <label>Nəticə</label>
+                    <select name="netice" required>
                         <option value="Həll olundu">Həll olundu</option>
                         <option value="Həll olunmadı">Həll olunmadı</option>
                     </select>
                 </div>
-
             </div>
 
-            <button type="submit" class="btn-submit" style="width:100%; margin-top:25px; padding:15px; background:#22c55e; color:#fff; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:1rem;">
+            <button type="submit" class="btn-submit">
                 <i class="fa-solid fa-floppy-disk"></i> Yadda Saxla
             </button>
         </form>
     </div>
 </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const operationType = document.getElementById('operationType');
-        const problemFields = document.querySelectorAll('.problem-dependent');
-        const resultGroup = document.getElementById('resultGroup');
-        const qeydGroup = document.getElementById('qeydGroup');
+        var operationType = document.getElementById('operationType');
+        var problemFields = document.querySelectorAll('.problem-dependent');
+        var resultGroup = document.getElementById('resultGroup');
 
-        function updateForm() {
-            const isProblem = operationType.value === 'Problem';
-
-            // 1. Problem olanda Qoşulma/Köçürmə sahələrini GİZLƏ və TƏMİZLƏ
-            problemFields.forEach(section => {
-                section.classList.toggle('hidden-field', isProblem);
-                const inputs = section.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    input.disabled = isProblem;
-                    if(isProblem) input.value = ""; // Dəyəri sıfırla ki sheet-ə getməsin
-                });
+        function setSectionVisibility(section, hidden) {
+            section.classList.toggle('hidden-field', hidden);
+            Array.prototype.forEach.call(section.querySelectorAll('input, select, textarea'), function (element) {
+                element.disabled = hidden;
             });
-
-            // 2. Nəticə hissəsini göstər/gizlə
-            resultGroup.classList.toggle('hidden-field', !isProblem);
-            const neticeInput = resultGroup.querySelector('select');
-            neticeInput.disabled = !isProblem;
-            if(!isProblem) neticeInput.value = "";
-
-            // 3. Qeyd hissəsini Problem zamanı gizlə
-            qeydGroup.classList.toggle('hidden-field', isProblem);
-            const qeydTextarea = qeydGroup.querySelector('textarea');
-            qeydTextarea.disabled = isProblem;
-            if(isProblem) qeydTextarea.value = "";
         }
 
-        operationType.addEventListener('change', updateForm);
-        updateForm(); // Səhifə yüklənəndə çağır
+        function updateFormFields() {
+            var value = operationType.value;
+            var hideProblemFields = value === 'Problem';
+
+            problemFields.forEach(function (section) {
+                setSectionVisibility(section, hideProblemFields);
+            });
+            setSectionVisibility(resultGroup, !hideProblemFields);
+        }
+
+        operationType.addEventListener('change', updateFormFields);
+        updateFormFields();
     });
 </script>
-
 </body>
 </html>
