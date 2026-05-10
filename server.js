@@ -179,7 +179,7 @@ function getMonthlyStats(customers) {
 async function getSheetData() {
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: `${SHEET_TAB_NAME}!A:O`,
+    range: `${SHEET_TAB_NAME}!A:P`,
   });
   const rows = response.data.values || [];
   if (rows.length === 0) return { headers: [], data: [] };
@@ -323,19 +323,45 @@ app.get('/api/archive-customers', checkAuth, async (req, res) => {
 app.get('/add', checkAuth, (req, res) => res.render('add-customer', { success: null, error: null }));
 app.post('/add', checkAuth, async (req, res) => {
   try {
-    const { odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd } = req.body;
+    const odemeKodu = req.body.odemeKodu || '';
+    const adSoyad = req.body.adSoyad || '';
+    const telefon = req.body.telefon || '';
+    const fin = req.body.fin || '';
+    const seriya = req.body.seriya || '';
+    const modem = req.body.modem || '';
+    const tvbox = req.body.tvbox || '';
+    const komendant = req.body.komendant || '';
+    const unvan = req.body.unvan || '';
+    const operationType = req.body.operationType || '';
+    const note = operationType || req.body.qeyd || '';
     const ayliqOdenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
     const driveLinks = normalizeDriveLinks(req.body.driveLinks);
+    const netice = req.body.netice || '';
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 
     const newRow = [
-      timestamp, `'${odemeKodu}`, adSoyad, `'${telefon}`, seriya, fin, unvan, modem, tvbox, ayliqOdenis, '', komendant, qeyd, driveLinks, ''
+      timestamp,
+      `'${odemeKodu}`,
+      adSoyad,
+      `'${telefon}`,
+      seriya,
+      fin,
+      unvan,
+      modem,
+      tvbox,
+      ayliqOdenis,
+      '',
+      komendant,
+      note,
+      driveLinks,
+      '',
+      netice
     ];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!A:O`,
+      range: `${SHEET_TAB_NAME}!A:P`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [newRow] }
     });
@@ -346,29 +372,51 @@ app.post('/add', checkAuth, async (req, res) => {
 // EDIT CUSTOMER (POST)
 app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
   try {
-    const { rowIndex, odemeKodu, adSoyad, telefon, fin, seriya, modem, tvbox, komendant, unvan, qeyd } = req.body;
-    const ayliq = req.body.ayliqOdenis || req.body.aylıqOdenis || "";
+    const rowIndex = req.body.rowIndex;
+    const odemeKodu = req.body.odemeKodu || '';
+    const adSoyad = req.body.adSoyad || '';
+    const telefon = req.body.telefon || '';
+    const fin = req.body.fin || '';
+    const seriya = req.body.seriya || '';
+    const modem = req.body.modem || '';
+    const tvbox = req.body.tvbox || '';
+    const komendant = req.body.komendant || '';
+    const unvan = req.body.unvan || '';
+    const qeyd = req.body.qeyd || '';
+    const ayliq = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
     const driveLinks = normalizeDriveLinks(req.body.driveLinks);
+    const netice = req.body.netice || '';
+
+    let existingArxiv = '';
+    try {
+      const { data } = await getSheetData();
+      const existingRow = data.find(r => String(r.rowIndex) === String(rowIndex));
+      existingArxiv = existingRow ? (existingRow['Arxiv'] || '') : '';
+    } catch (error) {
+      existingArxiv = '';
+    }
 
     const updatedRow = [
-      `'${odemeKodu}`, // B
-      adSoyad,         // C
-      `'${telefon}`,   // D
-      seriya,          // E
-      fin,             // F
-      unvan,           // G
-      modem,           // H
-      tvbox,           // I
-      ayliq,           // J (Aylıq ödəniş)
-      '',              // K (köhnə müştəri parolu sütunu boş saxlanılır)
-      komendant,       // L
-      qeyd,            // M
-      driveLinks       // N
+      `'${odemeKodu}`,
+      adSoyad,
+      `'${telefon}`,
+      seriya,
+      fin,
+      unvan,
+      modem,
+      tvbox,
+      ayliq,
+      '',
+      komendant,
+      qeyd,
+      driveLinks,
+      existingArxiv,
+      netice
     ];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB_NAME}!B${rowIndex}:N${rowIndex}`,
+      range: `${SHEET_TAB_NAME}!B${rowIndex}:P${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [updatedRow] }
     });
