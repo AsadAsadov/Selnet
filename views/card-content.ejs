@@ -2,10 +2,15 @@
 const fields = [
   { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
   { key: 'telefon', label: 'TELEFON', isPhone: true },
+  { key: 'ayliq_odenis', label: 'AYLIQ ÖDƏNİŞ', suffix: ' AZN' },
+  { key: 'fin', label: 'Ş/V FİN' },
+  { key: 'seriya', label: 'Ş/V SERİYA' },
   { key: 'modem', label: 'MODEM S/N' },
   { key: 'tvbox', label: 'TV BOX' },
+  { key: 'komendant', label: 'KOMENDANT' },
   { key: 'timestamp', label: 'QEYDİYYAT TARİXİ', isDate: true },
   { key: 'unvan', label: 'ÜNVAN' },
+  { key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true },
   { key: 'qeyd', label: 'QEYD' },
   { key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ', condition: (r) => r.qeyd === 'Problem' }
 ];
@@ -26,10 +31,39 @@ const fields = [
           <a href="https://wa.me/<%= waTel %>" target="_blank" class="btn-wa">
             <i class="fa-brands fa-whatsapp"></i> WhatsApp
           </a>
+        <% } else if (field.isStatus) { %>
+          <% const statusText = String(value || '').trim().toLowerCase(); %>
+          <% if (statusText === 'həll olundu') { %>
+            <span class="result-badge result-solved" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 6px 14px; border-radius: 10px; border: 1px solid #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-circle-check"></i> Həll olundu
+            </span>
+          <% } else { %>
+            <span class="result-badge result-not-solved" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 6px 14px; border-radius: 10px; border: 1px solid #ef4444; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-circle-xmark"></i> Həll olunmadı
+            </span>
+          <% } %>
         <% } else { %>
-          <span class="info-text"><%= value %></span>
+          <span class="info-text"><%= value %><%= field.suffix || '' %></span>
         <% } %>
       </p>
     </div>
   <% } %>
 <% }) %>
+
+<div class="modal-actions">
+  <a href="/edit/<%= result.id %>" class="btn-edit">
+    <i class="fa-solid fa-pen"></i> Redaktə
+  </a>
+  <button class="btn-delete" onclick="deleteCustomer('<%= result.id %>')">
+    <i class="fa-solid fa-trash"></i> Sil
+  </button>
+  <% if (result.arxiv && result.arxiv.toLowerCase() === 'hə') { %>
+    <button class="btn-unarchive" onclick="toggleArchive('<%= result.id %>', false)">
+      <i class="fa-solid fa-box-open"></i> Arxivdən Çıxart
+    </button>
+  <% } else { %>
+    <button class="btn-archive" onclick="toggleArchive('<%= result.id %>', true)">
+      <i class="fa-solid fa-box-archive"></i> Arxivə Göndər
+    </button>
+  <% } %>
+</div>
