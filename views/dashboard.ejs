@@ -461,7 +461,7 @@
             border-color: var(--red);
          }
          .list-item.problem {
-            border-left: 4px solid var(--red);
+            border-left: 6px solid var(--red);
          }
          .chart-container {
             background: rgba(15, 23, 42, 0.82);
@@ -729,11 +729,11 @@
             );
             border: 1px solid var(--border-soft);
             padding: 12px 14px;
-            border-radius: 14px;
+            border-radius: 12px;
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
             cursor: pointer;
             transition:
@@ -743,6 +743,7 @@
                background 0.2s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 8px 18px rgba(2, 6, 23, 0.24);
          }
          .result-list .list-item {
             padding: 14px 15px;
@@ -771,7 +772,7 @@
          }
          .list-top {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px;
             justify-content: space-between;
             min-width: 0;
@@ -779,7 +780,7 @@
          .list-item .name {
             font-weight: 850;
             color: #f8fafc;
-            font-size: 15px;
+            font-size: 17px;
             line-height: 1.25;
             min-width: 0;
          }
@@ -793,15 +794,37 @@
          .list-item-name > .badge {
             margin-left: auto;
          }
-         .meta {
-            font-size: 13px;
-            color: var(--muted);
-            margin-top: 5px;
-            line-height: 1.4;
+         .list-data {
+            margin-top: 8px;
+            display: grid;
+            gap: 6px;
          }
-         .meta strong {
+         .list-data-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
             color: var(--muted-2);
+            font-size: 13px;
+            line-height: 1.35;
+            min-width: 0;
+         }
+         .list-data-row i {
+            color: var(--green);
+            width: 14px;
+            margin-top: 2px;
+            flex: 0 0 14px;
+         }
+         .list-data-row span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+         }
+         .list-phone-link {
+            color: #a7f3d0;
+            text-decoration: none;
             font-weight: 700;
+         }
+         .list-phone-link:hover {
+            text-decoration: underline;
          }
          .list-date {
             font-size: 11px;
@@ -824,13 +847,13 @@
             border-color: rgba(107, 114, 128, 0.32);
          }
          .list-item.qosulma {
-            border-left: 4px solid var(--green);
+            border-left: 6px solid var(--green);
          }
          .list-item.kocurme {
-            border-left: 4px solid var(--orange);
+            border-left: 6px solid var(--orange);
          }
          .list-item.archived-item {
-            border-left: 4px solid var(--gray);
+            border-left: 6px solid var(--gray);
             opacity: 0.84;
          }
          .badge {
@@ -1453,13 +1476,13 @@
             }
             .list-top {
                align-items: flex-start;
-               flex-direction: column;
+               flex-direction: row;
             }
             .list-date {
                align-self: flex-start;
             }
             .chevron {
-               margin-top: 4px;
+               margin-top: 8px;
             }
             .all-customers-toolbar {
                flex-direction: column;
@@ -2071,9 +2094,26 @@
                      >
                   </div>
                   <div class="meta">
-                     <strong>Kod:</strong> <%= item.odeme_kodu || '-' %> ·
-                     <strong>Tel:</strong> <%= item.telefon || '-' %>
-                     <% if (item.unvan) { %> · <%= item.unvan %><% } %>
+                     <div class="list-data">
+                        <div class="list-data-row">
+                           <i class="fa-solid fa-key"></i>
+                           <span><%= item.odeme_kodu || '-' %></span>
+                        </div>
+                        <div class="list-data-row">
+                           <i class="fa-solid fa-phone"></i>
+                           <span>
+                              <% if (item.telefon) { %>
+                              <a class="list-phone-link" href="tel:<%= item.telefon %>"
+                                 ><%= item.telefon %></a
+                              >
+                              <% } else { %>-<% } %>
+                           </span>
+                        </div>
+                        <div class="list-data-row">
+                           <i class="fa-solid fa-location-dot"></i>
+                           <span><%= item.unvan || '-' %></span>
+                        </div>
+                     </div>
                   </div>
                </div>
                <i class="fa-solid fa-chevron-right chevron"></i>
@@ -2412,7 +2452,8 @@
           const isProblem=String(item?.qeyd||'').toLowerCase().includes('problem');
           const resultClass=netice.toLowerCase()==='həll olundu' ? 'result-success' : 'result-failed';
           const resultHtml=isProblem&&netice?`<div class="result-label ${resultClass}"><span class="fa-solid fa-circle-check"></span> Nəticə: ${escapeHtml(netice)}</div>`:'';
-           return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.timestamp))}</span></div><div class="meta"><strong>Kod:</strong> ${escapeHtml(odemeKodu||'-')} · <strong>Tel:</strong> ${escapeHtml(telefon)}${unvan?` · ${escapeHtml(unvan)}`:''}</div>${resultHtml}</div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
+          const phoneRow = telefon && telefon !== '-' ? `<a class="list-phone-link" href="tel:${encodeURIComponent(telefon)}">${escapeHtml(telefon)}</a>` : '-';
+          return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.timestamp))}</span></div><div class="list-data"><div class="list-data-row"><i class="fa-solid fa-key"></i><span>${escapeHtml(odemeKodu||'-')}</span></div><div class="list-data-row"><i class="fa-solid fa-phone"></i><span>${phoneRow}</span></div><div class="list-data-row"><i class="fa-solid fa-location-dot"></i><span>${escapeHtml(unvan||'-')}</span></div></div>${resultHtml}</div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
          }
 
          function syncModalLock(){const hasOpenModal=Boolean(document.querySelector('.modal.is-open'));document.body.classList.toggle('modal-open',hasOpenModal);}
