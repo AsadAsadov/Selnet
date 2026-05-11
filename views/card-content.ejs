@@ -1,78 +1,60 @@
-<% 
-// 1. Fields massivini dərhal və ən başda təyin edirik
-const fields = [
-  { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
-  { key: 'telefon', label: 'TELEFON', isPhone: true },
-  { key: 'ayliq_odenis', label: 'AYLIQ ÖDƏNİŞ', suffix: ' AZN' },
-  { key: 'fin', label: 'Ş/V FİN' },
-  { key: 'seriya', label: 'Ş/V SERİYA' },
-  { key: 'modem', label: 'MODEM S/N' },
-  { key: 'tvbox', label: 'TV BOX' },
-  { key: 'komendant', label: 'KOMENDANT' },
-  { key: 'timestamp', label: 'QEYDİYYAT TARİXİ', isDate: true },
-  { key: 'unvan', label: 'ÜNVAN' },
-  { key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true },
-  { key: 'qeyd', label: 'QEYD' },
-  { key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ', condition: (r) => r.qeyd === 'Problem' }
-];
-%>
+<div class="customer-details">
+  <h2 class="customer-name"><%= result.ad_soyad %></h2>
 
-<% if (typeof result !== 'undefined' && result) { %>
-  <% fields.forEach(field => { %>
+  <div class="info-grid">
     <% 
-      const rawValue = result[field.key]; 
-      const value = field.isDate ? formatDate(rawValue) : rawValue; 
-      // Şərt: Əgər condition varsa onu yoxla, yoxdursa true qəbul et
-      const shouldShow = field.condition ? field.condition(result) : true; 
+      // Massivi birbaşa burada təyin edirik ki, "not defined" xətası verməsin
+      const displayFields = [
+        { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
+        { key: 'telefon', label: 'TELEFON', isPhone: true },
+        { key: 'ayliq_odenis', label: 'AYLIQ ÖDƏNİŞ', suffix: ' AZN' },
+        { key: 'fin', label: 'Ş/V FİN' },
+        { key: 'seriya', label: 'Ş/V SERİYA' },
+        { key: 'modem', label: 'MODEM S/N' },
+        { key: 'tvbox', label: 'TV BOX' },
+        { key: 'komendant', label: 'KOMENDANT' },
+        { key: 'timestamp', label: 'QEYDİYYAT TARİXİ' },
+        { key: 'unvan', label: 'ÜNVAN' },
+        { key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true },
+        { key: 'qeyd', label: 'QEYD' }
+      ];
+
+      // Əgər Problem seçilibsə, siyahıya əlavə et
+      if (result.qeyd === 'Problem') {
+        displayFields.push({ key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ' });
+      }
+
+      displayFields.forEach(field => { 
+        const val = result[field.key];
+        // Boş olmayan və 'null' olmayan məlumatları göstər
+        if (val && val.toString().toLowerCase() !== 'null' && val.toString().trim() !== '') {
     %>
-    
-    <% if (shouldShow && value && value.toString().trim() !== '' && value.toString().toLowerCase() !== 'yox' && value.toString().toLowerCase() !== 'null') { %>
       <div class="info-item">
         <label><%= field.label %></label>
-        <p class="info-value <%= field.isPhone ? 'info-value--contact' : '' %>">
+        <p class="info-value">
           <% if (field.isPhone) { %>
-            <% const cleanTel = value.toString().replace(/\s/g, ''); %>
-            <% const waTel = '994' + cleanTel.replace(/^0/, ''); %>
-            <a href="tel:<%= cleanTel %>"><%= value %></a>
-            <a href="https://wa.me/<%= waTel %>" target="_blank" class="btn-wa">
-              <i class="fa-brands fa-whatsapp"></i> WhatsApp
-            </a>
+            <%= val %>
+            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="btn-wa">WhatsApp</a>
           <% } else if (field.isStatus) { %>
-            <% const statusText = String(value || '').trim().toLowerCase(); %>
-            <% if (statusText === 'həll olundu') { %>
-              <span class="result-badge result-solved" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 6px 14px; border-radius: 10px; border: 1px solid #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-circle-check"></i> Həll olundu
-              </span>
-            <% } else { %>
-              <span class="result-badge result-not-solved" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 6px 14px; border-radius: 10px; border: 1px solid #ef4444; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-circle-xmark"></i> Həll olunmadı
-              </span>
-            <% } %>
+            <span class="status-badge"><%= val %></span>
           <% } else { %>
-            <span class="info-text"><%= value %><%= field.suffix || '' %></span>
+            <%= val %><%= field.suffix || '' %>
           <% } %>
         </p>
       </div>
-    <% } %>
-  <% }) %>
-
-  <div class="modal-actions">
-    <a href="/edit/<%= result.id %>" class="btn-edit">
-      <i class="fa-solid fa-pen"></i> Redaktə
-    </a>
-    <button class="btn-delete" onclick="deleteCustomer('<%= result.id %>')">
-      <i class="fa-solid fa-trash"></i> Sil
-    </button>
-    <% if (result.arxiv === true || result.arxiv === 'true') { %>
-      <button class="btn-unarchive" onclick="toggleArchive('<%= result.id %>', false)">
-        <i class="fa-solid fa-box-open"></i> Arxivdən Çıxart
-      </button>
-    <% } else { %>
-      <button class="btn-archive" onclick="toggleArchive('<%= result.id %>', true)">
-        <i class="fa-solid fa-box-archive"></i> Arxivə Göndər
-      </button>
-    <% } %>
+    <% 
+        }
+      }); 
+    %>
   </div>
-<% } else { %>
-  <p>Məlumat tapılmadı.</p>
-<% } %>
+
+  <div class="modal-actions" style="margin-top: 20px; display: flex; gap: 10px;">
+    <a href="/edit/<%= result.id %>" class="btn-edit" style="background: #3b82f6; color: white; padding: 10px; border-radius: 5px; text-decoration: none;">Redaktə</a>
+    
+    <button onclick="deleteCustomer('<%= result.id %>')" class="btn-delete" style="background: #ef4444; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">Sil</button>
+    
+    <button onclick="toggleArchive('<%= result.id %>', <%= !(result.arxiv === true || result.arxiv === 'true') %>)" class="btn-archive" style="background: #6b7280; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">
+      <%= (result.arxiv === true || result.arxiv === 'true') ? 'Arxivdən Çıxart' : 'Arxivə Göndər' %>
+    </button>
+  </div>
+</div>
