@@ -786,13 +786,22 @@
          }
          .list-item-name {
             display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 10px;
             flex: 1;
+            min-width: 0;
+         }
+         .list-customer-name {
+            flex: 1;
+            min-width: 0;
+            padding-right: 8px;
+            overflow-wrap: anywhere;
          }
          .list-item-name > .badge {
-            margin-left: auto;
+            margin-left: 0;
+            flex-shrink: 0;
          }
          .list-data {
             margin-top: 8px;
@@ -1484,6 +1493,10 @@
             .chevron {
                margin-top: 8px;
             }
+            .list-data {
+               gap: 8px;
+               margin-top: 10px;
+            }
             .all-customers-toolbar {
                flex-direction: column;
                align-items: flex-start;
@@ -2082,8 +2095,8 @@
                <div class="list-main">
                   <div class="list-top">
                      <div class="name list-item-name">
-                        <%= item.ad_soyad || '' %>
-                        %><span class="badge <%= t.badgeClass %>"
+                        <span class="list-customer-name"><%= item.ad_soyad || '' %></span
+                        ><span class="badge <%= t.badgeClass %>"
                            ><i class="fa-solid <%= t.iconClass %>"></i> <%=
                            t.typeLabel %></span
                         >
@@ -2453,7 +2466,7 @@
           const resultClass=netice.toLowerCase()==='həll olundu' ? 'result-success' : 'result-failed';
           const resultHtml=isProblem&&netice?`<div class="result-label ${resultClass}"><span class="fa-solid fa-circle-check"></span> Nəticə: ${escapeHtml(netice)}</div>`:'';
           const phoneRow = telefon && telefon !== '-' ? `<a class="list-phone-link" href="tel:${encodeURIComponent(telefon)}">${escapeHtml(telefon)}</a>` : '-';
-          return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name">${escapeHtml(adSoyad)}${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.timestamp))}</span></div><div class="list-data"><div class="list-data-row"><i class="fa-solid fa-key"></i><span>${escapeHtml(odemeKodu||'-')}</span></div><div class="list-data-row"><i class="fa-solid fa-phone"></i><span>${phoneRow}</span></div><div class="list-data-row"><i class="fa-solid fa-location-dot"></i><span>${escapeHtml(unvan||'-')}</span></div></div>${resultHtml}</div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
+          return `<div class="list-item ${type.typeClass}" data-code="${escapeHtml(odemeKodu)}" data-index="${Number(index)||0}" data-list="${escapeHtml(listType)}" role="button" tabindex="0"><div class="list-main"><div class="list-top"><div class="name list-item-name"><span class="list-customer-name">${escapeHtml(adSoyad)}</span>${createBadge(type)}</div><span class="list-date"><i class="fa-regular fa-calendar"></i> ${escapeHtml(formatDate(item?.timestamp))}</span></div><div class="list-data"><div class="list-data-row"><i class="fa-solid fa-key"></i><span>${escapeHtml(odemeKodu||'-')}</span></div><div class="list-data-row"><i class="fa-solid fa-phone"></i><span>${phoneRow}</span></div><div class="list-data-row"><i class="fa-solid fa-location-dot"></i><span>${escapeHtml(unvan||'-')}</span></div></div>${resultHtml}</div><i class="fa-solid fa-chevron-right chevron"></i></div>`;
          }
 
          function syncModalLock(){const hasOpenModal=Boolean(document.querySelector('.modal.is-open'));document.body.classList.toggle('modal-open',hasOpenModal);}

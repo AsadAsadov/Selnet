@@ -312,6 +312,7 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
+      .is('arxiv', false)
       .order('timestamp', { ascending: false });
     
     if (error) {
@@ -333,13 +334,14 @@ app.get('/api/today-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
+      .is('arxiv', false)
       .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
     }
 
-    const customers = (Array.isArray(data) ? data : []).filter(customer => !isArchivedCustomer(customer) && isTodayCustomer(customer));
+    const customers = (Array.isArray(data) ? data : []).filter(customer => isTodayCustomer(customer));
     sendCustomerList(res, customers, page, limit);
   } catch (err) {
     console.error('GET /api/today-customers failed:', err);
@@ -355,14 +357,14 @@ app.get('/api/archive-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
+      .is('arxiv', true)
       .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
     }
 
-    const customers = (Array.isArray(data) ? data : []).filter(isArchivedCustomer);
-    sendCustomerList(res, customers, page, limit);
+    sendCustomerList(res, Array.isArray(data) ? data : [], page, limit);
   } catch (err) {
     console.error('GET /api/archive-customers failed:', err);
     res.status(500).json({ success: false, customers: [], totalPages: 1, totalCustomers: 0, error: err.message });
@@ -378,13 +380,14 @@ app.get('/api/problem-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
+      .is('arxiv', false)
       .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
     }
 
-    let customers = (Array.isArray(data) ? data : []).filter(c => !isArchivedCustomer(c) && isProblemCustomer(c));
+    let customers = (Array.isArray(data) ? data : []).filter(c => isProblemCustomer(c));
 
     if (solvedParam === 'true') {
       customers = customers.filter(c => String(c.netice || '').trim() !== '');
@@ -602,7 +605,7 @@ app.post('/archive/:id', checkAuth, async (req, res) => {
 
     const { error } = await supabase
       .from('customers')
-      .update({ arxiv: archive ? 'Hə' : '' })
+      .update({ arxiv: archive })
       .eq('id', target.id);
     
     if (error) {
