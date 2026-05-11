@@ -188,7 +188,6 @@ async function getSheetData() {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
-      .eq('arxiv', false)
       .order('id', { ascending: false });
     
     if (error) {
@@ -196,7 +195,8 @@ async function getSheetData() {
       throw new Error(error.message);
     }
 
-    return { headers: [], data: data || [] };
+    const customers = Array.isArray(data) ? data.filter(c => !isArchivedCustomer(c)) : [];
+    return { headers: [], data: customers };
   } catch (err) {
     console.error('getSheetData failed:', err);
     throw err;
@@ -216,8 +216,14 @@ function normalizeDriveLinks(value) {
     .join(',');
 }
 
+function parseArchiveValue(value) {
+  if (typeof value === 'boolean') return value;
+  const normalized = String(value ?? '').trim().toLowerCase();
+  return ['hə', 'he', 'true', '1', 'bəli', 'yes'].includes(normalized);
+}
+
 function isArchivedCustomer(customer) {
-  return String(customer?.arxiv || '').trim().toLowerCase() === 'hə';
+  return parseArchiveValue(customer?.arxiv);
 }
 
 function isProblemCustomer(customer) {
@@ -372,14 +378,13 @@ app.get('/api/problem-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
-      .eq('qeyd', 'Problem')
       .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
     }
 
-    let customers = Array.isArray(data) ? data : [];
+    let customers = (Array.isArray(data) ? data : []).filter(c => !isArchivedCustomer(c) && isProblemCustomer(c));
 
     if (solvedParam === 'true') {
       customers = customers.filter(c => String(c.netice || '').trim() !== '');
@@ -531,13 +536,48 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
 });
 
 // DELETE & ARCHIVE
+async function resolveCustomerByIdOrCode(rawIdentifier, odemeKodu = '') {
+  const identifier = String(rawIdentifier ?? '').trim();
+  const paymentCode = String(odemeKodu ?? '').trim();
+  const canUseNumericId = /^\d+$/.test(identifier);
+  const canUseUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(identifier);
+  const canUseId = canUseNumericId || canUseUuidId;
+
+  if (canUseId) {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('id, odeme_kodu')
+      .eq('id', identifier)
+      .maybeSingle();
+    if (!error && data?.id !== undefined && data?.id !== null) return data;
+  }
+
+  if (paymentCode || identifier) {
+    const lookupCode = paymentCode || identifier;
+    const { data, error } = await supabase
+      .from('customers')
+      .select('id, odeme_kodu')
+      .eq('odeme_kodu', lookupCode)
+      .maybeSingle();
+    if (!error && data?.id !== undefined && data?.id !== null) return data;
+  }
+
+  return null;
+}
+
 app.post('/delete/:id', checkAuth, async (req, res) => {
   try {
-    const id = req.params.id;
+    const identifier = String(req.params.id ?? '').trim();
+    const odemeKodu = String(req.body?.odemeKodu ?? '').trim();
+    const target = await resolveCustomerByIdOrCode(identifier, odemeKodu);
+    if (!target) {
+      return res.status(404).json({ success: false, error: 'Silinəcək müştəri tapılmadı.' });
+    }
+
     const { error } = await supabase
       .from('customers')
       .delete()
-      .eq('id', id);
+      .eq('id', target.id);
     
     if (error) {
       throw new Error(error.message);
@@ -552,11 +592,18 @@ app.post('/delete/:id', checkAuth, async (req, res) => {
 
 app.post('/archive/:id', checkAuth, async (req, res) => {
   try {
-    const { archive } = req.body;
+    const identifier = String(req.params.id ?? '').trim();
+    const odemeKodu = String(req.body?.odemeKodu ?? '').trim();
+    const archive = req.body?.archive === true || String(req.body?.archive).trim().toLowerCase() === 'true';
+    const target = await resolveCustomerByIdOrCode(identifier, odemeKodu);
+    if (!target) {
+      return res.status(404).json({ success: false, error: 'Arxiv üçün müştəri tapılmadı.' });
+    }
+
     const { error } = await supabase
       .from('customers')
       .update({ arxiv: archive ? 'Hə' : '' })
-      .eq('id', req.params.id);
+      .eq('id', target.id);
     
     if (error) {
       throw new Error(error.message);

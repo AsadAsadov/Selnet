@@ -4,6 +4,9 @@
   <div class="info-grid">
     <% 
       // Massivi birbaşa burada təyin edirik ki, "not defined" xətası verməsin
+      const qeydText = String(result.qeyd || '').trim().toLowerCase();
+      const isProblem = qeydText.includes('problem');
+      const isArchived = ['hə', 'he', 'true', '1'].includes(String(result.arxiv || '').trim().toLowerCase());
       const displayFields = [
         { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
         { key: 'telefon', label: 'TELEFON', isPhone: true },
@@ -15,12 +18,15 @@
         { key: 'komendant', label: 'KOMENDANT' },
         { key: 'timestamp', label: 'QEYDİYYAT TARİXİ' },
         { key: 'unvan', label: 'ÜNVAN' },
-        { key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true },
         { key: 'qeyd', label: 'QEYD' }
       ];
 
-      // Əgər Problem seçilibsə, siyahıya əlavə et
-      if (result.qeyd === 'Problem') {
+      // Problem statusu yalnız problem qeydli müştərilərdə göstərilir
+      if (isProblem && String(result.netice || '').trim() !== '') {
+        displayFields.push({ key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true });
+      }
+
+      if (isProblem) {
         displayFields.push({ key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ' });
       }
 
@@ -49,12 +55,12 @@
   </div>
 
   <div class="modal-actions" style="margin-top: 20px; display: flex; gap: 10px;">
-    <a href="/edit/<%= result.id %>" class="btn-edit" style="background: #3b82f6; color: white; padding: 10px; border-radius: 5px; text-decoration: none;">Redaktə</a>
+    <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit" style="background: #3b82f6; color: white; padding: 10px; border-radius: 5px; text-decoration: none;">Redaktə</a>
     
-    <button onclick="deleteCustomer('<%= result.id %>')" class="btn-delete" style="background: #ef4444; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">Sil</button>
+    <button onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')" class="btn-delete" style="background: #ef4444; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">Sil</button>
     
-    <button onclick="toggleArchive('<%= result.id %>', <%= !(result.arxiv === true || result.arxiv === 'true') %>)" class="btn-archive" style="background: #6b7280; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">
-      <%= (result.arxiv === true || result.arxiv === 'true') ? 'Arxivdən Çıxart' : 'Arxivə Göndər' %>
+    <button onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', <%= !isArchived %>)" class="btn-archive" style="background: #6b7280; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">
+      <%= isArchived ? 'Arxivdən Çıxart' : 'Arxivə Göndər' %>
     </button>
   </div>
 </div>
