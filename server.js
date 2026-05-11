@@ -305,7 +305,7 @@ app.get('/api/all-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
-      .order('id', { ascending: false });
+      .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
@@ -326,7 +326,7 @@ app.get('/api/today-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
-      .order('id', { ascending: false });
+      .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
@@ -348,7 +348,7 @@ app.get('/api/archive-customers', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
-      .order('id', { ascending: false });
+      .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
@@ -372,7 +372,7 @@ app.get('/api/problem-customers', checkAuth, async (req, res) => {
       .from('customers')
       .select('*')
       .eq('qeyd', 'Problem')
-      .order('id', { ascending: false });
+      .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
@@ -413,6 +413,7 @@ app.post('/add', checkAuth, async (req, res) => {
     const ayliq_odenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
     const drive_links = normalizeDriveLinks(req.body.driveLinks);
     const netice = req.body.netice || '';
+    const problem_sebebi = req.body.problemSebebi || '';
     const now = new Date();
     const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 
@@ -433,7 +434,8 @@ app.post('/add', checkAuth, async (req, res) => {
         qeyd,
         drive_links,
         netice,
-        arxiv: ''
+        problem_sebebi,
+        arxiv: 'false'
       }]);
     
     if (error) {
@@ -463,6 +465,7 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
     const ayliq_odenis = req.body.ayliqOdenis || req.body.aylıqOdenis || '';
     const drive_links = normalizeDriveLinks(req.body.driveLinks);
     const netice = req.body.netice || '';
+    const problem_sebebi = req.body.problemSebebi || '';
 
     let existingArxiv = '';
     try {
@@ -491,7 +494,8 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
         qeyd,
         drive_links,
         arxiv: existingArxiv,
-        netice
+        netice,
+        problem_sebebi
       })
       .eq('id', id);
     
@@ -584,7 +588,7 @@ app.get('/', checkAuth, async (req, res) => {
     const { data, error } = await supabase
       .from('customers')
       .select('*')
-      .order('id', { ascending: false });
+      .order('timestamp', { ascending: false });
     
     if (error) {
       throw new Error(error.message);
