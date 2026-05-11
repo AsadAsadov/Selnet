@@ -1,55 +1,33 @@
 <%
 const fields = [
-  { key: 'telefon', label: 'Telefon', type: 'tel' },
-  { key: 'ayliq_odenis', label: 'Aylıq Ödəniş', suffix: ' AZN' },
-  { key: 'fin', label: 'Ş/V FİN' },
-  { key: 'seriya', label: 'Ş/V Seriya' },
-  { key: 'modem', label: 'Modem S/N' },
-  { key: 'tvbox', label: 'TV Box' },
-  { key: 'komendant', label: 'Komendant' },
-  { key: 'timestamp', label: 'Qeydiyyat tarixi', type: 'date' },
-  { key: 'unvan', label: 'Ünvan', full: true },
-  { key: 'problem_sebebi', label: 'Problemin Səbəbi', full: true, showWhen: 'problem' },
-  { key: 'netice', label: 'İşin Nəticəsi', type: 'status', full: true, showWhen: 'problem' },
-  { key: 'qeyd', label: 'Qeyd', full: true },
-  { key: 'drive_links', label: 'Müqavilə Şəkli', type: 'link', full: true }
+  { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
+  { key: 'telefon', label: 'TELEFON', isPhone: true },
+  { key: 'modem', label: 'MODEM S/N' },
+  { key: 'tvbox', label: 'TV BOX' },
+  { key: 'timestamp', label: 'QEYDİYYAT TARİXİ', isDate: true },
+  { key: 'unvan', label: 'ÜNVAN' },
+  { key: 'qeyd', label: 'QEYD' },
+  { key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ', condition: (r) => r.qeyd === 'Problem' }
 ];
 %>
 
 <% fields.forEach(field => { %>
   <% const rawValue = result[field.key]; %>
-  <% const value = field.type === 'date' ? formatDate(rawValue) : rawValue; %>
-  <% const isProblem = String(result.qeyd || '').toLowerCase().includes('problem'); %>
-  <% const shouldShow = field.showWhen === 'problem' ? isProblem : true; %>
-  <% if (shouldShow && value && value.toString().trim()!== '' && value.toString().toLowerCase()!== 'yox') { %>
-    <div class="info-item <%= field.full? 'full-width' : '' %>">
+  <% const value = field.isDate ? formatDate(rawValue) : rawValue; %>
+  <% const shouldShow = field.condition ? field.condition(result) : true; %>
+  <% if (shouldShow && value && value.toString().trim() !== '' && value.toString().toLowerCase() !== 'yox') { %>
+    <div class="info-item">
       <label><%= field.label %></label>
-      <p class="info-value <%= field.type === 'tel' ? 'info-value--contact' : (field.type === 'link' ? 'info-value--links' : '') %>">
-        <% if (field.type === 'tel') { %>
+      <p class="info-value <%= field.isPhone ? 'info-value--contact' : '' %>">
+        <% if (field.isPhone) { %>
           <% const cleanTel = value.toString().replace(/\s/g, ''); %>
           <% const waTel = '994' + cleanTel.replace(/^0/, ''); %>
           <a href="tel:<%= cleanTel %>"><%= value %></a>
           <a href="https://wa.me/<%= waTel %>" target="_blank" class="btn-wa">
             <i class="fa-brands fa-whatsapp"></i> WhatsApp
           </a>
-        <% } else if (field.type === 'link') { %>
-          <% const links = value.split(',').map(l => l.trim()); %>
-          <% links.forEach((link, i) => { %>
-            <a href="<%= link %>" target="_blank">Şəkil <%= i+1 %></a>
-          <% }) %>
-        <% } else if (field.type === 'status') { %>
-          <% const statusText = String(value || '').trim().toLowerCase(); %>
-          <% if (statusText === 'həll olundu') { %>
-            <span class="result-badge result-solved" style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 6px 14px; border-radius: 10px; border: 1px solid #10b981; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-circle-check"></i> Həll olundu
-            </span>
-          <% } else { %>
-            <span class="result-badge result-not-solved" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 6px 14px; border-radius: 10px; border: 1px solid #ef4444; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-circle-xmark"></i> Həll olunmadı
-            </span>
-          <% } %>
         <% } else { %>
-          <span class="info-text"><%= value %><%= field.suffix || '' %></span>
+          <span class="info-text"><%= value %></span>
         <% } %>
       </p>
     </div>
