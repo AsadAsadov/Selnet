@@ -51,6 +51,23 @@
         .hidden-field textarea {
             display: none;
         }
+        .problem-only {
+            max-height: 500px;
+            opacity: 1;
+            visibility: visible;
+            overflow: visible;
+            margin: inherit;
+            padding: inherit;
+            transition: all 0.25s ease;
+        }
+        .problem-only.hidden-field {
+            max-height: 0;
+            opacity: 0;
+            visibility: hidden;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
     </style>
 </head>
 <body>
@@ -137,6 +154,11 @@
                     <span class="field-hint">Birdən çox link üçün vergül istifadə et və ya hər sətirdə 1 link yaz.</span>
                 </div>
 
+                <div class="form-group full-width problem-only hidden-field">
+                    <label>Problemin Səbəbi</label>
+                    <textarea name="problemSebebi" placeholder="Problemin ətraflı səbəbini qeyd edin"></textarea>
+                </div>
+
                 <div id="resultGroup" class="form-group full-width hidden-field">
                     <label>Nəticə</label>
                     <select name="netice" required>
@@ -156,6 +178,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         var operationType = document.getElementById('operationType');
         var problemFields = document.querySelectorAll('.problem-dependent');
+        var problemOnlyFields = document.querySelectorAll('.problem-only');
         var resultGroup = document.getElementById('resultGroup');
 
         function setSectionVisibility(section, hidden) {
@@ -171,6 +194,9 @@
 
             problemFields.forEach(function (section) {
                 setSectionVisibility(section, hideProblemFields);
+            });
+            problemOnlyFields.forEach(function (section) {
+                setSectionVisibility(section, !hideProblemFields);
             });
             setSectionVisibility(resultGroup, !hideProblemFields);
         }

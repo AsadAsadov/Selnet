@@ -112,6 +112,11 @@
                 </div>
 
                 <div class="form-group full-width">
+                    <label>Problemin Səbəbi</label>
+                    <textarea name="problemSebebi" placeholder="Problemin ətraflı səbəbini qeyd edin"><%= customer.problem_sebebi || '' %></textarea>
+                </div>
+
+                <div class="form-group full-width">
                     <label>Nəticə</label>
                     <% const neticeValue = customer.netice || '' ; %>
                     <select name="netice">

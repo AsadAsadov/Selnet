@@ -9,40 +9,20 @@ const fields = [
   { key: 'komendant', label: 'Komendant' },
   { key: 'timestamp', label: 'Qeydiyyat tarixi', type: 'date' },
   { key: 'unvan', label: 'Ünvan', full: true },
-  { key: 'netice', label: 'İşin Nəticəsi', type: 'status', full: true },
+  { key: 'problem_sebebi', label: 'Problemin Səbəbi', full: true, showWhen: 'problem' },
+  { key: 'netice', label: 'İşin Nəticəsi', type: 'status', full: true, showWhen: 'problem' },
   { key: 'qeyd', label: 'Qeyd', full: true },
   { key: 'drive_links', label: 'Müqavilə Şəkli', type: 'link', full: true }
 ];
 %>
 
 <% fields.forEach(field => { %>
-  <% 
-    const rawValue = result[field.key]; 
-    const value = field.type === 'date' ? formatDate(rawValue) : rawValue; 
-
-    // 1. Dəyərin mövcudluğunu yoxlayaq (NULL, undefined və boşluqları filtrleyek)
-    let isValueValid = value !== null && value !== undefined && value.toString().trim() !== '' && value.toString().toLowerCase() !== 'null';
-    let shouldShow = isValueValid && value.toString().toLowerCase() !== 'yox';
-
-    // 2. 'netice' sütunu üçün xüsusi şərtlər
-    if (field.key === 'netice') {
-      const qeydVal = (result.qeyd || '').toString().trim().toLowerCase();
-      const neticeVal = (value || '').toString().trim().toLowerCase();
-
-      // Şərt A: Əgər əməliyyat növü 'problem' deyilsə (məsələn: qoşulma və ya köçürmədirsə) GİZLƏT
-      if (qeydVal !== 'problem') {
-        shouldShow = false;
-      }
-      
-      // Şərt B: Əgər mətn olaraq 'nəticə yoxdur' yazılıbsa GİZLƏT
-      if (neticeVal === 'nəticə yoxdur') {
-        shouldShow = false;
-      }
-    }
-  %>
-
-  <% if (shouldShow) { %>
-    <div class="info-item <%= field.full ? 'full-width' : '' %>">
+  <% const rawValue = result[field.key]; %>
+  <% const value = field.type === 'date' ? formatDate(rawValue) : rawValue; %>
+  <% const isProblem = String(result.qeyd || '').toLowerCase().includes('problem'); %>
+  <% const shouldShow = field.showWhen === 'problem' ? isProblem : true; %>
+  <% if (shouldShow && value && value.toString().trim()!== '' && value.toString().toLowerCase()!== 'yox') { %>
+    <div class="info-item <%= field.full? 'full-width' : '' %>">
       <label><%= field.label %></label>
       <p class="info-value <%= field.type === 'tel' ? 'info-value--contact' : (field.type === 'link' ? 'info-value--links' : '') %>">
         <% if (field.type === 'tel') { %>
