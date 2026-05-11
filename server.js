@@ -225,8 +225,9 @@ function isProblemCustomer(customer) {
 }
 
 function isTodayCustomer(customer) {
-  const todayNum = dateToNumber(new Date().toLocaleDateString('en-US'));
-  return dateToNumber(customer?.['Timestamp']) === todayNum;
+  const today = new Date();
+  const todayNum = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  return dateToNumber(customer?.timestamp) === todayNum;
 }
 
 function paginateCustomers(customers, page, limit) {
@@ -435,7 +436,7 @@ app.post('/add', checkAuth, async (req, res) => {
         drive_links,
         netice,
         problem_sebebi,
-        arxiv: 'false'
+        arxiv: false
       }]);
     
     if (error) {
@@ -530,9 +531,9 @@ app.get('/edit/:odemeKodu', checkAuth, async (req, res) => {
 });
 
 // DELETE & ARCHIVE
-app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
+app.post('/delete/:id', checkAuth, async (req, res) => {
   try {
-    const { id } = req.body;
+    const id = req.params.id;
     const { error } = await supabase
       .from('customers')
       .delete()
@@ -544,7 +545,7 @@ app.post('/delete/:odemeKodu', checkAuth, async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
-    console.error('POST /delete/:odemeKodu failed:', err);
+    console.error('POST /delete/:id failed:', err);
     res.json({ success: false, error: err.message });
   }
 });
