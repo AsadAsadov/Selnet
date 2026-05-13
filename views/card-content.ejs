@@ -6,7 +6,7 @@
       // Massivi birbaşa burada təyin edirik ki, "not defined" xətası verməsin
       const qeydText = String(result.qeyd || '').trim().toLowerCase();
       const isProblem = qeydText.includes('problem');
-      const isArchived = ['hə', 'he', 'true', '1'].includes(String(result.arxiv || '').trim().toLowerCase());
+      const isArchived = result.arxiv === true || ['hə', 'he', 'true', '1'].includes(String(result.arxiv ?? '').trim().toLowerCase());
       const displayFields = [
         { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
         { key: 'telefon', label: 'TELEFON', isPhone: true },
@@ -76,41 +76,15 @@
         const tb = Date.parse(b.date) || 0;
         return tb - ta;
       });
-    function historyIcon(ev, note) {
-      const t = (String(ev) + ' ' + String(note)).toLowerCase();
-      if (t.includes('arxiv')) return '📦';
-      if (t.includes('problem')) return '🔴';
-      if (t.includes('admin')) return '📝';
-      return '📋';
-    }
-    function formatHistoryWhen(iso) {
-      if (!iso) return '—';
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return String(iso);
-      return d.toLocaleString('az-AZ', { dateStyle: 'short', timeStyle: 'short' });
-    }
   %>
-  <details class="customer-activity-details">
-    <summary class="customer-activity-summary">📜 Fəaliyyət Tarixçəsi</summary>
-    <div class="activity-timeline-wrap">
-      <% if (!historyRows.length) { %>
-        <p class="activity-timeline-empty">Hələ tarixçə qeydi yoxdur.</p>
-      <% } else { %>
-        <ul class="activity-timeline">
-          <% historyRows.forEach(function (row) { %>
-            <li class="activity-timeline-item">
-              <span class="activity-timeline-icon" aria-hidden="true"><%= historyIcon(row.event, row.note) %></span>
-              <div class="activity-timeline-body">
-                <time class="activity-timeline-time" datetime="<%= row.date %>"><%= formatHistoryWhen(row.date) %></time>
-                <strong class="activity-timeline-event"><%= row.event %></strong>
-                <% if (row.note) { %><p class="activity-timeline-note"><%= row.note %></p><% } %>
-              </div>
-            </li>
-          <% }); %>
-        </ul>
-      <% } %>
-    </div>
-  </details>
+  <button
+    type="button"
+    class="btn-customer-history"
+    data-history="<%= encodeURIComponent(JSON.stringify(historyRows)) %>"
+    onclick="openCustomerHistoryModal(this)"
+  >
+    📜 Fəaliyyət Tarixçəsi
+  </button>
 
   <div class="modal-actions" style="margin-top: 20px; display: flex; gap: 10px;">
     <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit" style="background: #3b82f6; color: white; padding: 10px; border-radius: 5px; text-decoration: none;">Redaktə</a>

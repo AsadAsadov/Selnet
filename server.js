@@ -222,6 +222,15 @@ function parseArchiveValue(value) {
   return ['hə', 'he', 'true', '1', 'bəli', 'yes'].includes(normalized);
 }
 
+/** Supabase/Postgres boolean column — never send "" or other non-boolean strings. */
+function arxivBooleanFromBodyAndRow(bodyArxiv, dbArxiv) {
+  if (bodyArxiv !== undefined && bodyArxiv !== null && String(bodyArxiv).trim() !== '') {
+    const s = String(bodyArxiv).trim().toLowerCase();
+    return s === 'true' || s === 'on' || s === '1' || s === 'hə' || s === 'he' || s === 'yes' || s === 'bəli';
+  }
+  return parseArchiveValue(dbArxiv);
+}
+
 function isArchivedCustomer(customer) {
   return parseArchiveValue(customer?.arxiv);
 }
@@ -546,7 +555,7 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
     const problem_sebebi = req.body.problemSebebi || '';
     const adminHistoryNote = String(req.body.adminHistoryNote ?? '').trim();
 
-    let existingArxiv = '';
+    let arxivFromDb = false;
     let priorQeyd = '';
     let existingHistory = [];
     let historyFetchOk = false;
@@ -560,15 +569,17 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
         throw rowErr;
       }
       historyFetchOk = true;
-      existingArxiv = data ? (data.arxiv || '') : '';
+      arxivFromDb = data ? data.arxiv : false;
       priorQeyd = data ? String(data.qeyd || '') : '';
       existingHistory = data ? normalizeHistoryArray(data.history) : [];
     } catch (error) {
-      existingArxiv = '';
+      arxivFromDb = false;
       priorQeyd = '';
       existingHistory = [];
       historyFetchOk = false;
     }
+
+    const arxiv = arxivBooleanFromBodyAndRow(req.body.arxiv, arxivFromDb);
 
     const wasProblem = isProblemCustomer({ qeyd: priorQeyd });
     const nowProblem = isProblemCustomer({ qeyd });
@@ -601,7 +612,7 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
       ? appendHistoryEvents(existingHistory, historyEvents)
       : existingHistory;
 
-    const { error } = await supabase
+    const { error: updateError } = await supabase
       .from('customers')
       .update({
         ad_soyad,
@@ -615,15 +626,15 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
         komendant,
         qeyd,
         drive_links,
-        arxiv: existingArxiv,
+        arxiv,
         netice,
         problem_sebebi,
         ...(historyEvents.length ? { history: nextHistory } : {})
       })
       .eq('id', id);
-    
-    if (error) {
-      throw new Error(error.message);
+
+    if (updateError) {
+      throw new Error(updateError.message);
     }
 
     res.redirect('/edit/' + req.params.odemeKodu + '?success=1');
