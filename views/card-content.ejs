@@ -39,8 +39,8 @@
         if (val && val.toString().toLowerCase() !== 'null' && val.toString().trim() !== '') {
     %>
       <div class="info-item<%= fullSpanKeys.includes(field.key) ? ' info-item--span-2' : '' %>">
-        <label><%= field.label %></label>
-        <p class="info-value">
+        <label class="info-label"><%= field.label %></label>
+        <p class="info-value<%= field.isPhone ? ' info-value--contact' : '' %>">
           <% if (field.isPhone) { %>
             <%= val %>
             <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="btn-wa">WhatsApp</a>
