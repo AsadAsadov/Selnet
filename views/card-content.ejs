@@ -1,14 +1,15 @@
-<div class="customer-details-card">
-  <div class="card-header-compact">
-    <h2 class="customer-name-text"><%= result.ad_soyad %></h2>
+<div class="customer-card-global">
+  <div class="card-header-main">
+    <h2 class="customer-name-label"><%= result.ad_soyad %></h2>
   </div>
 
-  <div class="info-grid-compact">
+  <div class="info-grid-main">
     <% 
       const displayFields = [
         { key: 'odeme_kodu', label: 'KOD' },
         { key: 'telefon', label: 'TEL', isPhone: true },
         { key: 'ayliq_odenis', label: 'ÖDƏNİŞ', suffix: ' AZN' },
+        { key: 'fin', label: 'FİN' },
         { key: 'seriya', label: 'SERİYA' },
         { key: 'modem', label: 'MODEM' },
         { key: 'tvbox', label: 'TV BOX' },
@@ -20,132 +21,146 @@
         const val = result[field.key];
         if (val && val.toString().trim() !== '') {
     %>
-      <div class="info-item-compact <%= field.key === 'unvan' ? 'full-width' : '' %>">
-        <label><%= field.label %></label>
-        <div class="value-container">
-          <span class="val-text"><%= val %><%= field.suffix || '' %></span>
+      <div class="grid-item <%= field.key === 'unvan' ? 'span-2' : '' %>">
+        <label class="item-label"><%= field.label %></label>
+        <div class="item-value-box">
+          <span class="item-text"><%= val %><%= field.suffix || '' %></span>
           <% if (field.isPhone) { %>
-            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="wa-badge">WA</a>
+            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="wa-mini-btn">WA</a>
           <% } %>
         </div>
       </div>
     <% } }); %>
   </div>
 
-  <div class="photo-section-compact">
-    <div class="photo-flex-row">
-      <button class="btn-photo-mini">🖼️ Şəkil 1</button>
-      <button class="btn-photo-mini">🖼️ Şəkil 2</button>
-      <button class="btn-photo-mini">🖼️ Şəkil 3</button>
-    </div>
+  <div class="photo-row-main">
+    <button type="button" class="btn-photo-action">🖼️ Şəkil 1</button>
+    <button type="button" class="btn-photo-action">🖼️ Şəkil 2</button>
+    <button type="button" class="btn-photo-action">🖼️ Şəkil 3</button>
   </div>
 
-  <div class="action-buttons-grid">
-    <button class="btn-action hist" onclick="openHistory()"><i class="fa fa-history"></i> Tarixçə</button>
-    <a href="/edit/<%= result.id %>" class="btn-action edit"><i class="fa fa-edit"></i> Redaktə</a>
-    <button class="btn-action del" onclick="deleteCust()"><i class="fa fa-trash"></i> Sil</button>
-    <button class="btn-action arch" onclick="archiveCust()"><i class="fa fa-archive"></i> Arxiv</button>
+  <div class="actions-grid-main">
+    <button class="btn-main hist" onclick="openHistory()"><i class="fa fa-history"></i> Tarixçə</button>
+    <a href="/edit/<%= result.id %>" class="btn-main edit"><i class="fa fa-edit"></i> Redaktə</a>
+    <button class="btn-main del" onclick="deleteCust()"><i class="fa fa-trash"></i> Sil</button>
+    <button class="btn-main arch" onclick="archiveCust()"><i class="fa fa-archive"></i> Arxiv</button>
   </div>
 </div>
 
 <style>
-  .customer-details-card {
-    padding: 12px;
-    background: #1e2530; /* Şəkildəki tünd rəng */
-    border-radius: 12px;
-    margin-bottom: 10px;
-    border: 1px solid #2d3748;
+  /* Bütün sayt və modal daxilində işləyəcək əsas stillər */
+  .customer-card-global {
+    padding: 10px !important;
+    background: #1a202c !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
-  .customer-name-text {
+  .customer-name-label {
     font-size: 16px !important;
-    font-weight: 700;
-    color: #fff;
-    margin: 0 0 10px 0 !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid #2d3748;
-    padding-bottom: 8px;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin: 0 0 12px 0 !important;
+    border-bottom: 1px solid #2d3748 !important;
+    padding-bottom: 6px !important;
   }
 
-  .info-grid-compact {
+  .info-grid-main {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important; /* Məcburi 2 sütun */
-    gap: 8px 15px;
+    gap: 8px 12px !important;
+    width: 100% !important;
   }
 
-  .info-item-compact {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .full-width { grid-column: span 2; }
-
-  .info-item-compact label {
-    font-size: 9px;
-    color: #a0aec0;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-  }
-
-  .val-text {
-    font-size: 13px;
-    color: #edf2f7;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .wa-badge {
-    background: #25d366;
-    font-size: 9px;
-    padding: 1px 4px;
-    border-radius: 4px;
-    color: white;
-    margin-left: 5px;
-  }
-
-  .photo-flex-row {
+  .grid-item {
     display: flex !important;
-    flex-direction: row !important; /* Şəkillər yan-yana */
-    gap: 5px;
-    margin: 12px 0;
+    flex-direction: column !important;
+    min-width: 0 !important;
   }
 
-  .btn-photo-mini {
-    flex: 1;
-    background: #3182ce;
-    border: none;
-    padding: 6px;
-    font-size: 10px;
-    color: white;
-    border-radius: 6px;
+  .span-2 { grid-column: span 2 !important; }
+
+  .item-label {
+    font-size: 9px !important;
+    color: #a0aec0 !important;
+    text-transform: uppercase !important;
+    margin-bottom: 2px !important;
   }
 
-  .action-buttons-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 10px;
+  .item-text {
+    font-size: 12px !important;
+    color: #e2e8f0 !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
-  .btn-action {
-    padding: 8px;
-    font-size: 11px;
-    border-radius: 8px;
-    border: none;
-    color: white;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+  .item-value-box {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
   }
 
-  .btn-action.hist { background: #4a5568; }
-  .btn-action.edit { background: #3182ce; }
-  .btn-action.del { background: #e53e3e; }
-  .btn-action.arch { background: #718096; }
+  .wa-mini-btn {
+    background: #25d366 !important;
+    color: white !important;
+    font-size: 8px !important;
+    padding: 1px 4px !important;
+    border-radius: 3px !important;
+    text-decoration: none !important;
+  }
+
+  .photo-row-main {
+    display: flex !important;
+    flex-direction: row !important; /* Məcburi yan-yana */
+    gap: 6px !important;
+    margin: 12px 0 !important;
+  }
+
+  .btn-photo-action {
+    flex: 1 !important;
+    background: #2b6cb0 !important;
+    border: none !important;
+    padding: 6px !important;
+    font-size: 10px !important;
+    color: white !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+  }
+
+  .actions-grid-main {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+  }
+
+  .btn-main {
+    padding: 8px !important;
+    font-size: 11px !important;
+    border-radius: 6px !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    cursor: pointer !important;
+  }
+
+  .btn-main.hist { background: #4a5568 !important; }
+  .btn-main.edit { background: #3182ce !important; }
+  .btn-main.del { background: #e53e3e !important; }
+  .btn-main.arch { background: #718096 !important; }
+
+  /* Modal daxilində sıxılmanı ləğv etmək üçün əlavə */
+  .modal-body {
+    padding: 10px !important;
+  }
 </style>
