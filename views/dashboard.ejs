@@ -237,7 +237,6 @@
             color: var(--text);
             font-size: 14px;
             text-align: center;
-         }
             transition:
                border-color 0.3s ease,
                box-shadow 0.3s ease,
@@ -266,6 +265,187 @@
          
          .search-box button:hover {
             background: var(--green-dark);
+         }
+
+         .modem-sn-live-wrap {
+            position: relative;
+            flex: 0 1 220px;
+            min-width: 140px;
+            max-width: 280px;
+         }
+         .modem-sn-inner {
+            display: flex;
+            align-items: center;
+            position: relative;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.5);
+            transition:
+               border-color 0.25s ease,
+               box-shadow 0.25s ease;
+         }
+         .modem-sn-inner:focus-within {
+            border-color: var(--green);
+            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25);
+         }
+         .modem-sn-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-2);
+            font-size: 14px;
+            pointer-events: none;
+         }
+         .modem-sn-inner input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 14px;
+            padding: 11px 12px 11px 40px;
+            border-radius: 14px;
+            outline: none;
+         }
+         .modem-sn-inner input::placeholder {
+            color: var(--muted-2);
+         }
+         .modem-sn-dropdown {
+            position: absolute;
+            z-index: 40;
+            left: 0;
+            right: 0;
+            top: calc(100% + 6px);
+            max-height: min(52vh, 320px);
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(15, 23, 42, 0.97);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+            -webkit-overflow-scrolling: touch;
+         }
+         .modem-sn-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            border: none;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font: inherit;
+         }
+         .modem-sn-row:last-child {
+            border-bottom: none;
+         }
+         .modem-sn-row:active {
+            background: rgba(59, 130, 246, 0.15);
+         }
+         .modem-sn-row-name {
+            font-weight: 600;
+            font-size: 14px;
+         }
+         .modem-sn-row-sn {
+            font-size: 12px;
+            color: var(--muted-2);
+            font-family: ui-monospace, monospace;
+         }
+
+         .customer-activity-details {
+            margin-top: 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            background: rgba(30, 41, 59, 0.35);
+            overflow: hidden;
+         }
+         .customer-activity-summary {
+            cursor: pointer;
+            list-style: none;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 12px 14px;
+            color: #e2e8f0;
+            user-select: none;
+         }
+         .customer-activity-summary::-webkit-details-marker {
+            display: none;
+         }
+         .customer-activity-details[open] .customer-activity-summary {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+         }
+         .activity-timeline-wrap {
+            background: #e8edf3;
+            padding: 14px 14px 16px;
+         }
+         .activity-timeline-empty {
+            margin: 0;
+            font-size: 14px;
+            color: #64748b;
+         }
+         .activity-timeline {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            border-left: 2px solid #cbd5e1;
+            margin-left: 10px;
+         }
+         .activity-timeline-item {
+            position: relative;
+            padding: 0 0 16px 20px;
+         }
+         .activity-timeline-item:last-child {
+            padding-bottom: 0;
+         }
+         .activity-timeline-icon {
+            position: absolute;
+            left: -11px;
+            top: 0;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border-radius: 50%;
+            font-size: 12px;
+            line-height: 1;
+            border: 1px solid #cbd5e1;
+         }
+         .activity-timeline-time {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 4px;
+         }
+         .activity-timeline-event {
+            display: block;
+            font-size: 14px;
+            color: #0f172a;
+            font-weight: 700;
+         }
+         .activity-timeline-note {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.45;
+            white-space: pre-wrap;
+         }
+         .activity-timeline-body {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+         }
+         #modalBody .customer-activity-details {
+            margin-top: 16px;
+         }
+         #modalBody .activity-timeline-wrap {
+            background: #e8edf3;
          }
          
          .filter-actions {
@@ -1429,6 +1609,11 @@
                flex-direction: column;
                gap: 12px;
             }
+            .modem-sn-live-wrap {
+               width: 100%;
+               max-width: none;
+               flex: 1 1 100%;
+            }
             .search-wrapper input {
                padding-left: 44px;
             }
@@ -1996,6 +2181,21 @@
                         <i class="fa-solid fa-magnifying-glass"></i> Axtar
                      </button>
                   </form>
+                  <div class="modem-sn-live-wrap" id="modemSnLiveWrap">
+                     <div class="modem-sn-inner">
+                        <i class="fa-solid fa-barcode modem-sn-icon" aria-hidden="true"></i>
+                        <input
+                           type="search"
+                           id="modemSnLiveSearch"
+                           autocomplete="off"
+                           enterkeyhint="search"
+                           inputmode="search"
+                           placeholder="S/N axtar"
+                           aria-label="Modem seriya nömrəsi üzrə axtar"
+                        />
+                     </div>
+                     <div id="modemSnLiveResults" class="modem-sn-dropdown" hidden></div>
+                  </div>
                   <form class="date-filter" method="GET">
                      <input type="hidden" name="q" value="<%= q || '' %>" />
                      <input type="hidden" name="status" value="<%= status || '' %>" />
@@ -2405,6 +2605,7 @@
          let modalChartInstance = null;
          let customerListAbortController = null;
          let modalAbortController = null;
+         let modemSnAbortController = null;
          let modalRequestSeq = 0;
          let mainChartInitialized = false;
          let activeChartType = 'total';
@@ -2415,7 +2616,8 @@
           search: <%- JSON.stringify((results || []).map(r => r?.odeme_kodu).filter(Boolean)) %>,
           today: <%- JSON.stringify((todayCustomers || []).map(r => r?.odeme_kodu).filter(Boolean)) %>,
           archive: <%- JSON.stringify((archivedCustomers || []).map(r => r?.odeme_kodu).filter(Boolean)) %>,
-           all: []
+           all: [],
+           modem: []
          };
          const embeddedSearchCustomers = <%- JSON.stringify(results || []) %>;
          const customerListConfig = {
@@ -2504,20 +2706,27 @@
           { key:'netice', label:'NƏTİCƏ', type:'status' },
           { key:'drive_links', label:'ŞƏKİLLƏR', type:'image', full:true }
         ];
+         function normalizeClientHistory(raw){if(raw==null)return[];if(Array.isArray(raw))return raw;if(typeof raw==='string'){try{const p=JSON.parse(raw);return Array.isArray(p)?p:[]}catch{return[]}}return[];}
+         function historyTimelineIcon(ev,note){const t=(String(ev)+' '+String(note)).toLowerCase();if(t.includes('arxiv'))return '📦';if(t.includes('problem'))return '🔴';if(t.includes('admin'))return '📝';return '📋';}
+         function formatHistoryDateLabel(iso){if(!iso)return'—';const d=new Date(iso);if(Number.isNaN(d.getTime()))return String(iso);return d.toLocaleString('az-AZ',{dateStyle:'short',timeStyle:'short'});}
+         function renderCustomerHistoryHtml(historyRaw){const rows=normalizeClientHistory(historyRaw).filter(x=>x&&(x.event||x.note)).map(x=>({date:String(x.date||''),event:String(x.event||'').trim(),note:String(x.note||'').trim()})).sort((a,b)=>(Date.parse(b.date)||0)-(Date.parse(a.date)||0));if(!rows.length)return'<details class="customer-activity-details"><summary class="customer-activity-summary">📜 Fəaliyyət Tarixçəsi</summary><div class="activity-timeline-wrap"><p class="activity-timeline-empty">Hələ tarixçə qeydi yoxdur.</p></div></details>';const items=rows.map(row=>`<li class="activity-timeline-item"><span class="activity-timeline-icon" aria-hidden="true">${historyTimelineIcon(row.event,row.note)}</span><div class="activity-timeline-body"><time class="activity-timeline-time" datetime="${escapeHtml(row.date)}">${escapeHtml(formatHistoryDateLabel(row.date))}</time><strong class="activity-timeline-event">${escapeHtml(row.event)}</strong>${row.note?`<p class="activity-timeline-note">${escapeHtml(row.note)}</p>`:''}</div></li>`).join('');return`<details class="customer-activity-details"><summary class="customer-activity-summary">📜 Fəaliyyət Tarixçəsi</summary><div class="activity-timeline-wrap"><ul class="activity-timeline">${items}</ul></div></details>`;}
+         function hideModemSnDropdown(){const d=document.getElementById('modemSnLiveResults');if(d){d.hidden=true;d.innerHTML='';}}
+         async function runModemSnSearch(rawQuery){const el=document.getElementById('modemSnLiveResults');if(!el)return;const q=String(rawQuery??'').trim();if(q.length<2){hideModemSnDropdown();return;}if(modemSnAbortController)modemSnAbortController.abort();modemSnAbortController=new AbortController();try{const res=await fetch(`/api/modem-search?sn=${encodeURIComponent(q)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modemSnAbortController.signal});const json=await res.json();if(!res.ok||json.success!==true)throw new Error(json.error||'Axtarış alınmadı');const customers=Array.isArray(json.customers)?json.customers:[];if(!customers.length){el.hidden=false;el.innerHTML='<div class="modem-sn-row" style="cursor:default"><span class="modem-sn-row-name" style="color:#64748b">Uyğun S/N tapılmadı</span></div>';return;}el.hidden=false;el.innerHTML=customers.map(c=>`<button type="button" class="modem-sn-row" data-code="${escapeHtml(String(c.odeme_kodu||''))}"><span class="modem-sn-row-name">${escapeHtml(c.ad_soyad||'')}</span><span class="modem-sn-row-sn">${escapeHtml(c.modem||'')}</span></button>`).join('');}catch(err){if(err.name==='AbortError')return;el.hidden=false;el.innerHTML=`<div class="modem-sn-row" style="cursor:default"><span class="modem-sn-row-name" style="color:#64748b">${escapeHtml(err.message||'Xəta')}</span></div>`;}}
+         const debouncedModemSnSearch=debounce((event)=>runModemSnSearch(event.target&&event.target.value),200);
          function renderCustomerListModal(){const body=document.getElementById('customerListBody');if(!body)return;updateCustomerListHeader();const customers=customerListState.filteredCustomers;const totalLabel=customerListState.search?`${customers.length} uyğun nəticə`:`${customerListState.totalCustomers} müştəri`;if(customers.length===0){body.innerHTML=`<div class="customer-list-empty"><i class="fa-regular fa-folder-open"></i><p>${customerListState.search?'Axtarışa uyğun müştəri tapılmadı.':'Siyahıda müştəri yoxdur.'}</p></div>`;return;}const listHtml=`<div class="all-customers-toolbar"><span><i class="fa-solid fa-layer-group"></i> Səhifə ${customerListState.page} / ${customerListState.totalPages}</span><strong>${escapeHtml(totalLabel)}</strong></div><div class="compact-list">${customers.map((item,index)=>createCustomerListItem(item,index,customerListState.type)).join('')}</div>`;const paginationHtml=customerListState.type==='search'?'':`<div class="pagination"><button type="button" ${customerListState.page<=1?'disabled':''} onclick="loadCustomerListPage(${customerListState.page-1})">Əvvəlki</button><span style="padding:8px 15px">Səhifə ${customerListState.page} / ${customerListState.totalPages}</span><button type="button" ${customerListState.page>=customerListState.totalPages?'disabled':''} onclick="loadCustomerListPage(${customerListState.page+1})">Növbəti</button></div>`;body.innerHTML=listHtml+paginationHtml;}
          const handleCustomerListSearch=debounce((event)=>{customerListState.search=normalizeSearch(event.target.value);applyCustomerListFilter();},180);
 
          function openModal(odemeKodu,index,type='search'){currentModalType=type;currentModalList=Array.isArray(modalLists[type])?[...modalLists[type]]:[];if(!currentModalList.length&&odemeKodu)currentModalList=[String(odemeKodu)];currentModalIndex=currentModalList.map(String).indexOf(String(odemeKodu));if(currentModalIndex<0)currentModalIndex=Number.isInteger(index)?index:0;loadModalCustomer(odemeKodu);}
-        async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';prevBtn.disabled=currentModalIndex<=0;nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=['hə','he','true','1'].includes(String(r.arxiv??'').trim().toLowerCase());const customerName=String(r.ad_soyad||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`${escapeHtml(customerName)} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const isProblem=String(r.qeyd||'').toLowerCase().includes('problem');let html='';modalFields.forEach(f=>{if(f.key==='problem_sebebi'&&!isProblem)return;if(f.key==='netice'&&(!isProblem||!String(r.netice||'').trim()))return;let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else if(f.type==='status'){const statusClass=String(val).trim().toLowerCase()==='həll olundu'?'result-success':'result-failed';html+=`<span class="info-value ${statusClass}">${escapeHtml(val)}</span>`;}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r.odeme_kodu||'')).replace(/'/g,'\u0027');const idArg=JSON.stringify(r.id ?? '').replace(/'/g,'\u0027');html+=`<div class="info-item full-width modal-actions"><a href="/edit/${encodeURIComponent(r.odeme_kodu)}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a><button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${idArg})'><i class="fa-solid fa-trash"></i> Sil</button>${isArchived?`<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${idArg}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`:`<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${idArg}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
+        async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';prevBtn.disabled=currentModalIndex<=0;nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=['hə','he','true','1'].includes(String(r.arxiv??'').trim().toLowerCase());const customerName=String(r.ad_soyad||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`${escapeHtml(customerName)} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const isProblem=String(r.qeyd||'').toLowerCase().includes('problem');let html='';modalFields.forEach(f=>{if(f.key==='problem_sebebi'&&!isProblem)return;if(f.key==='netice'&&(!isProblem||!String(r.netice||'').trim()))return;let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else if(f.type==='status'){const statusClass=String(val).trim().toLowerCase()==='həll olundu'?'result-success':'result-failed';html+=`<span class="info-value ${statusClass}">${escapeHtml(val)}</span>`;}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r.odeme_kodu||'')).replace(/'/g,'\u0027');const idArg=JSON.stringify(r.id ?? '').replace(/'/g,'\u0027');html+=renderCustomerHistoryHtml(r.history)+`<div class="info-item full-width modal-actions"><a href="/edit/${encodeURIComponent(r.odeme_kodu)}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a><button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${idArg})'><i class="fa-solid fa-trash"></i> Sil</button>${isArchived?`<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${idArg}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`:`<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${idArg}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
          function navigateModal(direction){const newIndex=currentModalIndex+direction;if(newIndex>=0&&newIndex<currentModalList.length){currentModalIndex=newIndex;loadModalCustomer(currentModalList[currentModalIndex]);}}
 
          async function postJson(url,body){const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},credentials:'same-origin',body:JSON.stringify(body)});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error('Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(!res.ok||json.success!==true)throw new Error(json.error||`Server xətası (${res.status})`);return json;}
         async function deleteCustomer(odemeKodu,id){if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini silmək istəyirsiniz?`))return;try{const safeId=String(id??'').trim();if(!safeId)throw new Error('Müştəri ID-si tapılmadı.');await postJson(`/delete/${encodeURIComponent(safeId)}`,{odemeKodu:String(odemeKodu??'')});alert('Müştəri silindi');location.reload();}catch(error){alert('Xəta: '+error.message);}}
         async function toggleArchive(odemeKodu,id,archive){const action=archive?'arxivə göndərmək':'arxivdən çıxartmaq';if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`))return;try{const safeId=String(id??'').trim();if(!safeId)throw new Error('Müştəri ID-si tapılmadı.');await postJson(`/archive/${encodeURIComponent(safeId)}`,{archive,odemeKodu:String(odemeKodu??'')});alert(archive?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');location.reload();}catch(error){alert('Xəta: '+error.message);}}
 
-         document.addEventListener('click',(e)=>{const item=e.target.closest('.list-item[data-code]');if(item){openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}if(e.target.classList.contains('modal'))closeModal(e.target.id);});
+         document.addEventListener('click',(e)=>{if(!e.target.closest('#modemSnLiveWrap'))hideModemSnDropdown();const item=e.target.closest('.list-item[data-code]');if(item){openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}if(e.target.classList.contains('modal'))closeModal(e.target.id);});
          document.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){const item=e.target.closest?.('.list-item[data-code]');if(item){e.preventDefault();openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}}const customerOpen=document.getElementById('customerModal')?.classList.contains('is-open');if(customerOpen){if(e.key==='Escape'){closeModal('customerModal');return;}if(e.key==='ArrowLeft')navigateModal(-1);if(e.key==='ArrowRight')navigateModal(1);}if(e.key==='Escape'){if(document.getElementById('chartModal')?.classList.contains('is-open')){closeModal('chartModal');return;}if(document.getElementById('customerListModal')?.classList.contains('is-open'))closeModal('customerListModal');}});
-         document.addEventListener('DOMContentLoaded',()=>{setupChartToggle();document.getElementById('customerListSearch')?.addEventListener('input',handleCustomerListSearch);});
+         document.addEventListener('DOMContentLoaded',()=>{setupChartToggle();document.getElementById('customerListSearch')?.addEventListener('input',handleCustomerListSearch);document.getElementById('modemSnLiveSearch')?.addEventListener('input',debouncedModemSnSearch);document.getElementById('modemSnLiveResults')?.addEventListener('click',(e)=>{const btn=e.target.closest('.modem-sn-row[data-code]');if(!btn)return;e.preventDefault();const code=btn.getAttribute('data-code');if(!code)return;hideModemSnDropdown();const inp=document.getElementById('modemSnLiveSearch');if(inp)inp.value='';openModal(code,0,'modem');});});
       </script>
    </body>
 </html>

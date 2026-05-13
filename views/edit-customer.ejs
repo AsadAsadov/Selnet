@@ -98,6 +98,12 @@
                 </div>
 
                 <div class="form-group full-width">
+                    <label>Admin Qeydi Əlavə Et</label>
+                    <textarea name="adminHistoryNote" rows="3" placeholder="Bu mətn yalnız fəaliyyət tarixçəsinə əlavə olunacaq; qeyd sahəsinə yazılmır."></textarea>
+                    <span class="field-hint">Yadda saxlayanda tarixçəyə vaxt damğası ilə əlavə olunur.</span>
+                </div>
+
+                <div class="form-group full-width">
                     <label>Müqavilə və Modemin şəkli (Drive linkləri)</label>
                     <textarea class="drive-links" name="driveLinks" placeholder="https://drive.google.com/..."><%= (customer.drive_links || '').split(',').map(link => link.trim()).filter(Boolean).join('\n') %></textarea>
                     <span class="field-hint">Birdən çox link üçün vergül istifadə et və ya hər sətirdə 1 link yaz.</span>

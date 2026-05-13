@@ -230,6 +230,51 @@ function isProblemCustomer(customer) {
   return String(customer?.qeyd || '').toLowerCase().includes('problem');
 }
 
+/** @param {unknown} value */
+function normalizeHistoryArray(value) {
+  if (value == null) return [];
+  if (Array.isArray(value)) {
+    return value
+      .filter(item => item && typeof item === 'object')
+      .map(item => ({
+        date: typeof item.date === 'string' && item.date.trim() ? item.date.trim() : new Date().toISOString(),
+        event: String(item.event ?? '').trim().slice(0, 500),
+        note: String(item.note ?? '').trim().slice(0, 4000)
+      }));
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return normalizeHistoryArray(parsed);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+/**
+ * @param {unknown} existingHistory
+ * @param {Array<{ date?: string, event: string, note?: string }>|{ date?: string, event: string, note?: string }} events
+ */
+function appendHistoryEvents(existingHistory, events) {
+  const base = normalizeHistoryArray(existingHistory);
+  const list = Array.isArray(events) ? events : [events];
+  const appended = list.map(ev => ({
+    date: (ev.date && String(ev.date).trim()) || new Date().toISOString(),
+    event: String(ev.event ?? 'Hadisə').trim().slice(0, 500) || 'Hadisə',
+    note: String(ev.note ?? '').trim().slice(0, 4000)
+  }));
+  return [...base, ...appended];
+}
+
+function sanitizeModemSnQuery(raw) {
+  return String(raw ?? '')
+    .trim()
+    .slice(0, 80)
+    .replace(/[%_\\]/g, '');
+}
+
 function isTodayCustomer(customer) {
   const today = new Date();
   const todayNum = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
@@ -370,6 +415,32 @@ app.get('/api/archive-customers', checkAuth, async (req, res) => {
   }
 });
 
+app.get('/api/modem-search', checkAuth, async (req, res) => {
+  const raw = sanitizeModemSnQuery(req.query.sn ?? req.query.q ?? '');
+  if (raw.length < 2) {
+    return res.json({ success: true, customers: [] });
+  }
+  const pattern = `%${raw}%`;
+  try {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('id, odeme_kodu, ad_soyad, telefon, modem, arxiv, timestamp')
+      .ilike('modem', pattern)
+      .order('timestamp', { ascending: false })
+      .limit(30);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const customers = Array.isArray(data) ? data : [];
+    res.json({ success: true, customers });
+  } catch (err) {
+    console.error('GET /api/modem-search failed:', err);
+    res.status(500).json({ success: false, customers: [], error: err.message });
+  }
+});
+
 app.get('/api/problem-customers', checkAuth, async (req, res) => {
   const page = parsePositiveInteger(req.query.page, 1);
   const limit = parsePositiveInteger(req.query.limit, 10, 100);
@@ -473,18 +544,62 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
     const drive_links = normalizeDriveLinks(req.body.driveLinks);
     const netice = req.body.netice || '';
     const problem_sebebi = req.body.problemSebebi || '';
+    const adminHistoryNote = String(req.body.adminHistoryNote ?? '').trim();
 
     let existingArxiv = '';
+    let priorQeyd = '';
+    let existingHistory = [];
+    let historyFetchOk = false;
     try {
-      const { data } = await supabase
+      const { data, error: rowErr } = await supabase
         .from('customers')
-        .select('arxiv')
+        .select('arxiv, qeyd, history')
         .eq('id', id)
         .single();
+      if (rowErr) {
+        throw rowErr;
+      }
+      historyFetchOk = true;
       existingArxiv = data ? (data.arxiv || '') : '';
+      priorQeyd = data ? String(data.qeyd || '') : '';
+      existingHistory = data ? normalizeHistoryArray(data.history) : [];
     } catch (error) {
       existingArxiv = '';
+      priorQeyd = '';
+      existingHistory = [];
+      historyFetchOk = false;
     }
+
+    const wasProblem = isProblemCustomer({ qeyd: priorQeyd });
+    const nowProblem = isProblemCustomer({ qeyd });
+    const historyEvents = [];
+    if (wasProblem !== nowProblem) {
+      if (nowProblem) {
+        historyEvents.push({
+          event: 'Problem statusu',
+          note: 'Qeyd sahəsi "Problem" ifadəsini əhatə edir.'
+        });
+      } else {
+        historyEvents.push({
+          event: 'Problem statusu dəyişdi',
+          note: 'Qeyd artıq "Problem" statusunu əks etdirmir.'
+        });
+      }
+    }
+    if (adminHistoryNote) {
+      historyEvents.push({
+        event: 'Admin qeydi',
+        note: adminHistoryNote
+      });
+    }
+
+    if (historyEvents.length && !historyFetchOk) {
+      throw new Error('Müştəri və tarixçə məlumatı oxuna bilmədi. Zəhmət olmasa yenidən cəhd edin.');
+    }
+
+    const nextHistory = historyEvents.length
+      ? appendHistoryEvents(existingHistory, historyEvents)
+      : existingHistory;
 
     const { error } = await supabase
       .from('customers')
@@ -502,7 +617,8 @@ app.post('/edit/:odemeKodu', checkAuth, async (req, res) => {
         drive_links,
         arxiv: existingArxiv,
         netice,
-        problem_sebebi
+        problem_sebebi,
+        ...(historyEvents.length ? { history: nextHistory } : {})
       })
       .eq('id', id);
     
@@ -601,9 +717,29 @@ app.post('/archive/:id', checkAuth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Arxiv üçün müştəri tapılmadı.' });
     }
 
+    const { data: priorRow, error: priorErr } = await supabase
+      .from('customers')
+      .select('arxiv, history')
+      .eq('id', target.id)
+      .single();
+
+    if (priorErr) {
+      throw new Error(priorErr.message);
+    }
+
+    const wasArchived = parseArchiveValue(priorRow?.arxiv);
+    const history = normalizeHistoryArray(priorRow?.history);
+    let nextHistory = history;
+    if (wasArchived !== archive) {
+      const ev = archive
+        ? { event: 'Arxivə göndərildi', note: 'Müştəri arxiv siyahısına köçürüldü.' }
+        : { event: 'Arxivdən çıxarıldı', note: 'Müştəri yenidən aktiv siyahıya qaytarıldı.' };
+      nextHistory = appendHistoryEvents(history, ev);
+    }
+
     const { error } = await supabase
       .from('customers')
-      .update({ arxiv: archive })
+      .update({ arxiv: archive, history: nextHistory })
       .eq('id', target.id);
     
     if (error) {
