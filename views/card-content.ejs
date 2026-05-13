@@ -55,6 +55,15 @@
     %>
   </div>
 
+  <div class="photo-section-compact">
+    <label class="section-label">ŞƏKİLLƏR</label>
+    <div class="photo-grid-inline">
+      <button type="button" class="btn-photo">🖼️ Şəkil 1</button>
+      <button type="button" class="btn-photo">🖼️ Şəkil 2</button>
+      <button type="button" class="btn-photo">🖼️ Şəkil 3</button>
+    </div>
+  </div>
+
   <div class="action-grid-compact">
     <% 
       let historyRows = [];
@@ -81,35 +90,36 @@
 </div>
 
 <style>
-  /* Əsas Konteyner */
   .customer-details {
-    padding: 8px !important;
+    padding: 10px !important;
     background: #1a1a1a;
-    border-radius: 10px;
+    border-radius: 12px;
     color: white;
-  }
-
-  /* Müştəri Adı - Bir sətirdə sığışdır */
-  .customer-name-compact {
-    width: 100% !important;
-    font-size: 16px !important;
-    font-weight: bold;
-    margin-bottom: 10px !important;
-    white-space: nowrap;
+    max-width: 100%;
     overflow: hidden;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid #333;
-    padding-bottom: 5px;
   }
 
-  /* Məlumat Grid-i - Məcburi 2 Sütun */
+  /* Adın alt-alta düşməsini ləğv edən əsas hissə */
+  .customer-name-compact {
+    display: block !important;
+    width: 100% !important;
+    font-size: 17px !important;
+    font-weight: bold;
+    margin: 0 0 10px 0 !important;
+    white-space: nowrap !important; /* Məcburi tək sətir */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important; /* Uzun olsa nöqtə qoyur */
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+    color: #fff;
+  }
+
   .info-grid-compact {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
-    gap: 6px 10px !important;
+    gap: 6px 12px !important;
   }
 
-  /* Hər bir məlumat qutusu */
   .info-item-compact {
     display: flex !important;
     flex-direction: column !important;
@@ -120,42 +130,68 @@
     grid-column: span 2 !important;
   }
 
-  /* Başlıqlar (Label) - Çox kompakt */
   .info-item-compact label {
     font-size: 9px !important;
-    color: #aaa;
+    color: #888;
     text-transform: uppercase;
-    margin-bottom: 1px;
-    white-space: nowrap;
-  }
-
-  /* Dəyərlər (Value) - Sığışdırılmış */
-  .value-container {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    overflow: hidden;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
   }
 
   .val-text {
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #eee;
   }
 
-  /* WhatsApp Linki */
+  /* Şəkillərin Yan-yana Düzülməsi */
+  .photo-section-compact {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed #333;
+  }
+
+  .section-label {
+    font-size: 9px;
+    color: #888;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .photo-grid-inline {
+    display: flex !important;
+    flex-direction: row !important; /* Məcburi yan-yana */
+    gap: 5px !important;
+    width: 100%;
+  }
+
+  .btn-photo {
+    flex: 1; /* Hər düymə eyni eni tutsun */
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 6px 2px;
+    font-size: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* WhatsApp Balaca Link */
   .wa-link {
     font-size: 9px !important;
     background: #25d366;
     color: white;
-    padding: 1px 4px;
-    border-radius: 3px;
+    padding: 1px 5px;
+    border-radius: 4px;
     text-decoration: none;
+    margin-left: 4px;
   }
 
-  /* Düymələr Grid-i - 2x2 */
+  /* Əməliyyat Düymələri 2x2 */
   .action-grid-compact {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -167,27 +203,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 2px !important;
+    padding: 8px 2px !important;
     font-size: 11px !important;
-    border-radius: 6px;
+    border-radius: 8px;
     border: none;
+    color: white;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: none;
-    color: white;
-    font-weight: 500;
   }
 
-  /* Düymə rəngləri */
-  .btn-compact.history { background: #333; }
-  .btn-compact.edit { background: #2c3e50; }
+  .btn-compact.history { background: #34495e; }
+  .btn-compact.edit { background: #2980b9; }
   .btn-compact.delete { background: #c0392b; }
   .btn-compact.archive { background: #7f8c8d; }
 
-  /* Status Badge */
   .status-mini {
     font-size: 10px;
-    background: #f39c12;
-    padding: 1px 5px;
-    border-radius: 10px;
+    background: #e67e22;
+    padding: 1px 6px;
+    border-radius: 8px;
   }
 </style>
