@@ -1,5 +1,7 @@
 <div class="customer-details">
+  <% if (typeof omitCustomerName === 'undefined' || !omitCustomerName) { %>
   <h2 class="customer-name"><%= result.ad_soyad %></h2>
+  <% } %>
 
   <div class="info-grid">
     <% 

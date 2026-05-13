@@ -371,7 +371,7 @@
          .customer-details .info-grid .info-item--span-2 {
             grid-column: 1 / -1;
          }
-         @media (min-width: 769px) {
+         @media (min-width: 640px) {
             .customer-details .info-grid {
                grid-template-columns: 1fr 1fr;
                gap: 16px 20px;
@@ -674,33 +674,23 @@
          .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 18px;
+            gap: 12px;
+            margin-bottom: 14px;
          }
          .stat-card {
-            background: linear-gradient(
-               180deg,
-               var(--card),
-               rgba(30, 41, 59, 0.86)
-            );
+            background:
+               linear-gradient(180deg, var(--card), rgba(30, 41, 59, 0.86)),
+               radial-gradient(
+                  circle at right top,
+                  rgba(255, 255, 255, 0.08),
+                  transparent 42%
+               );
             border: 1px solid var(--border-soft);
-            padding: 20px;
-            border-radius: 16px;
+            padding: 14px 16px;
+            border-radius: 14px;
             cursor: pointer;
             transition: all 0.22s ease;
-            position: relative;
             overflow: hidden;
-         }
-         .stat-card:before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(
-               circle at right top,
-               rgba(255, 255, 255, 0.08),
-               transparent 40%
-            );
-            pointer-events: none;
          }
          .stat-card:hover {
             border-color: var(--green);
@@ -710,15 +700,17 @@
                0 0 22px var(--glow);
          }
          .stat-card h3 {
-            margin: 0 0 5px;
+            margin: 0 0 4px;
             color: var(--muted-2);
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 650;
+            line-height: 1.25;
          }
          .stat-card p {
             margin: 0;
-            font-size: 28px;
+            font-size: clamp(22px, 5vw, 28px);
             font-weight: 900;
+            line-height: 1.1;
          }
          .stat-card.blue {
             border-left: 4px solid var(--blue);
@@ -921,7 +913,8 @@
             padding: 20px;
             border-bottom: 1px solid var(--border-soft);
          }
-         .card-header h2 {
+         .card-header h2,
+         .card-header-customer-name {
             margin: 0 0 5px;
             font-size: clamp(17px, 2.6vw, 22px);
             line-height: 1.35;
@@ -932,6 +925,50 @@
             overflow-wrap: normal;
             word-break: normal;
             white-space: normal;
+         }
+         .card-header--stacked {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+         }
+         .card-header--stacked .card-header-customer-name {
+            margin: 0;
+            flex: 0 0 auto;
+         }
+         .card-header-meta {
+            display: block;
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.35;
+         }
+         .single-search-card .customer-details .info-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 12px;
+         }
+         .single-search-card .customer-details .info-grid > .info-item:not(.customer-card-actions) {
+            display: grid;
+            grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+            gap: 4px 10px;
+            align-items: start;
+         }
+         .single-search-card .customer-details .info-grid .info-item--span-2 {
+            grid-column: 1 / -1;
+            grid-template-columns: minmax(0, 22%) minmax(0, 1fr);
+         }
+         .single-search-card .customer-card-actions {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+            width: 100% !important;
+         }
+         @media (max-width: 380px) {
+            .single-search-card .customer-details .info-grid {
+               grid-template-columns: 1fr;
+            }
+            .single-search-card .customer-details .info-grid > .info-item:not(.customer-card-actions) {
+               grid-template-columns: 1fr;
+            }
          }
          .card-header span {
             color: var(--muted);
@@ -1796,9 +1833,24 @@
                padding: 12px;
             }
             .card-body,
-            .modal-body.grid,
-            .stats {
+            .modal-body.grid {
                grid-template-columns: 1fr;
+            }
+            .stats {
+               grid-template-columns: repeat(2, minmax(0, 1fr));
+               gap: 10px;
+               margin-bottom: 12px;
+            }
+            .stat-card {
+               padding: 11px 12px;
+               border-radius: 12px;
+            }
+            .stat-card h3 {
+               font-size: 11px;
+               margin-bottom: 3px;
+            }
+            .stat-card p {
+               font-size: clamp(19px, 5.2vw, 24px);
             }
             .search-filter-section {
                flex-direction: column;
@@ -2466,45 +2518,16 @@
             ><span>Bu müştəri arxivdədir</span>
          </div>
          <% } %>
-         <div class="card">
-            <div class="card-header">
-               <h2><%= result.ad_soyad %></h2>
-               <span
+         <div class="card single-search-card">
+            <div class="card-header card-header--stacked">
+               <h2 class="card-header-customer-name"><%= result.ad_soyad %></h2>
+               <span class="card-header-meta"
                   >Ödəniş kodu: <%= result.odeme_kodu %> | Qeydiyyat: <%=
                   dateText(result) %></span
                >
-               <div
-                  style="
-                     margin-top: 15px;
-                     display: flex;
-                     gap: 10px;
-                     flex-wrap: wrap;
-                  "
-               >
-                  <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit"
-                     ><i class="fa-solid fa-pen"></i> Redaktə</a
-                  >
-                  <button
-                     class="btn-delete"
-                     onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')"
-                  >
-                     <i class="fa-solid fa-trash"></i> Sil
-                  </button>
-                  <% if (isArchived) { %><button
-                     class="btn-unarchive"
-                     onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', false)"
-                  >
-                     <i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button
-                  ><% } else { %><button
-                     class="btn-archive"
-                     onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', true)"
-                  >
-                     <i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button
-                  ><% } %>
-               </div>
             </div>
             <div class="card-body">
-               <%- include('card-content', {result: result}) %>
+               <%- include('card-content', { result: result, omitCustomerName: true }) %>
             </div>
          </div>
          <% } else { %>
@@ -2585,19 +2608,13 @@
             >
                <h3>Ümumi Müştəri Sayı</h3>
                <p><%= totalCount %></p>
-               <span style="font-size: 12px; color: var(--muted)"
-                  >Kliklə hamısına bax</span
-               >
             </div>
             <div
                class="stat-card green"
                onclick="openCustomerListModal('today')"
             >
-               <h3>Bu gün əlavə olunanlar</h3>
+               <h3>Bu gün</h3>
                <p><%= todayCustomers.length %></p>
-               <span style="font-size: 12px; color: var(--muted)"
-                  >Kliklə siyahıya bax</span
-               >
             </div>
             <div
                class="stat-card gray"
@@ -2605,9 +2622,6 @@
             >
                <h3>Arxivdə olanlar</h3>
                <p><%= archivedCustomers.length %></p>
-               <span style="font-size: 12px; color: var(--muted)"
-                  >Kliklə arxivə bax</span
-               >
             </div>
             <div
                class="stat-card red"
@@ -2615,9 +2629,6 @@
             >
                <h3>Problemlər</h3>
                <p><%= problemCount %></p>
-               <span style="font-size: 12px; color: var(--muted)"
-                  >Kliklə Problemli müştərilərə bax</span
-               >
             </div>
          </div>
 
@@ -2870,7 +2881,7 @@
          const embeddedSearchCustomers = <%- JSON.stringify(results || []) %>;
          const customerListConfig = {
            all: { title: 'Bütün Müştərilər', icon: 'fa-users', endpoint: '/api/all-customers', subtitle: 'Bütün müştəri bazası' },
-           today: { title: 'Bu gün əlavə olunanlar', icon: 'fa-calendar-day', endpoint: '/api/today-customers', subtitle: 'Bugünkü aktiv qeydiyyatlar' },
+           today: { title: 'Bu gün', icon: 'fa-calendar-day', endpoint: '/api/today-customers', subtitle: 'Bugünkü aktiv qeydiyyatlar' },
            archive: { title: 'Arxivdə olanlar', icon: 'fa-box-archive', endpoint: '/api/archive-customers', subtitle: 'Arxiv statuslu müştərilər' },
            problem: { title: 'Problemlər', icon: 'fa-triangle-exclamation', endpoint: '/api/problem-customers', subtitle: 'Qeydində Problem yazılanlar' },
            search: { title: 'Axtarış nəticələri', icon: 'fa-magnifying-glass', endpoint: null, subtitle: 'Cari axtarış nəticələri' }
