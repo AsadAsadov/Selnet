@@ -57,50 +57,112 @@
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
+            height: 48px !important;
+            min-height: 48px !important;
+            max-height: 48px !important;
+            padding: 0 12px !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 8px !important;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden !important;
          }
          .header .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            gap: 8px !important;
             color: #f8fafc;
+            text-align: left !important;
          }
          .header h1 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
+            margin: 0 !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.35px !important;
+            line-height: 1.15 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            text-align: left !important;
          }
          .header .actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            flex: 0 0 auto !important;
+            gap: 6px !important;
+         }
+         .header-search-toggle {
+            flex: 0 0 auto !important;
+            width: 32px !important;
+            height: 32px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 10px !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 14px !important;
+            line-height: 1 !important;
+            transition:
+               background 0.2s ease,
+               border-color 0.2s ease,
+               transform 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+         }
+         .header-search-toggle:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(16, 185, 129, 0.45);
+            transform: translateY(-1px);
+         }
+         .header-search-toggle[aria-expanded="true"] {
+            background: rgba(16, 185, 129, 0.28);
+            border-color: rgba(16, 185, 129, 0.55);
+         }
+         .header-search-toggle i.fa.fa-search {
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-style: normal !important;
+            line-height: 1 !important;
+         }
+         .header-search-toggle i.fa.fa-search::before {
+            content: "\f002" !important;
          }
          .header .actions a {
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 13px;
-            padding: 9px 16px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #fff;
+            text-decoration: none !important;
+            font-weight: 700 !important;
+            font-size: 11px !important;
+            padding: 6px 10px !important;
+            border-radius: 10px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 5px !important;
+            color: #fff !important;
             transition: all 0.24s ease;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14) !important;
+            white-space: nowrap !important;
+            max-height: 32px !important;
+            box-sizing: border-box !important;
          }
-         .header .actions a:first-child {
+         .header .actions > a:first-of-type {
             background: rgba(255, 255, 255, 0.14);
             border: 1px solid rgba(255, 255, 255, 0.18);
             color: #f8fafc;
          }
-         .header .actions a:first-child:hover {
+         .header .actions > a:first-of-type:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
          }
@@ -168,23 +230,11 @@
             background: rgba(71, 85, 105, 0.92);
             box-shadow: 0 8px 22px rgba(2, 6, 23, 0.25);
          }
-         #toggleSearchBtn {
-            display: none;
+         #search-container-main {
+            display: none !important;
          }
-         @media (max-width: 768px) {
-            #toggleSearchBtn {
-               display: block;
-            }
-         }
-         @media (max-width: 768px) {
-            #searchFormContainer:not(.search-form-open) {
-               display: none !important;
-            }
-         }
-         @media (min-width: 769px) {
-            #searchFormContainer {
-               display: block !important;
-            }
+         #search-container-main.search-panel-open {
+            display: block !important;
          }
 
          .search-filter-section {
@@ -667,21 +717,29 @@
          @media (max-width: 768px) {
          
             .header {
-               flex-direction: column;
-               align-items: stretch;
-               gap: 14px;
-               padding: 15px;
+               flex-direction: row !important;
+               align-items: center !important;
+               justify-content: space-between !important;
+               height: 48px !important;
+               min-height: 48px !important;
+               max-height: 48px !important;
+               padding: 0 10px !important;
+               gap: 6px !important;
+            }
+         
+            .header .logo {
+               justify-content: flex-start !important;
             }
          
             .header .actions {
-               width: 100%;
-               display: flex;
-               gap: 10px;
+               width: auto !important;
+               flex: 0 0 auto !important;
+               justify-content: flex-end !important;
             }
          
             .header .actions a {
-               flex: 1;
-               justify-content: center;
+               flex: 0 1 auto !important;
+               justify-content: center !important;
             }
          
             .search-section {
@@ -2743,6 +2801,17 @@
             </h1>
          </div>
          <div class="actions">
+            <button
+               type="button"
+               id="headerSearchToggle"
+               class="header-search-toggle"
+               onclick="toggleSearchPanel()"
+               aria-expanded="false"
+               aria-controls="search-container-main"
+               title="Search panel"
+            >
+               <i class="fa fa-search" aria-hidden="true"></i>
+            </button>
             <a href="/add"
                ><i class="fa-solid fa-plus"></i><span>Əlavə Et</span></a
             >
@@ -2766,16 +2835,7 @@
 
       <div class="container">
          <div class="search-section">
-            <button
-               type="button"
-               id="toggleSearchBtn"
-               class="btn btn-secondary w-100 mb-3"
-               aria-expanded="false"
-               aria-controls="searchFormContainer"
-            >
-               🔍 Axtarış Panelini Aç/Bağla
-            </button>
-            <div id="searchFormContainer">
+            <div id="search-container-main" class="search-container-main">
                <div class="search-filter-section">
                   <form class="search-box" method="GET">
                      <div class="brand-logo-container">
@@ -3389,9 +3449,9 @@ modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-sol
         async function toggleArchive(odemeKodu,id,archive){const action=archive?'arxivə göndərmək':'arxivdən çıxartmaq';if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`))return;try{const safeId=String(id??'').trim();if(!safeId)throw new Error('Müştəri ID-si tapılmadı.');await postJson(`/archive/${encodeURIComponent(safeId)}`,{archive,odemeKodu:String(odemeKodu??'')});alert(archive?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');location.reload();}catch(error){alert('Xəta: '+error.message);}}
 
          document.addEventListener('click',(e)=>{if(!e.target.closest('#modemSnLiveWrap'))hideModemSnDropdown();const item=e.target.closest('.list-item[data-code]');if(item){openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}if(e.target.classList.contains('modal'))closeModal(e.target.id);});
-         function initSearchFormToggle(){const c=document.getElementById('searchFormContainer');const b=document.getElementById('toggleSearchBtn');if(!c||!b)return;const mq=window.matchMedia('(max-width: 768px)');function sync(){if(mq.matches){c.classList.remove('search-form-open');b.setAttribute('aria-expanded','false');}else{c.classList.add('search-form-open');b.setAttribute('aria-expanded','true');}}sync();if(typeof mq.addEventListener==='function')mq.addEventListener('change',sync);else if(typeof mq.addListener==='function')mq.addListener(sync);b.addEventListener('click',()=>{if(!mq.matches)return;c.classList.toggle('search-form-open');b.setAttribute('aria-expanded',String(c.classList.contains('search-form-open')));});}
+         function toggleSearchPanel(){const el=document.getElementById('search-container-main');const btn=document.getElementById('headerSearchToggle');if(!el)return;const open=el.classList.toggle('search-panel-open');if(btn)btn.setAttribute('aria-expanded',String(open));}
          document.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){const item=e.target.closest?.('.list-item[data-code]');if(item){e.preventDefault();openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}}if(e.key==='Escape'){if(document.getElementById('historyModal')?.classList.contains('is-open')){closeModal('historyModal');return;}}const customerOpen=document.getElementById('customerModal')?.classList.contains('is-open');if(customerOpen){if(e.key==='Escape'){closeModal('customerModal');return;}if(e.key==='ArrowLeft')navigateModal(-1);if(e.key==='ArrowRight')navigateModal(1);}if(e.key==='Escape'){if(document.getElementById('chartModal')?.classList.contains('is-open')){closeModal('chartModal');return;}if(document.getElementById('customerListModal')?.classList.contains('is-open'))closeModal('customerListModal');}});
-         document.addEventListener('DOMContentLoaded',()=>{setupChartToggle();initSearchFormToggle();document.getElementById('customerListSearch')?.addEventListener('input',handleCustomerListSearch);document.getElementById('modemSnLiveSearch')?.addEventListener('input',debouncedModemSnSearch);document.getElementById('modemSnLiveResults')?.addEventListener('click',(e)=>{const btn=e.target.closest('.modem-sn-row[data-code]');if(!btn)return;e.preventDefault();const code=btn.getAttribute('data-code');if(!code)return;hideModemSnDropdown();const inp=document.getElementById('modemSnLiveSearch');if(inp)inp.value='';openModal(code,0,'modem');});});
+         document.addEventListener('DOMContentLoaded',()=>{setupChartToggle();document.getElementById('customerListSearch')?.addEventListener('input',handleCustomerListSearch);document.getElementById('modemSnLiveSearch')?.addEventListener('input',debouncedModemSnSearch);document.getElementById('modemSnLiveResults')?.addEventListener('click',(e)=>{const btn=e.target.closest('.modem-sn-row[data-code]');if(!btn)return;e.preventDefault();const code=btn.getAttribute('data-code');if(!code)return;hideModemSnDropdown();const inp=document.getElementById('modemSnLiveSearch');if(inp)inp.value='';openModal(code,0,'modem');});});
       </script>
    </body>
 </html>
