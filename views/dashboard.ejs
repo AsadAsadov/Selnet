@@ -362,32 +362,113 @@
             min-width: 0;
          }
 
-         .btn-customer-history {
-            box-sizing: border-box;
+         .customer-details .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px 16px;
+            align-items: start;
+         }
+         .customer-details .info-grid .info-item--span-2 {
+            grid-column: 1 / -1;
+         }
+         @media (min-width: 640px) {
+            .customer-details .info-grid {
+               grid-template-columns: 1fr 1fr;
+               gap: 16px 20px;
+            }
+         }
+
+         .customer-name {
+            margin: 0 0 14px;
+            font-size: clamp(17px, 2.8vw, 22px);
+            line-height: 1.25;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: baseline;
+            min-width: 0;
+            word-break: normal;
+            overflow-wrap: anywhere;
+         }
+
+         .customer-card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 18px;
             width: 100%;
             max-width: 100%;
-            margin-top: 18px;
-            padding: 12px 16px;
-            border-radius: 14px;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            background: rgba(51, 65, 85, 0.55);
-            color: #e2e8f0;
+            box-sizing: border-box;
+         }
+         .customer-card-actions > .btn-card-action {
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            padding: 8px 4px;
+            border-radius: 10px;
             font: inherit;
+            font-size: clamp(11px, 2.9vw, 13px);
             font-weight: 700;
-            font-size: 15px;
+            line-height: 1.25;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
             cursor: pointer;
             transition:
-               background 0.18s ease,
-               border-color 0.18s ease,
-               box-shadow 0.18s ease;
+               background 0.16s ease,
+               border-color 0.16s ease,
+               box-shadow 0.16s ease,
+               filter 0.16s ease;
          }
-         .btn-customer-history:hover {
-            background: rgba(71, 85, 105, 0.72);
+         .customer-card-actions .btn-customer-history {
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(51, 65, 85, 0.65);
+            color: #e2e8f0;
+         }
+         .customer-card-actions .btn-customer-history:hover {
+            background: rgba(71, 85, 105, 0.85);
             border-color: rgba(148, 163, 184, 0.55);
-            box-shadow: 0 6px 20px rgba(2, 6, 23, 0.22);
+            box-shadow: 0 4px 14px rgba(2, 6, 23, 0.2);
          }
-         .modal-body.grid .btn-customer-history {
+         .customer-card-actions .btn-edit {
+            background: #3b82f6;
+            color: #fff;
+            border: 1px solid rgba(59, 130, 246, 0.65);
+         }
+         .customer-card-actions .btn-edit:hover {
+            filter: brightness(1.06);
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+         }
+         .customer-card-actions .btn-delete {
+            background: #ef4444;
+            color: #fff;
+            border: 1px solid rgba(239, 68, 68, 0.55);
+         }
+         .customer-card-actions .btn-delete:hover {
+            filter: brightness(1.05);
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.22);
+         }
+         .customer-card-actions .btn-archive {
+            background: #6b7280;
+            color: #fff;
+            border: 1px solid rgba(107, 114, 128, 0.55);
+         }
+         .customer-card-actions .btn-archive:hover {
+            filter: brightness(1.06);
+         }
+         .customer-card-actions .btn-unarchive {
+            background: #10b981;
+            color: #fff;
+            border: 1px solid rgba(16, 185, 129, 0.55);
+         }
+         .customer-card-actions .btn-unarchive:hover {
+            filter: brightness(1.05);
+         }
+
+         .modal-body.grid .customer-card-actions {
             align-self: stretch;
          }
 
@@ -842,7 +923,15 @@
          }
          .card-header h2 {
             margin: 0 0 5px;
-            font-size: 22px;
+            font-size: clamp(17px, 2.6vw, 22px);
+            line-height: 1.25;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: baseline;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: normal;
          }
          .card-header span {
             color: var(--muted);
@@ -1238,6 +1327,8 @@
          }
          .customer-detail-modal-content {
             width: min(92vw, 940px);
+            max-height: 92vh;
+            min-height: 0;
          }
          @keyframes modalScale {
             from {
@@ -1273,15 +1364,20 @@
          .modal-footer {
             border-top: 1px solid var(--border-soft);
          }
-         .modal-header h2 {
+         .modal-header h2,
+         .modal-customer-title {
             margin: 0;
             font-size: 20px;
             line-height: 1.25;
             flex: 1 1 auto;
             min-width: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: baseline;
             white-space: normal;
             word-break: normal;
-            overflow-wrap: break-word;
+            overflow-wrap: anywhere;
          }
          .modal-controls {
             display: flex;
@@ -1412,6 +1508,20 @@
          .modal-body.grid .info-value--links a,
          .modal-body.grid .drive-link {
             overflow-wrap: anywhere;
+         }
+         .customer-detail-modal-content #modalBody.modal-body.grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px 16px;
+            align-content: start;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+         }
+         .customer-detail-modal-content #modalBody.modal-body.grid > .info-item.full-width,
+         .customer-detail-modal-content #modalBody.modal-body.grid > .customer-card-actions {
+            grid-column: 1 / -1;
          }
          .modal-actions {
             display: flex;
@@ -2118,7 +2228,8 @@
             .modal-body {
                padding: 12px;
             }
-            .modal-actions > * {
+            .modal-actions > *,
+            .customer-card-actions > * {
                width: 100%;
                justify-content: center;
             }
@@ -2158,8 +2269,7 @@
          .info-value,
          .info-text,
          .modal-body.grid .info-item .info-value,
-         .modal-body.grid .info-item .info-text,
-         .modal-header h2 {
+         .modal-body.grid .info-item .info-text {
             white-space: normal;
             word-break: normal;
             overflow-wrap: normal;
@@ -2517,7 +2627,7 @@
       <div id="customerModal" class="modal" aria-hidden="true">
          <div class="modal-content customer-detail-modal-content">
             <div class="modal-header">
-               <h2 id="modalTitle"></h2>
+               <h2 id="modalTitle" class="modal-customer-title"></h2>
                <div class="modal-controls">
                   <button onclick="navigateModal(-1)" id="prevBtn">
                      <i class="fa-solid fa-chevron-left"></i>
@@ -2752,9 +2862,9 @@
           { key:'komendant', label:'KOMENDANT' },
           { key:'timestamp', label:'QEYDİYYAT TARİXİ', type:'date' },
           { key:'unvan', label:'ÜNVAN', full:true },
-          { key:'qeyd', label:'QEYD' },
+          { key:'qeyd', label:'QEYD', full:true },
           { key:'problem_sebebi', label:'PROBLEMIN SƏBƏBİ', full:true },
-          { key:'netice', label:'NƏTİCƏ', type:'status' },
+          { key:'netice', label:'NƏTİCƏ', type:'status', full:true },
           { key:'drive_links', label:'ŞƏKİLLƏR', type:'image', full:true }
         ];
          function normalizeClientHistory(raw){if(raw==null)return[];if(Array.isArray(raw))return raw;if(typeof raw==='string'){try{const p=JSON.parse(raw);return Array.isArray(p)?p:[]}catch{return[]}}return[];}
@@ -2771,7 +2881,7 @@
          const handleCustomerListSearch=debounce((event)=>{customerListState.search=normalizeSearch(event.target.value);applyCustomerListFilter();},180);
 
          function openModal(odemeKodu,index,type='search'){setModalOpen('historyModal',false);currentModalType=type;currentModalList=Array.isArray(modalLists[type])?[...modalLists[type]]:[];if(!currentModalList.length&&odemeKodu)currentModalList=[String(odemeKodu)];currentModalIndex=currentModalList.map(String).indexOf(String(odemeKodu));if(currentModalIndex<0)currentModalIndex=Number.isInteger(index)?index:0;loadModalCustomer(odemeKodu);}
-        async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;setModalOpen('historyModal',false);if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';prevBtn.disabled=currentModalIndex<=0;nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=r.arxiv===true||['hə','he','true','1'].includes(String(r.arxiv??'').trim().toLowerCase());const customerName=String(r.ad_soyad||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`${escapeHtml(customerName)} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const isProblem=String(r.qeyd||'').toLowerCase().includes('problem');let html='';modalFields.forEach(f=>{if(f.key==='problem_sebebi'&&!isProblem)return;if(f.key==='netice'&&(!isProblem||!String(r.netice||'').trim()))return;let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else if(f.type==='status'){const statusClass=String(val).trim().toLowerCase()==='həll olundu'?'result-success':'result-failed';html+=`<span class="info-value ${statusClass}">${escapeHtml(val)}</span>`;}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r.odeme_kodu||'')).replace(/'/g,'\u0027');const idArg=JSON.stringify(r.id ?? '').replace(/'/g,'\u0027');html+=`<button type="button" class="btn-customer-history info-item full-width" data-history="${encodeHistoryDataAttribute(r.history)}" onclick="openCustomerHistoryModal(this)">📜 Fəaliyyət Tarixçəsi</button>`+`<div class="info-item full-width modal-actions"><a href="/edit/${encodeURIComponent(r.odeme_kodu)}" class="btn-edit"><i class="fa-solid fa-pen"></i> Redaktə</a><button class="btn-delete" onclick='deleteCustomer(${codeArg}, ${idArg})'><i class="fa-solid fa-trash"></i> Sil</button>${isArchived?`<button class="btn-unarchive" onclick='toggleArchive(${codeArg}, ${idArg}, false)'><i class="fa-solid fa-box-open"></i> Arxivdən Çıxart</button>`:`<button class="btn-archive" onclick='toggleArchive(${codeArg}, ${idArg}, true)'><i class="fa-solid fa-box-archive"></i> Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
+        async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;setModalOpen('historyModal',false);if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';prevBtn.disabled=currentModalIndex<=0;nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=r.arxiv===true||['hə','he','true','1'].includes(String(r.arxiv??'').trim().toLowerCase());const customerName=String(r.ad_soyad||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`${escapeHtml(customerName)} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const isProblem=String(r.qeyd||'').toLowerCase().includes('problem');let html='';modalFields.forEach(f=>{if(f.key==='problem_sebebi'&&!isProblem)return;if(f.key==='netice'&&(!isProblem||!String(r.netice||'').trim()))return;let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else if(f.type==='status'){const statusClass=String(val).trim().toLowerCase()==='həll olundu'?'result-success':'result-failed';html+=`<span class="info-value ${statusClass}">${escapeHtml(val)}</span>`;}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r.odeme_kodu||'')).replace(/'/g,'\u0027');const idArg=JSON.stringify(r.id ?? '').replace(/'/g,'\u0027');html+=`<div class="customer-card-actions info-item full-width"><button type="button" class="btn-customer-history btn-card-action" data-history="${encodeHistoryDataAttribute(r.history)}" onclick="openCustomerHistoryModal(this)">📜 Fəaliyyət Tarixçəsi</button><a href="/edit/${encodeURIComponent(r.odeme_kodu)}" class="btn-edit btn-card-action">📝 Redaktə</a><button type="button" class="btn-delete btn-card-action" onclick='deleteCustomer(${codeArg}, ${idArg})'>🗑️ Sil</button>${isArchived?`<button type="button" class="btn-unarchive btn-card-action" onclick='toggleArchive(${codeArg}, ${idArg}, false)'>📦 Arxivdən Çıxart</button>`:`<button type="button" class="btn-archive btn-card-action" onclick='toggleArchive(${codeArg}, ${idArg}, true)'>📦 Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
          function navigateModal(direction){const newIndex=currentModalIndex+direction;if(newIndex>=0&&newIndex<currentModalList.length){currentModalIndex=newIndex;loadModalCustomer(currentModalList[currentModalIndex]);}}
 
          async function postJson(url,body){const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},credentials:'same-origin',body:JSON.stringify(body)});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error('Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(!res.ok||json.success!==true)throw new Error(json.error||`Server xətası (${res.status})`);return json;}

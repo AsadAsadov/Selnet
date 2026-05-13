@@ -30,12 +30,13 @@
         displayFields.push({ key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ' });
       }
 
+      const fullSpanKeys = ['unvan', 'qeyd', 'problem_sebebi', 'netice'];
       displayFields.forEach(field => { 
         const val = result[field.key];
         // Boş olmayan və 'null' olmayan məlumatları göstər
         if (val && val.toString().toLowerCase() !== 'null' && val.toString().trim() !== '') {
     %>
-      <div class="info-item">
+      <div class="info-item<%= fullSpanKeys.includes(field.key) ? ' info-item--span-2' : '' %>">
         <label><%= field.label %></label>
         <p class="info-value">
           <% if (field.isPhone) { %>
@@ -77,22 +78,21 @@
         return tb - ta;
       });
   %>
-  <button
-    type="button"
-    class="btn-customer-history"
-    data-history="<%= encodeURIComponent(JSON.stringify(historyRows)) %>"
-    onclick="openCustomerHistoryModal(this)"
-  >
-    📜 Fəaliyyət Tarixçəsi
-  </button>
-
-  <div class="modal-actions" style="margin-top: 20px; display: flex; gap: 10px;">
-    <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit" style="background: #3b82f6; color: white; padding: 10px; border-radius: 5px; text-decoration: none;">Redaktə</a>
-    
-    <button onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')" class="btn-delete" style="background: #ef4444; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">Sil</button>
-    
-    <button onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', <%= !isArchived %>)" class="btn-archive" style="background: #6b7280; color: white; padding: 10px; border-radius: 5px; border: none; cursor: pointer;">
-      <%= isArchived ? 'Arxivdən Çıxart' : 'Arxivə Göndər' %>
+  <div class="customer-card-actions">
+    <button
+      type="button"
+      class="btn-customer-history btn-card-action"
+      data-history="<%= encodeURIComponent(JSON.stringify(historyRows)) %>"
+      onclick="openCustomerHistoryModal(this)"
+    >
+      📜 Fəaliyyət Tarixçəsi
     </button>
+    <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit btn-card-action">📝 Redaktə</a>
+    <button type="button" class="btn-delete btn-card-action" onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')">🗑️ Sil</button>
+    <% if (isArchived) { %>
+    <button type="button" class="btn-unarchive btn-card-action" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', false)">📦 Arxivdən Çıxart</button>
+    <% } else { %>
+    <button type="button" class="btn-archive btn-card-action" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', true)">📦 Arxivə Göndər</button>
+    <% } %>
   </div>
 </div>
