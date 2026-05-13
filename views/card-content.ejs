@@ -1,55 +1,53 @@
 <div class="customer-details">
   <% if (typeof omitCustomerName === 'undefined' || !omitCustomerName) { %>
-  <h2 class="customer-name"><%= result.ad_soyad %></h2>
+    <h2 class="customer-name-compact"><%= result.ad_soyad %></h2>
   <% } %>
 
-  <div class="info-grid">
+  <div class="info-grid-compact">
     <% 
-      // Massivi birbaşa burada təyin edirik ki, "not defined" xətası verməsin
       const qeydText = String(result.qeyd || '').trim().toLowerCase();
       const isProblem = qeydText.includes('problem');
       const isArchived = result.arxiv === true || ['hə', 'he', 'true', '1'].includes(String(result.arxiv ?? '').trim().toLowerCase());
+      
       const displayFields = [
-        { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
-        { key: 'telefon', label: 'TELEFON', isPhone: true },
-        { key: 'ayliq_odenis', label: 'AYLIQ ÖDƏNİŞ', suffix: ' AZN' },
-        { key: 'fin', label: 'Ş/V FİN' },
-        { key: 'seriya', label: 'Ş/V SERİYA' },
-        { key: 'modem', label: 'MODEM S/N' },
+        { key: 'odeme_kodu', label: 'KOD' },
+        { key: 'telefon', label: 'TEL', isPhone: true },
+        { key: 'ayliq_odenis', label: 'ÖDƏNİŞ', suffix: ' AZN' },
+        { key: 'fin', label: 'FİN' },
+        { key: 'seriya', label: 'SERİYA' },
+        { key: 'modem', label: 'MODEM' },
         { key: 'tvbox', label: 'TV BOX' },
         { key: 'komendant', label: 'KOMENDANT' },
-        { key: 'timestamp', label: 'QEYDİYYAT TARİXİ' },
+        { key: 'timestamp', label: 'TARİX' },
         { key: 'unvan', label: 'ÜNVAN' },
         { key: 'qeyd', label: 'QEYD' }
       ];
 
-      // Problem statusu yalnız problem qeydli müştərilərdə göstərilir
       if (isProblem && String(result.netice || '').trim() !== '') {
-        displayFields.push({ key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true });
+        displayFields.push({ key: 'netice', label: 'NƏTİCƏ', isStatus: true });
       }
-
       if (isProblem) {
-        displayFields.push({ key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ' });
+        displayFields.push({ key: 'problem_sebebi', label: 'SƏBƏB' });
       }
 
       const fullSpanKeys = ['unvan', 'qeyd', 'problem_sebebi', 'netice'];
+      
       displayFields.forEach(field => { 
         const val = result[field.key];
-        // Boş olmayan və 'null' olmayan məlumatları göstər
         if (val && val.toString().toLowerCase() !== 'null' && val.toString().trim() !== '') {
     %>
-      <div class="info-item<%= fullSpanKeys.includes(field.key) ? ' info-item--span-2' : '' %>">
-        <label class="info-label"><%= field.label %></label>
-        <p class="info-value<%= field.isPhone ? ' info-value--contact' : '' %>">
+      <div class="info-item-compact <%= fullSpanKeys.includes(field.key) ? 'full-width' : '' %>">
+        <label><%= field.label %></label>
+        <div class="value-container">
           <% if (field.isPhone) { %>
-            <%= val %>
-            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="btn-wa">WhatsApp</a>
+            <span class="val-text"><%= val %></span>
+            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="wa-link">WA</a>
           <% } else if (field.isStatus) { %>
-            <span class="status-badge"><%= val %></span>
+            <span class="status-mini"><%= val %></span>
           <% } else { %>
-            <%= val %><%= field.suffix || '' %>
+            <span class="val-text"><%= val %><%= field.suffix || '' %></span>
           <% } %>
-        </p>
+        </div>
       </div>
     <% 
         }
@@ -57,44 +55,139 @@
     %>
   </div>
 
-  <% 
-    let historyRows = [];
-    try {
-      const h = result.history;
-      if (Array.isArray(h)) historyRows = h;
-      else if (typeof h === 'string' && h.trim()) {
-        const p = JSON.parse(h);
-        if (Array.isArray(p)) historyRows = p;
-      }
-    } catch (e) { historyRows = []; }
-    historyRows = historyRows
-      .filter(x => x && (x.event || x.note))
-      .map(x => ({
-        date: x.date || '',
-        event: String(x.event || '').trim(),
-        note: String(x.note || '').trim()
-      }))
-      .sort((a, b) => {
-        const ta = Date.parse(a.date) || 0;
-        const tb = Date.parse(b.date) || 0;
-        return tb - ta;
-      });
-  %>
-  <div class="customer-card-actions">
-    <button
-      type="button"
-      class="btn-customer-history btn-card-action"
-      data-history="<%= encodeURIComponent(JSON.stringify(historyRows)) %>"
-      onclick="openCustomerHistoryModal(this)"
-    >
-      📜 Fəaliyyət Tarixçəsi
-    </button>
-    <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit btn-card-action">📝 Redaktə</a>
-    <button type="button" class="btn-delete btn-card-action" onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')">🗑️ Sil</button>
+  <div class="action-grid-compact">
+    <% 
+      let historyRows = [];
+      try {
+        const h = result.history;
+        if (Array.isArray(h)) historyRows = h;
+        else if (typeof h === 'string' && h.trim()) {
+          const p = JSON.parse(h);
+          if (Array.isArray(p)) historyRows = p;
+        }
+      } catch (e) { historyRows = []; }
+      const historyData = encodeURIComponent(JSON.stringify(historyRows.filter(x => x && (x.event || x.note))));
+    %>
+    <button type="button" class="btn-compact history" data-history="<%= historyData %>" onclick="openCustomerHistoryModal(this)">📜 Tarixçə</button>
+    <a href="/edit/<%= result.odeme_kodu %>" class="btn-compact edit">📝 Redaktə</a>
+    <button type="button" class="btn-compact delete" onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')">🗑️ Sil</button>
+    
     <% if (isArchived) { %>
-    <button type="button" class="btn-unarchive btn-card-action" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', false)">📦 Arxivdən Çıxart</button>
+      <button type="button" class="btn-compact archive" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', false)">📦 Bərpa</button>
     <% } else { %>
-    <button type="button" class="btn-archive btn-card-action" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', true)">📦 Arxivə Göndər</button>
+      <button type="button" class="btn-compact archive" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', true)">📦 Arxiv</button>
     <% } %>
   </div>
 </div>
+
+<style>
+  /* Əsas Konteyner */
+  .customer-details {
+    padding: 8px !important;
+    background: #1a1a1a;
+    border-radius: 10px;
+    color: white;
+  }
+
+  /* Müştəri Adı - Bir sətirdə sığışdır */
+  .customer-name-compact {
+    width: 100% !important;
+    font-size: 16px !important;
+    font-weight: bold;
+    margin-bottom: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+  }
+
+  /* Məlumat Grid-i - Məcburi 2 Sütun */
+  .info-grid-compact {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px 10px !important;
+  }
+
+  /* Hər bir məlumat qutusu */
+  .info-item-compact {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0;
+  }
+
+  .info-item-compact.full-width {
+    grid-column: span 2 !important;
+  }
+
+  /* Başlıqlar (Label) - Çox kompakt */
+  .info-item-compact label {
+    font-size: 9px !important;
+    color: #aaa;
+    text-transform: uppercase;
+    margin-bottom: 1px;
+    white-space: nowrap;
+  }
+
+  /* Dəyərlər (Value) - Sığışdırılmış */
+  .value-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .val-text {
+    font-size: 12px !important;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* WhatsApp Linki */
+  .wa-link {
+    font-size: 9px !important;
+    background: #25d366;
+    color: white;
+    padding: 1px 4px;
+    border-radius: 3px;
+    text-decoration: none;
+  }
+
+  /* Düymələr Grid-i - 2x2 */
+  .action-grid-compact {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    margin-top: 12px !important;
+  }
+
+  .btn-compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 2px !important;
+    font-size: 11px !important;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+  }
+
+  /* Düymə rəngləri */
+  .btn-compact.history { background: #333; }
+  .btn-compact.edit { background: #2c3e50; }
+  .btn-compact.delete { background: #c0392b; }
+  .btn-compact.archive { background: #7f8c8d; }
+
+  /* Status Badge */
+  .status-mini {
+    font-size: 10px;
+    background: #f39c12;
+    padding: 1px 5px;
+    border-radius: 10px;
+  }
+</style>
