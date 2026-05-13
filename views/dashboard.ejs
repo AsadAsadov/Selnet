@@ -135,12 +135,76 @@
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
          }
+         .search-section-search-toggle {
+            display: none;
+            width: 100%;
+            margin-bottom: 12px;
+         }
+         .btn-search-panel-toggle {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(30, 41, 59, 0.75);
+            color: var(--text);
+            font: inherit;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition:
+               background 0.18s ease,
+               border-color 0.18s ease,
+               box-shadow 0.18s ease;
+         }
+         .btn-search-panel-toggle:hover {
+            border-color: rgba(16, 185, 129, 0.55);
+            background: rgba(51, 65, 85, 0.88);
+            box-shadow: 0 8px 22px rgba(2, 6, 23, 0.25);
+         }
+         .search-panel-collapsible {
+            overflow: hidden;
+         }
+         @media (max-width: 768px) {
+            .search-section-search-toggle {
+               display: block;
+            }
+            .search-panel-collapsible {
+               max-height: 0;
+               opacity: 0;
+               margin-bottom: 0;
+               padding-top: 0;
+               padding-bottom: 0;
+               pointer-events: none;
+               transition:
+                  max-height 0.38s ease,
+                  opacity 0.26s ease,
+                  margin 0.26s ease;
+            }
+            .search-panel-collapsible.is-open {
+               max-height: 2000px;
+               opacity: 1;
+               pointer-events: auto;
+               margin-bottom: 0;
+            }
+         }
+         @media (min-width: 769px) {
+            .search-panel-collapsible {
+               max-height: none !important;
+               opacity: 1 !important;
+               pointer-events: auto !important;
+            }
+         }
+
          .search-filter-section {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             align-items: center;
-            margin-bottom: 18px;
+            margin-bottom: 0;
          }
          
          .search-box {
@@ -666,6 +730,15 @@
                width: 100%;
                justify-content: center;
             }
+
+            .stats {
+               grid-template-columns: repeat(2, minmax(0, 1fr));
+               gap: 10px;
+            }
+            .stat-card small,
+            .stat-card .stat-card-hint {
+               display: none !important;
+            }
          
             .container {
                padding: 12px;
@@ -931,10 +1004,17 @@
             flex-direction: column;
             align-items: stretch;
             gap: 8px;
+            width: 100%;
          }
          .card-header--stacked .card-header-customer-name {
             margin: 0;
             flex: 0 0 auto;
+            width: 100%;
+            max-width: 100%;
+         }
+         .single-search-card .card-header--stacked .card-header-customer-name {
+            display: block;
+            width: 100%;
          }
          .card-header-meta {
             display: block;
@@ -942,33 +1022,42 @@
             color: var(--muted);
             line-height: 1.35;
          }
+         /* Single search: one field per row; label | value columns inside each row */
          .single-search-card .customer-details .info-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px 12px;
+            grid-template-columns: 1fr;
+            gap: 6px 10px;
+            align-items: start;
          }
          .single-search-card .customer-details .info-grid > .info-item:not(.customer-card-actions) {
-            display: grid;
-            grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
-            gap: 4px 10px;
+            display: grid !important;
+            grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
+            column-gap: 10px;
+            row-gap: 2px;
             align-items: start;
+            padding: 4px 0;
+         }
+         .single-search-card .customer-details .info-grid > .info-item:not(.customer-card-actions) label {
+            margin-bottom: 0;
+            align-self: start;
+            padding-top: 2px;
          }
          .single-search-card .customer-details .info-grid .info-item--span-2 {
             grid-column: 1 / -1;
-            grid-template-columns: minmax(0, 22%) minmax(0, 1fr);
+            grid-template-columns: minmax(0, 34%) minmax(0, 1fr);
          }
          .single-search-card .customer-card-actions {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
             gap: 8px !important;
             width: 100% !important;
+            margin-top: 12px;
          }
-         @media (max-width: 380px) {
-            .single-search-card .customer-details .info-grid {
-               grid-template-columns: 1fr;
-            }
-            .single-search-card .customer-details .info-grid > .info-item:not(.customer-card-actions) {
-               grid-template-columns: 1fr;
-            }
+         /* If a duplicate action row is ever present above the grid, keep only the last block */
+         .single-search-card .customer-details > .customer-card-actions:not(:last-of-type) {
+            display: none !important;
+         }
+         .single-search-card .card-body {
+            padding: 14px 16px 16px;
          }
          .card-header span {
             color: var(--muted);
@@ -1366,6 +1455,14 @@
             width: min(92vw, 940px);
             max-height: 92vh;
             min-height: 0;
+            display: flex;
+            flex-direction: column;
+         }
+         .customer-detail-modal-content > .modal-header {
+            flex-shrink: 0;
+         }
+         .customer-detail-modal-content > .modal-customer-footer-nav {
+            flex-shrink: 0;
          }
          .modal-customer-footer-nav {
             flex: 0 0 auto;
@@ -1373,6 +1470,7 @@
             justify-content: center;
             align-items: center;
             padding: 12px 16px 16px;
+            margin-top: auto;
             border-top: 1px solid var(--border-soft);
             background: linear-gradient(
                180deg,
@@ -1483,13 +1581,27 @@
             width: 100%;
             min-width: 0;
             max-width: 100%;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
             font-size: 20px;
             line-height: 1.35;
             font-weight: 700;
             white-space: normal;
             word-break: normal;
             overflow-wrap: normal;
+         }
+         .modal-customer-name-block {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+         }
+         .customer-detail-modal-content .modal-customer-title .badge {
+            align-self: flex-start;
          }
          .modal-controls {
             display: flex;
@@ -1624,12 +1736,27 @@
          .customer-detail-modal-content #modalBody.modal-body.grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px 16px;
+            gap: 10px 14px;
             align-content: start;
             flex: 1 1 auto;
             min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
+         }
+         .customer-detail-modal-content #modalBody.modal-body.grid > .info-item:not(.customer-card-actions) {
+            display: grid !important;
+            grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+            column-gap: 10px;
+            row-gap: 2px;
+            align-items: start;
+            min-width: 0;
+         }
+         .customer-detail-modal-content #modalBody.modal-body.grid > .info-item:not(.customer-card-actions) label {
+            margin-bottom: 0;
+         }
+         .customer-detail-modal-content #modalBody.modal-body.grid > .info-item.full-width:not(.customer-card-actions) {
+            grid-column: 1 / -1;
+            grid-template-columns: minmax(0, 28%) minmax(0, 1fr);
          }
          .customer-detail-modal-content #modalBody.modal-body.grid > .info-item.full-width,
          .customer-detail-modal-content #modalBody.modal-body.grid > .customer-card-actions {
@@ -2375,6 +2502,9 @@
             .close-btn {
                transition: none;
             }
+            .search-panel-collapsible {
+               transition: none;
+            }
          }
 
          /* Customer detail modal text must wrap only at normal word boundaries. */
@@ -2436,6 +2566,21 @@
 
       <div class="container">
          <div class="search-section">
+            <div class="search-section-search-toggle">
+               <button
+                  type="button"
+                  class="btn-search-panel-toggle"
+                  id="searchPanelToggle"
+                  aria-expanded="false"
+                  aria-controls="searchPanelCollapsible"
+               >
+                  🔍 Axtarışı Aç/Bağla
+               </button>
+            </div>
+            <div
+               class="search-panel-collapsible"
+               id="searchPanelCollapsible"
+            >
                <div class="search-filter-section">
                   <form class="search-box" method="GET">
                      <div class="brand-logo-container">
@@ -2495,6 +2640,7 @@
                      </div>
                   </form>
                </div>
+            </div>
             </div>
          <% if (errorMsg) { %>
          <div class="error">
@@ -2979,7 +3125,7 @@
          const handleCustomerListSearch=debounce((event)=>{customerListState.search=normalizeSearch(event.target.value);applyCustomerListFilter();},180);
 
          function openModal(odemeKodu,index,type='search'){setModalOpen('historyModal',false);currentModalType=type;currentModalList=Array.isArray(modalLists[type])?[...modalLists[type]]:[];if(!currentModalList.length&&odemeKodu)currentModalList=[String(odemeKodu)];currentModalIndex=currentModalList.map(String).indexOf(String(odemeKodu));if(currentModalIndex<0)currentModalIndex=Number.isInteger(index)?index:0;loadModalCustomer(odemeKodu);}
-        async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;setModalOpen('historyModal',false);if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);if(counter)counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';if(prevBtn)prevBtn.disabled=currentModalIndex<=0;if(nextBtn)nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=r.arxiv===true||['hə','he','true','1'].includes(String(r.arxiv??'').trim().toLowerCase());const customerName=String(r.ad_soyad||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`${escapeHtml(customerName)} ${isArchived?'<span class="badge archived" style="font-size:14px;vertical-align:middle"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const isProblem=String(r.qeyd||'').toLowerCase().includes('problem');let html='';modalFields.forEach(f=>{if(f.key==='problem_sebebi'&&!isProblem)return;if(f.key==='netice'&&(!isProblem||!String(r.netice||'').trim()))return;let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else if(f.type==='status'){const statusClass=String(val).trim().toLowerCase()==='həll olundu'?'result-success':'result-failed';html+=`<span class="info-value ${statusClass}">${escapeHtml(val)}</span>`;}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r.odeme_kodu||'')).replace(/'/g,'\u0027');const idArg=JSON.stringify(r.id ?? '').replace(/'/g,'\u0027');html+=`<div class="customer-card-actions"><button type="button" class="btn-customer-history btn-card-action" data-history="${encodeHistoryDataAttribute(r.history)}" onclick="openCustomerHistoryModal(this)">📜 Fəaliyyət Tarixçəsi</button><a href="/edit/${encodeURIComponent(r.odeme_kodu)}" class="btn-edit btn-card-action">📝 Redaktə</a><button type="button" class="btn-delete btn-card-action" onclick='deleteCustomer(${codeArg}, ${idArg})'>🗑️ Sil</button>${isArchived?`<button type="button" class="btn-unarchive btn-card-action" onclick='toggleArchive(${codeArg}, ${idArg}, false)'>📦 Arxivdən Çıxart</button>`:`<button type="button" class="btn-archive btn-card-action" onclick='toggleArchive(${codeArg}, ${idArg}, true)'>📦 Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
+        async function loadModalCustomer(odemeKodu){const modalBody=document.getElementById('modalBody');const modalTitle=document.getElementById('modalTitle');const counter=document.getElementById('modalCounter');const prevBtn=document.getElementById('prevBtn');const nextBtn=document.getElementById('nextBtn');if(!modalBody||!modalTitle)return;setModalOpen('historyModal',false);if(modalAbortController)modalAbortController.abort();modalAbortController=new AbortController();const requestId=++modalRequestSeq;modalTitle.textContent='Müştəri məlumatı';modalBody.innerHTML=createSpinner('Məlumat yüklənir...');setModalOpen('customerModal',true);if(counter)counter.textContent=currentModalList.length?`${currentModalIndex+1} / ${currentModalList.length}`:'';if(prevBtn)prevBtn.disabled=currentModalIndex<=0;if(nextBtn)nextBtn.disabled=currentModalIndex>=currentModalList.length-1;try{const res=await fetch(`/customer/${encodeURIComponent(odemeKodu)}`,{headers:{Accept:'application/json'},credentials:'same-origin',signal:modalAbortController.signal});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error(res.status===401?'Sessiya bitib. Zəhmət olmasa yenidən daxil olun.':'Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(requestId!==modalRequestSeq)return;if(!res.ok||json.success!==true||!json.data)throw new Error(json.error||'Məlumat tapılmadı.');const r=json.data;const isArchived=r.arxiv===true||['hə','he','true','1'].includes(String(r.arxiv??'').trim().toLowerCase());const customerName=String(r.ad_soyad||'').trim()||'Adsız müştəri';modalTitle.innerHTML=`<span class="modal-customer-name-block">${escapeHtml(customerName)}</span>${isArchived?'<span class="badge archived" style="font-size:13px"><i class="fa-solid fa-box-archive"></i> Arxivdə</span>':''}`;const isProblem=String(r.qeyd||'').toLowerCase().includes('problem');let html='';modalFields.forEach(f=>{if(f.key==='problem_sebebi'&&!isProblem)return;if(f.key==='netice'&&(!isProblem||!String(r.netice||'').trim()))return;let val=r[f.key];if(f.type==='date')val=formatDate(val);if(val&&String(val).trim()!==''&&String(val).toLowerCase()!=='yox'){const valueClass=f.type==='tel'?'info-value info-value--contact':(f.type==='image'?'info-value info-value--links':'info-value');html+=`<div class="info-item ${f.full?'full-width':''}"><label>${escapeHtml(f.label)}</label><p class="${valueClass}">`;if(f.type==='tel'){const cleanTel=String(val).replace(/\s/g,'');const waTel='994'+cleanTel.replace(/^0/,'');html+=`<a href="tel:${encodeURIComponent(cleanTel)}" class="info-link">${escapeHtml(val)}</a><a href="https://wa.me/${encodeURIComponent(waTel)}" target="_blank" rel="noopener" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>`;}else if(f.type==='image'){const links=String(val).split(',').map(l=>l.trim()).filter(Boolean);html+=links.map((l,i)=>`<a class="btn-image drive-link" href="${escapeHtml(l)}" target="_blank" rel="noopener" title="${escapeHtml(l)}"><i class="fa-solid fa-image"></i> Şəkil ${i+1}</a>`).join('');}else if(f.type==='status'){const statusClass=String(val).trim().toLowerCase()==='həll olundu'?'result-success':'result-failed';html+=`<span class="info-value ${statusClass}">${escapeHtml(val)}</span>`;}else{html+=`<span class="info-text">${escapeHtml(val)}${f.suffix||''}</span>`;}html+='</p></div>';}});const codeArg=JSON.stringify(String(r.odeme_kodu||'')).replace(/'/g,'\u0027');const idArg=JSON.stringify(r.id ?? '').replace(/'/g,'\u0027');html+=`<div class="customer-card-actions"><button type="button" class="btn-customer-history btn-card-action" data-history="${encodeHistoryDataAttribute(r.history)}" onclick="openCustomerHistoryModal(this)">📜 Fəaliyyət Tarixçəsi</button><a href="/edit/${encodeURIComponent(r.odeme_kodu)}" class="btn-edit btn-card-action">📝 Redaktə</a><button type="button" class="btn-delete btn-card-action" onclick='deleteCustomer(${codeArg}, ${idArg})'>🗑️ Sil</button>${isArchived?`<button type="button" class="btn-unarchive btn-card-action" onclick='toggleArchive(${codeArg}, ${idArg}, false)'>📦 Arxivdən Çıxart</button>`:`<button type="button" class="btn-archive btn-card-action" onclick='toggleArchive(${codeArg}, ${idArg}, true)'>📦 Arxivə Göndər</button>`}</div>`;modalBody.innerHTML=html;}catch(error){if(error.name==='AbortError')return;console.error('[customer-modal] Müştəri yüklənmədi:',error);modalTitle.textContent='Xəta';modalBody.innerHTML=`<div class="not-found" style="margin:0"><p><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(error.message||'Məlumat yüklənmədi.')}</p></div>`;}}
          function navigateModal(direction){const newIndex=currentModalIndex+direction;if(newIndex>=0&&newIndex<currentModalList.length){currentModalIndex=newIndex;loadModalCustomer(currentModalList[currentModalIndex]);}}
 
          async function postJson(url,body){const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},credentials:'same-origin',body:JSON.stringify(body)});const contentType=res.headers.get('content-type')||'';if(!contentType.includes('application/json'))throw new Error('Server JSON formatında cavab qaytarmadı.');const json=await res.json();if(!res.ok||json.success!==true)throw new Error(json.error||`Server xətası (${res.status})`);return json;}
@@ -2987,8 +3133,9 @@
         async function toggleArchive(odemeKodu,id,archive){const action=archive?'arxivə göndərmək':'arxivdən çıxartmaq';if(!confirm(`"${odemeKodu}" ödəniş kodlu müştərini ${action} istəyirsiniz?`))return;try{const safeId=String(id??'').trim();if(!safeId)throw new Error('Müştəri ID-si tapılmadı.');await postJson(`/archive/${encodeURIComponent(safeId)}`,{archive,odemeKodu:String(odemeKodu??'')});alert(archive?'Müştəri arxivə göndərildi':'Müştəri arxivdən çıxarıldı');location.reload();}catch(error){alert('Xəta: '+error.message);}}
 
          document.addEventListener('click',(e)=>{if(!e.target.closest('#modemSnLiveWrap'))hideModemSnDropdown();const item=e.target.closest('.list-item[data-code]');if(item){openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}if(e.target.classList.contains('modal'))closeModal(e.target.id);});
+         function initSearchPanelToggle(){const panel=document.getElementById('searchPanelCollapsible');const btn=document.getElementById('searchPanelToggle');if(!panel||!btn)return;const mq=window.matchMedia('(max-width: 768px)');function setAria(){if(mq.matches&&!panel.classList.contains('is-open'))panel.setAttribute('aria-hidden','true');else panel.removeAttribute('aria-hidden');}function sync(){if(mq.matches){panel.classList.remove('is-open');btn.setAttribute('aria-expanded','false');}else{panel.classList.add('is-open');btn.setAttribute('aria-expanded','true');}setAria();}sync();if(typeof mq.addEventListener==='function')mq.addEventListener('change',sync);else if(typeof mq.addListener==='function')mq.addListener(sync);btn.addEventListener('click',()=>{if(!mq.matches)return;const open=panel.classList.toggle('is-open');btn.setAttribute('aria-expanded',String(open));setAria();});}
          document.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){const item=e.target.closest?.('.list-item[data-code]');if(item){e.preventDefault();openModal(item.dataset.code,Number.parseInt(item.dataset.index,10)||0,item.dataset.list||'search');return;}}if(e.key==='Escape'){if(document.getElementById('historyModal')?.classList.contains('is-open')){closeModal('historyModal');return;}}const customerOpen=document.getElementById('customerModal')?.classList.contains('is-open');if(customerOpen){if(e.key==='Escape'){closeModal('customerModal');return;}if(e.key==='ArrowLeft')navigateModal(-1);if(e.key==='ArrowRight')navigateModal(1);}if(e.key==='Escape'){if(document.getElementById('chartModal')?.classList.contains('is-open')){closeModal('chartModal');return;}if(document.getElementById('customerListModal')?.classList.contains('is-open'))closeModal('customerListModal');}});
-         document.addEventListener('DOMContentLoaded',()=>{setupChartToggle();document.getElementById('customerListSearch')?.addEventListener('input',handleCustomerListSearch);document.getElementById('modemSnLiveSearch')?.addEventListener('input',debouncedModemSnSearch);document.getElementById('modemSnLiveResults')?.addEventListener('click',(e)=>{const btn=e.target.closest('.modem-sn-row[data-code]');if(!btn)return;e.preventDefault();const code=btn.getAttribute('data-code');if(!code)return;hideModemSnDropdown();const inp=document.getElementById('modemSnLiveSearch');if(inp)inp.value='';openModal(code,0,'modem');});});
+         document.addEventListener('DOMContentLoaded',()=>{setupChartToggle();initSearchPanelToggle();document.getElementById('customerListSearch')?.addEventListener('input',handleCustomerListSearch);document.getElementById('modemSnLiveSearch')?.addEventListener('input',debouncedModemSnSearch);document.getElementById('modemSnLiveResults')?.addEventListener('click',(e)=>{const btn=e.target.closest('.modem-sn-row[data-code]');if(!btn)return;e.preventDefault();const code=btn.getAttribute('data-code');if(!code)return;hideModemSnDropdown();const inp=document.getElementById('modemSnLiveSearch');if(inp)inp.value='';openModal(code,0,'modem');});});
       </script>
    </body>
 </html>
