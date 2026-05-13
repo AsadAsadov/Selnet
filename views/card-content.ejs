@@ -1,227 +1,151 @@
-<div class="customer-details">
-  <% if (typeof omitCustomerName === 'undefined' || !omitCustomerName) { %>
-    <h2 class="customer-name-compact"><%= result.ad_soyad %></h2>
-  <% } %>
+<div class="customer-details-card">
+  <div class="card-header-compact">
+    <h2 class="customer-name-text"><%= result.ad_soyad %></h2>
+  </div>
 
   <div class="info-grid-compact">
     <% 
-      const qeydText = String(result.qeyd || '').trim().toLowerCase();
-      const isProblem = qeydText.includes('problem');
-      const isArchived = result.arxiv === true || ['hə', 'he', 'true', '1'].includes(String(result.arxiv ?? '').trim().toLowerCase());
-      
       const displayFields = [
         { key: 'odeme_kodu', label: 'KOD' },
         { key: 'telefon', label: 'TEL', isPhone: true },
         { key: 'ayliq_odenis', label: 'ÖDƏNİŞ', suffix: ' AZN' },
-        { key: 'fin', label: 'FİN' },
         { key: 'seriya', label: 'SERİYA' },
         { key: 'modem', label: 'MODEM' },
         { key: 'tvbox', label: 'TV BOX' },
-        { key: 'komendant', label: 'KOMENDANT' },
         { key: 'timestamp', label: 'TARİX' },
-        { key: 'unvan', label: 'ÜNVAN' },
-        { key: 'qeyd', label: 'QEYD' }
+        { key: 'unvan', label: 'ÜNVAN' }
       ];
 
-      if (isProblem && String(result.netice || '').trim() !== '') {
-        displayFields.push({ key: 'netice', label: 'NƏTİCƏ', isStatus: true });
-      }
-      if (isProblem) {
-        displayFields.push({ key: 'problem_sebebi', label: 'SƏBƏB' });
-      }
-
-      const fullSpanKeys = ['unvan', 'qeyd', 'problem_sebebi', 'netice'];
-      
       displayFields.forEach(field => { 
         const val = result[field.key];
-        if (val && val.toString().toLowerCase() !== 'null' && val.toString().trim() !== '') {
+        if (val && val.toString().trim() !== '') {
     %>
-      <div class="info-item-compact <%= fullSpanKeys.includes(field.key) ? 'full-width' : '' %>">
+      <div class="info-item-compact <%= field.key === 'unvan' ? 'full-width' : '' %>">
         <label><%= field.label %></label>
         <div class="value-container">
+          <span class="val-text"><%= val %><%= field.suffix || '' %></span>
           <% if (field.isPhone) { %>
-            <span class="val-text"><%= val %></span>
-            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="wa-link">WA</a>
-          <% } else if (field.isStatus) { %>
-            <span class="status-mini"><%= val %></span>
-          <% } else { %>
-            <span class="val-text"><%= val %><%= field.suffix || '' %></span>
+            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="wa-badge">WA</a>
           <% } %>
         </div>
       </div>
-    <% 
-        }
-      }); 
-    %>
+    <% } }); %>
   </div>
 
   <div class="photo-section-compact">
-    <label class="section-label">ŞƏKİLLƏR</label>
-    <div class="photo-grid-inline">
-      <button type="button" class="btn-photo">🖼️ Şəkil 1</button>
-      <button type="button" class="btn-photo">🖼️ Şəkil 2</button>
-      <button type="button" class="btn-photo">🖼️ Şəkil 3</button>
+    <div class="photo-flex-row">
+      <button class="btn-photo-mini">🖼️ Şəkil 1</button>
+      <button class="btn-photo-mini">🖼️ Şəkil 2</button>
+      <button class="btn-photo-mini">🖼️ Şəkil 3</button>
     </div>
   </div>
 
-  <div class="action-grid-compact">
-    <% 
-      let historyRows = [];
-      try {
-        const h = result.history;
-        if (Array.isArray(h)) historyRows = h;
-        else if (typeof h === 'string' && h.trim()) {
-          const p = JSON.parse(h);
-          if (Array.isArray(p)) historyRows = p;
-        }
-      } catch (e) { historyRows = []; }
-      const historyData = encodeURIComponent(JSON.stringify(historyRows.filter(x => x && (x.event || x.note))));
-    %>
-    <button type="button" class="btn-compact history" data-history="<%= historyData %>" onclick="openCustomerHistoryModal(this)">📜 Tarixçə</button>
-    <a href="/edit/<%= result.odeme_kodu %>" class="btn-compact edit">📝 Redaktə</a>
-    <button type="button" class="btn-compact delete" onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')">🗑️ Sil</button>
-    
-    <% if (isArchived) { %>
-      <button type="button" class="btn-compact archive" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', false)">📦 Bərpa</button>
-    <% } else { %>
-      <button type="button" class="btn-compact archive" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', true)">📦 Arxiv</button>
-    <% } %>
+  <div class="action-buttons-grid">
+    <button class="btn-action hist" onclick="openHistory()"><i class="fa fa-history"></i> Tarixçə</button>
+    <a href="/edit/<%= result.id %>" class="btn-action edit"><i class="fa fa-edit"></i> Redaktə</a>
+    <button class="btn-action del" onclick="deleteCust()"><i class="fa fa-trash"></i> Sil</button>
+    <button class="btn-action arch" onclick="archiveCust()"><i class="fa fa-archive"></i> Arxiv</button>
   </div>
 </div>
 
 <style>
-  .customer-details {
-    padding: 10px !important;
-    background: #1a1a1a;
+  .customer-details-card {
+    padding: 12px;
+    background: #1e2530; /* Şəkildəki tünd rəng */
     border-radius: 12px;
-    color: white;
-    max-width: 100%;
-    overflow: hidden;
+    margin-bottom: 10px;
+    border: 1px solid #2d3748;
   }
 
-  /* Adın alt-alta düşməsini ləğv edən əsas hissə */
-  .customer-name-compact {
-    display: block !important;
-    width: 100% !important;
-    font-size: 17px !important;
-    font-weight: bold;
-    margin: 0 0 10px 0 !important;
-    white-space: nowrap !important; /* Məcburi tək sətir */
-    overflow: hidden !important;
-    text-overflow: ellipsis !important; /* Uzun olsa nöqtə qoyur */
-    border-bottom: 1px solid #333;
-    padding-bottom: 8px;
+  .customer-name-text {
+    font-size: 16px !important;
+    font-weight: 700;
     color: #fff;
+    margin: 0 0 10px 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #2d3748;
+    padding-bottom: 8px;
   }
 
   .info-grid-compact {
     display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6px 12px !important;
+    grid-template-columns: 1fr 1fr !important; /* Məcburi 2 sütun */
+    gap: 8px 15px;
   }
 
   .info-item-compact {
-    display: flex !important;
-    flex-direction: column !important;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
   }
 
-  .info-item-compact.full-width {
-    grid-column: span 2 !important;
-  }
+  .full-width { grid-column: span 2; }
 
   .info-item-compact label {
-    font-size: 9px !important;
-    color: #888;
+    font-size: 9px;
+    color: #a0aec0;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
     margin-bottom: 2px;
   }
 
   .val-text {
-    font-size: 13px !important;
-    font-weight: 500;
+    font-size: 13px;
+    color: #edf2f7;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #eee;
   }
 
-  /* Şəkillərin Yan-yana Düzülməsi */
-  .photo-section-compact {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px dashed #333;
-  }
-
-  .section-label {
-    font-size: 9px;
-    color: #888;
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  .photo-grid-inline {
-    display: flex !important;
-    flex-direction: row !important; /* Məcburi yan-yana */
-    gap: 5px !important;
-    width: 100%;
-  }
-
-  .btn-photo {
-    flex: 1; /* Hər düymə eyni eni tutsun */
-    background: #2c3e50;
-    color: white;
-    border: none;
-    padding: 6px 2px;
-    font-size: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  /* WhatsApp Balaca Link */
-  .wa-link {
-    font-size: 9px !important;
+  .wa-badge {
     background: #25d366;
-    color: white;
-    padding: 1px 5px;
+    font-size: 9px;
+    padding: 1px 4px;
     border-radius: 4px;
-    text-decoration: none;
-    margin-left: 4px;
+    color: white;
+    margin-left: 5px;
   }
 
-  /* Əməliyyat Düymələri 2x2 */
-  .action-grid-compact {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
-    margin-top: 12px !important;
+  .photo-flex-row {
+    display: flex !important;
+    flex-direction: row !important; /* Şəkillər yan-yana */
+    gap: 5px;
+    margin: 12px 0;
   }
 
-  .btn-compact {
+  .btn-photo-mini {
+    flex: 1;
+    background: #3182ce;
+    border: none;
+    padding: 6px;
+    font-size: 10px;
+    color: white;
+    border-radius: 6px;
+  }
+
+  .action-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .btn-action {
+    padding: 8px;
+    font-size: 11px;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 2px !important;
-    font-size: 11px !important;
-    border-radius: 8px;
-    border: none;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
+    gap: 5px;
   }
 
-  .btn-compact.history { background: #34495e; }
-  .btn-compact.edit { background: #2980b9; }
-  .btn-compact.delete { background: #c0392b; }
-  .btn-compact.archive { background: #7f8c8d; }
-
-  .status-mini {
-    font-size: 10px;
-    background: #e67e22;
-    padding: 1px 6px;
-    border-radius: 8px;
-  }
+  .btn-action.hist { background: #4a5568; }
+  .btn-action.edit { background: #3182ce; }
+  .btn-action.del { background: #e53e3e; }
+  .btn-action.arch { background: #718096; }
 </style>
