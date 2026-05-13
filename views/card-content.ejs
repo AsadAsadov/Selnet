@@ -1,166 +1,118 @@
 <div class="customer-card-global">
-  <div class="card-header-main">
-    <h2 class="customer-name-label"><%= result.ad_soyad %></h2>
-  </div>
+  <div class="customer-details">
+    <% if (typeof omitCustomerName === 'undefined' || !omitCustomerName) { %>
+    <h2 class="customer-name"><%= result.ad_soyad %></h2>
+    <% } %>
 
-  <div class="info-grid-main">
-    <% 
-      const displayFields = [
-        { key: 'odeme_kodu', label: 'KOD' },
-        { key: 'telefon', label: 'TEL', isPhone: true },
-        { key: 'ayliq_odenis', label: 'ÖDƏNİŞ', suffix: ' AZN' },
-        { key: 'fin', label: 'FİN' },
-        { key: 'seriya', label: 'SERİYA' },
-        { key: 'modem', label: 'MODEM' },
-        { key: 'tvbox', label: 'TV BOX' },
-        { key: 'timestamp', label: 'TARİX' },
-        { key: 'unvan', label: 'ÜNVAN' }
-      ];
-
-      displayFields.forEach(field => { 
-        const val = result[field.key];
-        if (val && val.toString().trim() !== '') {
+    <%
+      const driveFromCsv = String(result.drive_links || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      const legacyPhotoKeys = ['photo1', 'photo2', 'photo3'];
+      const legacyPhotos = legacyPhotoKeys.map(function (k) { return result[k]; }).filter(function (v) {
+        return v && String(v).trim() !== '' && String(v).toLowerCase() !== 'null';
+      }).map(String);
+      const driveUrlsAll = driveFromCsv.concat(legacyPhotos);
+      const driveUrls = driveUrlsAll.filter(function (u, i) { return driveUrlsAll.indexOf(u) === i; });
     %>
-      <div class="grid-item <%= field.key === 'unvan' ? 'span-2' : '' %>">
-        <label class="item-label"><%= field.label %></label>
-        <div class="item-value-box">
-          <span class="item-text"><%= val %><%= field.suffix || '' %></span>
-          <% if (field.isPhone) { %>
-            <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="wa-mini-btn">WA</a>
-          <% } %>
+    <% if (driveUrls.length) { %>
+    <div class="customer-card-global__photo-row" role="group" aria-label="Şəkillər">
+      <% driveUrls.forEach(function (url, i) { %>
+      <button type="button" class="btn-image drive-link" onclick='window.open(<%= JSON.stringify(url) %>, "_blank")' title="Google Drive">
+        <i class="fa-solid fa-image"></i> Şəkil <%= i + 1 %>
+      </button>
+      <% }); %>
+    </div>
+    <% } %>
+
+    <div class="info-grid">
+      <% 
+        const qeydText = String(result.qeyd || '').trim().toLowerCase();
+        const isProblem = qeydText.includes('problem');
+        const isArchived = result.arxiv === true || ['hə', 'he', 'true', '1'].includes(String(result.arxiv ?? '').trim().toLowerCase());
+        const displayFields = [
+          { key: 'odeme_kodu', label: 'ÖDƏNİŞ KODU' },
+          { key: 'telefon', label: 'TELEFON', isPhone: true },
+          { key: 'ayliq_odenis', label: 'AYLIQ ÖDƏNİŞ', suffix: ' AZN' },
+          { key: 'fin', label: 'Ş/V FİN' },
+          { key: 'seriya', label: 'Ş/V SERİYA' },
+          { key: 'modem', label: 'MODEM S/N' },
+          { key: 'tvbox', label: 'TV BOX' },
+          { key: 'komendant', label: 'KOMENDANT' },
+          { key: 'timestamp', label: 'QEYDİYYAT TARİXİ' },
+          { key: 'unvan', label: 'ÜNVAN' },
+          { key: 'qeyd', label: 'QEYD' }
+        ];
+
+        if (isProblem && String(result.netice || '').trim() !== '') {
+          displayFields.push({ key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true });
+        }
+
+        if (isProblem) {
+          displayFields.push({ key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ' });
+        }
+
+        const fullSpanKeys = ['unvan', 'qeyd', 'problem_sebebi', 'netice'];
+        displayFields.forEach(field => { 
+          const val = result[field.key];
+          if (val && val.toString().toLowerCase() !== 'null' && val.toString().trim() !== '') {
+      %>
+        <div class="info-item<%= fullSpanKeys.includes(field.key) ? ' info-item--span-2' : '' %>">
+          <label class="info-label"><%= field.label %></label>
+          <p class="info-value<%= field.isPhone ? ' info-value--contact' : '' %>">
+            <% if (field.isPhone) { %>
+              <%= val %>
+              <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="btn-wa">WhatsApp</a>
+            <% } else if (field.isStatus) { %>
+              <span class="status-badge"><%= val %></span>
+            <% } else { %>
+              <%= val %><%= field.suffix || '' %>
+            <% } %>
+          </p>
         </div>
-      </div>
-    <% } }); %>
-  </div>
+      <% 
+          }
+        }); 
+      %>
+    </div>
 
-  <div class="photo-row-main">
-    <button type="button" class="btn-photo-action">🖼️ Şəkil 1</button>
-    <button type="button" class="btn-photo-action">🖼️ Şəkil 2</button>
-    <button type="button" class="btn-photo-action">🖼️ Şəkil 3</button>
-  </div>
-
-  <div class="actions-grid-main">
-    <button class="btn-main hist" onclick="openHistory()"><i class="fa fa-history"></i> Tarixçə</button>
-    <a href="/edit/<%= result.id %>" class="btn-main edit"><i class="fa fa-edit"></i> Redaktə</a>
-    <button class="btn-main del" onclick="deleteCust()"><i class="fa fa-trash"></i> Sil</button>
-    <button class="btn-main arch" onclick="archiveCust()"><i class="fa fa-archive"></i> Arxiv</button>
+    <% 
+      let historyRows = [];
+      try {
+        const h = result.history;
+        if (Array.isArray(h)) historyRows = h;
+        else if (typeof h === 'string' && h.trim()) {
+          const p = JSON.parse(h);
+          if (Array.isArray(p)) historyRows = p;
+        }
+      } catch (e) { historyRows = []; }
+      historyRows = historyRows
+        .filter(x => x && (x.event || x.note))
+        .map(x => ({
+          date: x.date || '',
+          event: String(x.event || '').trim(),
+          note: String(x.note || '').trim()
+        }))
+        .sort((a, b) => {
+          const ta = Date.parse(a.date) || 0;
+          const tb = Date.parse(b.date) || 0;
+          return tb - ta;
+        });
+    %>
+    <div class="customer-card-actions">
+      <button
+        type="button"
+        class="btn-customer-history btn-card-action"
+        data-history="<%= encodeURIComponent(JSON.stringify(historyRows)) %>"
+        onclick="openCustomerHistoryModal(this)"
+      >
+        📜 Fəaliyyət Tarixçəsi
+      </button>
+      <a href="/edit/<%= result.odeme_kodu %>" class="btn-edit btn-card-action">📝 Redaktə</a>
+      <button type="button" class="btn-delete btn-card-action" onclick="deleteCustomer('<%= result.odeme_kodu %>', '<%= result.id %>')">🗑️ Sil</button>
+      <% if (isArchived) { %>
+      <button type="button" class="btn-unarchive btn-card-action" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', false)">📦 Arxivdən Çıxart</button>
+      <% } else { %>
+      <button type="button" class="btn-archive btn-card-action" onclick="toggleArchive('<%= result.odeme_kodu %>', '<%= result.id %>', true)">📦 Arxivə Göndər</button>
+      <% } %>
+    </div>
   </div>
 </div>
-
-<style>
-  /* Bütün sayt və modal daxilində işləyəcək əsas stillər */
-  .customer-card-global {
-    padding: 10px !important;
-    background: #1a202c !important;
-    border-radius: 10px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  .customer-name-label {
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    margin: 0 0 12px 0 !important;
-    border-bottom: 1px solid #2d3748 !important;
-    padding-bottom: 6px !important;
-  }
-
-  .info-grid-main {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important; /* Məcburi 2 sütun */
-    gap: 8px 12px !important;
-    width: 100% !important;
-  }
-
-  .grid-item {
-    display: flex !important;
-    flex-direction: column !important;
-    min-width: 0 !important;
-  }
-
-  .span-2 { grid-column: span 2 !important; }
-
-  .item-label {
-    font-size: 9px !important;
-    color: #a0aec0 !important;
-    text-transform: uppercase !important;
-    margin-bottom: 2px !important;
-  }
-
-  .item-text {
-    font-size: 12px !important;
-    color: #e2e8f0 !important;
-    font-weight: 500 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-
-  .item-value-box {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-  }
-
-  .wa-mini-btn {
-    background: #25d366 !important;
-    color: white !important;
-    font-size: 8px !important;
-    padding: 1px 4px !important;
-    border-radius: 3px !important;
-    text-decoration: none !important;
-  }
-
-  .photo-row-main {
-    display: flex !important;
-    flex-direction: row !important; /* Məcburi yan-yana */
-    gap: 6px !important;
-    margin: 12px 0 !important;
-  }
-
-  .btn-photo-action {
-    flex: 1 !important;
-    background: #2b6cb0 !important;
-    border: none !important;
-    padding: 6px !important;
-    font-size: 10px !important;
-    color: white !important;
-    border-radius: 5px !important;
-    cursor: pointer !important;
-  }
-
-  .actions-grid-main {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-    margin-top: 10px !important;
-  }
-
-  .btn-main {
-    padding: 8px !important;
-    font-size: 11px !important;
-    border-radius: 6px !important;
-    border: none !important;
-    color: white !important;
-    font-weight: 600 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 4px !important;
-    cursor: pointer !important;
-  }
-
-  .btn-main.hist { background: #4a5568 !important; }
-  .btn-main.edit { background: #3182ce !important; }
-  .btn-main.del { background: #e53e3e !important; }
-  .btn-main.arch { background: #718096 !important; }
-
-  /* Modal daxilində sıxılmanı ləğv etmək üçün əlavə */
-  .modal-body {
-    padding: 10px !important;
-  }
-</style>
