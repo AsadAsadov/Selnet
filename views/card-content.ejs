@@ -5,23 +5,21 @@
     <% } %>
 
     <%
-      const driveFromCsv = String(result.drive_links || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
-      const legacyPhotoKeys = ['photo1', 'photo2', 'photo3'];
-      const legacyPhotos = legacyPhotoKeys.map(function (k) { return result[k]; }).filter(function (v) {
-        return v && String(v).trim() !== '' && String(v).toLowerCase() !== 'null';
-      }).map(String);
-      const driveUrlsAll = driveFromCsv.concat(legacyPhotos);
-      const driveUrls = driveUrlsAll.filter(function (u, i) { return driveUrlsAll.indexOf(u) === i; });
+      function collectPhotoUrlsOrderedCard(res) {
+        var out = [];
+        var seen = {};
+        function push(u) {
+          var s = String(u == null ? '' : u).trim();
+          if (!s || s.toLowerCase() === 'null' || seen[s]) return;
+          seen[s] = true;
+          out.push(s);
+        }
+        ['photo1', 'photo2', 'photo3'].forEach(function (k) { push(res[k]); });
+        String(res.drive_links || '').split(',').forEach(function (x) { push(String(x).trim()); });
+        return out;
+      }
+      var photoUrlList = collectPhotoUrlsOrderedCard(result);
     %>
-    <% if (driveUrls.length) { %>
-    <div class="customer-card-global__photo-row" role="group" aria-label="Şəkillər">
-      <% driveUrls.forEach(function (url, i) { %>
-      <button type="button" class="btn-image drive-link" onclick='window.open(<%= JSON.stringify(url) %>, "_blank")' title="Google Drive">
-        <i class="fa-solid fa-image"></i> Şəkil <%= i + 1 %>
-      </button>
-      <% }); %>
-    </div>
-    <% } %>
 
     <div class="info-grid">
       <% 
@@ -38,41 +36,53 @@
           { key: 'tvbox', label: 'TV BOX' },
           { key: 'komendant', label: 'KOMENDANT' },
           { key: 'timestamp', label: 'QEYDİYYAT TARİXİ' },
-          { key: 'unvan', label: 'ÜNVAN' },
-          { key: 'qeyd', label: 'QEYD' }
+          { key: 'unvan', label: 'ÜNVAN', full: true },
+          { key: 'qeyd', label: 'QEYD', full: true }
         ];
 
         if (isProblem && String(result.netice || '').trim() !== '') {
-          displayFields.push({ key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true });
+          displayFields.push({ key: 'netice', label: 'İŞİN NƏTİCƏSİ', isStatus: true, full: true });
         }
 
         if (isProblem) {
-          displayFields.push({ key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ' });
+          displayFields.push({ key: 'problem_sebebi', label: 'PROBLEMIN SƏBƏBİ', full: true });
         }
 
-        const fullSpanKeys = ['unvan', 'qeyd', 'problem_sebebi', 'netice'];
         displayFields.forEach(field => { 
           const val = result[field.key];
           if (val && val.toString().toLowerCase() !== 'null' && val.toString().trim() !== '') {
+            const rowFull = field.full ? ' info-item-row--full' : '';
       %>
-        <div class="info-item<%= fullSpanKeys.includes(field.key) ? ' info-item--span-2' : '' %>">
+        <div class="info-item info-item-row<%= rowFull %>">
           <label class="info-label"><%= field.label %></label>
-          <p class="info-value<%= field.isPhone ? ' info-value--contact' : '' %>">
-            <% if (field.isPhone) { %>
-              <%= val %>
-              <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" class="btn-wa">WhatsApp</a>
-            <% } else if (field.isStatus) { %>
-              <span class="status-badge"><%= val %></span>
-            <% } else { %>
-              <%= val %><%= field.suffix || '' %>
-            <% } %>
+          <% if (field.isPhone) { %>
+          <p class="info-value info-value--contact">
+            <span class="customer-card-global__tel-line">
+              <a href="tel:<%= String(val).replace(/^\s+|\s+$/g, '') %>" class="info-link customer-card-global__telnum"><%= val %></a>
+              <a href="https://wa.me/994<%= val.toString().replace(/^0/, '') %>" target="_blank" rel="noopener noreferrer" class="customer-card-global__wa" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+            </span>
           </p>
+          <% } else if (field.isStatus) { %>
+          <p class="info-value"><span class="status-badge"><%= val %></span></p>
+          <% } else { %>
+          <p class="info-value"><span class="info-text"><%= val %><%= field.suffix || '' %></span></p>
+          <% } %>
         </div>
       <% 
           }
         }); 
       %>
     </div>
+
+    <% if (photoUrlList.length) { %>
+    <div class="customer-card-global__photo-row" role="group" aria-label="Şəkillər">
+      <% photoUrlList.forEach(function (url, i) { %>
+      <button type="button" class="btn-image drive-link" onclick='window.open(<%= JSON.stringify(url) %>, "_blank")' title="Drive">
+        <i class="fa-solid fa-image"></i> Foto <%= i + 1 %>
+      </button>
+      <% }); %>
+    </div>
+    <% } %>
 
     <% 
       let historyRows = [];
