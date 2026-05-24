@@ -239,17 +239,21 @@
 
          .search-filter-section {
             display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            gap: 14px;
             margin-bottom: 0;
+            padding: 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.34);
          }
          
          .search-box {
             display: flex;
             align-items: center;
             gap: 12px;
-            flex: 2 1 420px;
+            flex: 2 1 460px;
             min-width: 260px;
             padding: 0;
             border: none;
@@ -320,9 +324,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
-            flex: 1 1 340px;
-            min-width: 280px;
+            flex-wrap: nowrap;
+            flex: 1 1 460px;
+            min-width: 320px;
             background: transparent;
          }
          
@@ -677,7 +681,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
          }
          
          .btn-filter {
@@ -751,6 +755,7 @@
                flex-direction: column;
                align-items: stretch;
                gap: 14px;
+               padding: 8px;
             }
          
             .search-box {
@@ -815,31 +820,38 @@
          }
          .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 14px;
+            grid-template-columns: repeat(2, minmax(190px, 1fr));
+            gap: 14px;
+            margin-bottom: 16px;
          }
          .stat-card {
             background:
-               linear-gradient(180deg, var(--card), rgba(30, 41, 59, 0.86)),
+               linear-gradient(160deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.92)),
                radial-gradient(
                   circle at right top,
                   rgba(255, 255, 255, 0.08),
-                  transparent 42%
+                  transparent 44%
                );
-            border: 1px solid var(--border-soft);
-            padding: 14px 16px;
-            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            padding: 15px 17px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: all 0.22s ease;
+            transition:
+               transform 0.22s ease,
+               border-color 0.22s ease,
+               box-shadow 0.22s ease,
+               background 0.22s ease;
             overflow: hidden;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 12px 24px rgba(2, 6, 23, 0.26);
          }
          .stat-card:hover {
-            border-color: var(--green);
-            transform: translateY(-2px);
+            border-color: rgba(16, 185, 129, 0.65);
+            transform: translateY(-3px);
             box-shadow:
-               0 18px 38px rgba(0, 0, 0, 0.22),
-               0 0 22px var(--glow);
+               0 18px 34px rgba(2, 6, 23, 0.34),
+               0 0 18px rgba(16, 185, 129, 0.14);
          }
          .stat-card h3 {
             margin: 0 0 4px;
@@ -868,6 +880,19 @@
          }
          .stat-card.red {
             border-left: 4px solid var(--red);
+         }
+         @media (max-width: 520px) {
+            .stats {
+               grid-template-columns: minmax(0, 1fr);
+            }
+            .date-filter {
+               min-width: 100%;
+               flex-wrap: wrap;
+            }
+            .filter-actions {
+               width: 100%;
+               flex-wrap: wrap;
+            }
          }
          .badge.problem {
             background: rgba(239, 68, 68, 0.16);
