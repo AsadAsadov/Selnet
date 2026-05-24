@@ -210,15 +210,15 @@
          .search-filter-section {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
+            gap: 10px;
+            align-items: stretch;
             margin-bottom: 0;
          }
          
          .search-box {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             flex: 2 1 420px;
             min-width: 260px;
             padding: 0;
@@ -230,17 +230,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px);
-            padding: 5px 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 6px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
             flex-shrink: 0;
          }
          
          .brand-logo {
-            height: 45px;
+            height: 36px;
             width: auto;
             object-fit: contain;
             filter: brightness(0) invert(1);
@@ -256,12 +257,12 @@
          
          .search-wrapper input {
             width: 100%;
-            padding: 12px 14px 12px 44px;
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid var(--border);
-            border-radius: 14px;
+            padding: 10px 12px 10px 36px;
+            background: rgba(30, 41, 59, 0.58);
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            border-radius: 12px;
             color: var(--text);
-            font-size: 15px;
+            font-size: 14px;
             min-width: 0;
             transition:
                border-color 0.3s ease,
@@ -271,12 +272,12 @@
          
          .search-icon {
             position: absolute;
-            left: 14px;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--green);
             pointer-events: none;
-            font-size: 16px;
+            font-size: 14px;
          }
          
          .search-wrapper input:focus,
@@ -289,8 +290,8 @@
          .date-filter {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 8px;
+            flex-wrap: nowrap;
             flex: 1 1 340px;
             min-width: 280px;
             background: transparent;
@@ -303,12 +304,12 @@
          .date-filter input[type="date"] {
             flex: 1;
             min-width: 0;
-            padding: 6px 2px;
-            background: rgba(30, 41, 59, 0.55);
-            border: 1px solid var(--border);
-            border-radius: 14px;
+            padding: 8px 8px;
+            background: rgba(30, 41, 59, 0.58);
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            border-radius: 12px;
             color: var(--text);
-            font-size: 14px;
+            font-size: 13px;
             text-align: center;
             transition:
                border-color 0.3s ease,
@@ -326,18 +327,25 @@
          }
          
          .search-box button {
-            padding: 12px 20px;
+            padding: 10px 14px;
             background: var(--green);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             color: #fff;
-            font-weight: 800;
+            font-weight: 700;
+            font-size: 13px;
             cursor: pointer;
             white-space: nowrap;
+            box-shadow: 0 8px 18px rgba(5, 150, 105, 0.28);
+            transition:
+               background 0.2s ease,
+               transform 0.2s ease,
+               box-shadow 0.2s ease;
          }
          
          .search-box button:hover {
             background: var(--green-dark);
+            transform: translateY(-1px);
          }
 
          .modem-sn-live-wrap {
@@ -350,9 +358,9 @@
             display: flex;
             align-items: center;
             position: relative;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            background: rgba(30, 41, 59, 0.58);
             transition:
                border-color 0.25s ease,
                box-shadow 0.25s ease;
@@ -367,7 +375,7 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--muted-2);
-            font-size: 14px;
+            font-size: 13px;
             pointer-events: none;
          }
          .modem-sn-inner input {
@@ -375,9 +383,9 @@
             border: none;
             background: transparent;
             color: var(--text);
-            font-size: 14px;
-            padding: 11px 12px 11px 40px;
-            border-radius: 14px;
+            font-size: 13px;
+            padding: 10px 12px 10px 36px;
+            border-radius: 12px;
             outline: none;
          }
          .modem-sn-inner input::placeholder {
@@ -646,36 +654,54 @@
          .filter-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 8px;
+            flex-wrap: nowrap;
+            margin-left: auto;
          }
          
          .btn-filter {
-            padding: 10px 15px;
+            padding: 9px 13px;
             background: var(--green);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             color: #fff;
             cursor: pointer;
             font-weight: 700;
+            font-size: 13px;
             white-space: nowrap;
+            box-shadow: 0 8px 18px rgba(5, 150, 105, 0.28);
+            transition:
+               background 0.2s ease,
+               transform 0.2s ease,
+               box-shadow 0.2s ease;
          }
          
          .btn-filter:hover {
             background: var(--green-dark);
+            transform: translateY(-1px);
          }
          
          .btn-clear {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 10px 15px;
-            background: var(--border);
-            border-radius: 10px;
+            padding: 9px 13px;
+            background: rgba(51, 65, 85, 0.82);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
             color: var(--text);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             white-space: nowrap;
+            transition:
+               background 0.2s ease,
+               border-color 0.2s ease,
+               transform 0.2s ease;
+         }
+         .btn-clear:hover {
+            background: rgba(71, 85, 105, 0.9);
+            border-color: rgba(148, 163, 184, 0.5);
+            transform: translateY(-1px);
          }
          
          .search-info {
@@ -705,28 +731,28 @@
             }
          
             .search-section {
-               padding: 16px;
-               border-radius: 18px;
+               padding: 12px;
+               border-radius: 16px;
             }
          
             .search-filter-section {
                flex-direction: column;
                align-items: stretch;
-               gap: 14px;
+               gap: 10px;
             }
          
             .search-box {
                width: 100%;
-               flex-direction: column;
+               flex-direction: row;
                align-items: stretch;
-               gap: 12px;
+               gap: 8px;
                min-width: 100%;
             }
          
             .brand-logo-container {
-               width: 100%;
+               width: auto;
                justify-content: center;
-               padding: 12px;
+               padding: 6px 10px;
             }
          
             .search-wrapper {
@@ -735,30 +761,35 @@
          
             .search-wrapper input {
                width: 100%;
-               font-size: 16px;
+               font-size: 14px;
             }
          
             .date-filter {
                width: 100%;
-               flex-direction: column;
+               flex-direction: row;
                align-items: stretch;
                min-width: 100%;
+               flex-wrap: wrap;
             }
          
             .date-filter input[type="date"] {
-               width: 100%;
-               min-width: 100%;
+               width: calc(50% - 4px);
+               min-width: calc(50% - 4px);
             }
          
             .filter-actions {
                width: 100%;
-               flex-direction: column;
+               flex-direction: row;
+               gap: 8px;
             }
-         
+
             .btn-filter,
-            .btn-clear,
             .search-box button {
-               width: 100%;
+               width: auto;
+               justify-content: center;
+            }
+            .btn-clear {
+               flex: 1 1 auto;
                justify-content: center;
             }
 
@@ -2206,8 +2237,8 @@
                flex: 1 1 100%;
             }
             .search-box {
-               flex-direction: column;
-               gap: 12px;
+               flex-direction: row;
+               gap: 8px;
             }
             .modem-sn-live-wrap {
                width: 100%;
@@ -2215,13 +2246,13 @@
                flex: 1 1 100%;
             }
             .search-wrapper input {
-               padding-left: 44px;
+               padding-left: 36px;
             }
             .filter-actions {
                width: 100%;
                display: flex;
-               flex-wrap: wrap;
-               gap: 10px;
+               flex-wrap: nowrap;
+               gap: 8px;
             }
             .chart-wrapper {
                width: 100% !important;
@@ -2237,7 +2268,7 @@
                width: 100%;
             }
             .brand-logo {
-               height: 35px;
+               height: 30px;
             }
             .modal-controls {
                gap: 4px !important;
