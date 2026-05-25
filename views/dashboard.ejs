@@ -321,12 +321,13 @@
          }
          
          .date-filter {
-            display: flex;
-            align-items: stretch;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
             flex: 1 1 460px;
-            min-width: 320px;
+            min-width: 0;
+            width: 100%;
             background: transparent;
          }
          
@@ -335,8 +336,8 @@
          }
          
          .date-filter input[type="date"] {
-            flex: 1 1 0;
             min-width: 0;
+            width: 100%;
             padding: 6px 2px;
             background: rgba(30, 41, 59, 0.55);
             border: 1px solid var(--border);
@@ -886,7 +887,7 @@
          .stat-card.red {
             border-left: 4px solid var(--red);
          }
-         @media (max-width: 520px) {
+         @media (max-width: 480px) {
             .date-filter {
                min-width: 100%;
             }
@@ -895,7 +896,7 @@
             }
          }
 
-         @media (max-width: 399px) {
+         @media (max-width: 480px) {
             .date-filter {
                flex-direction: column;
                align-items: stretch;
@@ -1058,10 +1059,10 @@
             overflow: hidden;
          }
          .chart-buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
             margin-top: 15px;
-            flex-wrap: wrap;
          }
          .chart-btn {
             padding: 8px 16px;
@@ -1072,6 +1073,11 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 700;
+            min-width: 0;
+            width: 100%;
+            min-height: 42px;
+            white-space: normal;
+            overflow-wrap: anywhere;
          }
          .chart-btn:hover {
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
@@ -1789,8 +1795,8 @@
             border: 2px solid rgba(15, 23, 42, 0.72);
          }
          .modal-body.grid {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 18px;
             align-content: start;
             min-width: 0;
@@ -2213,13 +2219,12 @@
          }
          @media (max-width: 768px) {
             .modal-body.grid {
-               display: flex !important;
-               flex-direction: row !important;
+               display: grid !important;
+               grid-template-columns: 1fr !important;
                gap: 12px !important;
-               flex-wrap: nowrap;
-               overflow-x: auto;
-               overflow-y: hidden;
-               padding-right: 10px;
+               overflow-x: hidden;
+               overflow-y: auto;
+               padding-right: 0;
             }
             .modal-body.grid .info-item {
                flex: 0 0 auto;
@@ -2251,7 +2256,7 @@
                font-size: 14px !important;
             }
          }
-         @media (max-width: 600px) {
+         @media (max-width: 768px) {
             .container {
                padding: 12px;
             }
@@ -2309,7 +2314,7 @@
             }
             .chart-buttons {
                display: grid;
-               grid-template-columns: 1fr;
+               grid-template-columns: repeat(2, minmax(0, 1fr));
                gap: 10px;
             }
             .chart-btn {
@@ -2333,12 +2338,11 @@
                font-size: 13px !important;
             }
             .modal-body.grid {
-               display: flex !important;
-               flex-direction: row !important;
+               display: grid !important;
+               grid-template-columns: 1fr !important;
                gap: 8px !important;
-               flex-wrap: nowrap;
-               overflow-x: auto;
-               overflow-y: hidden;
+               overflow-x: hidden;
+               overflow-y: auto;
             }
             .modal-body.grid .info-item {
                flex: 0 0 auto;
@@ -2379,9 +2383,9 @@
                display: none;
             }
          }
-         @media (max-width: 400px) {
+         @media (max-width: 480px) {
             .date-filter {
-               grid-template-columns: 1fr;
+               grid-template-columns: 1fr 1fr auto;
             }
             .chart-container.is-open .chart-panel {
                max-height: 620px;
@@ -2553,7 +2557,7 @@
             opacity: 0.45;
             cursor: not-allowed;
          }
-         @media (max-width: 600px) {
+         @media (max-width: 768px) {
             .customer-list-body .list-item {
                padding: 13px 12px 13px 14px;
             }
@@ -2573,7 +2577,7 @@
             }
          }
 
-         @media (max-width: 900px) {
+         @media (max-width: 1024px) {
             .modal-content,
             .customer-detail-modal-content,
             .customer-list-modal-content {
@@ -2583,7 +2587,7 @@
                width: 92vw;
             }
             .modal-body.grid {
-               grid-template-columns: 1fr;
+               grid-template-columns: repeat(2, minmax(0, 1fr));
             }
          }
 
@@ -2669,7 +2673,7 @@
             }
          }
 
-         @media (max-width: 600px) {
+         @media (max-width: 768px) {
             .modal {
                align-items: center;
                padding: 12px 10px;
@@ -2764,9 +2768,9 @@
             }
          }
 
-         @media (max-width: 400px) {
+         @media (max-width: 480px) {
             .date-filter {
-               grid-template-columns: 1fr;
+               grid-template-columns: 1fr 1fr auto;
             }
             .chart-container.is-open .chart-panel {
                max-height: 620px;
