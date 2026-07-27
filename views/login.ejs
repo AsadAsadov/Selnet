@@ -2,340 +2,535 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <title>Giriş - Müştəri axtarış sistemi</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#07142c">
+    <title>Giriş — Selnet Müştəri Sistemi</title>
     <style>
         :root {
-            --blue-main: #2563eb;
-            --blue-dark: #1d4ed8;
-            --blue-soft: #3b82f6;
-            --card-bg: rgba(255,255,255,0.92);
-            --input-border: #dbe3ee;
-            --text: #0f172a;
-            --muted: #64748b;
+            color-scheme: dark;
+            --bg: #061126;
+            --surface: rgba(10, 25, 52, .86);
+            --surface-strong: #0b1b38;
+            --surface-soft: rgba(255, 255, 255, .055);
+            --line: rgba(148, 163, 184, .18);
+            --line-strong: rgba(96, 165, 250, .42);
+            --text: #f8fafc;
+            --muted: #9fb0c8;
+            --primary: #2f72f2;
+            --primary-hover: #1f5fd4;
+            --danger: #fb7185;
+            --danger-bg: rgba(244, 63, 94, .12);
+            --ring: rgba(59, 130, 246, .24);
+            --radius-lg: 30px;
+            --radius-md: 16px;
+            --shadow: 0 34px 90px rgba(0, 0, 0, .42);
         }
 
-        *{
-            box-sizing:border-box;
-        }
+        * { box-sizing: border-box; }
+
+        html, body { min-height: 100%; }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100dvh;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 13% 15%, rgba(14, 165, 233, .22), transparent 31%),
+                radial-gradient(circle at 87% 83%, rgba(37, 99, 235, .20), transparent 34%),
+                linear-gradient(145deg, #041020 0%, #071a38 52%, #06132b 100%);
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .22;
+            background-image:
+                linear-gradient(rgba(148, 163, 184, .08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, .08) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: linear-gradient(to bottom, black, transparent 78%);
+        }
+
+        .login-page {
             position: relative;
+            z-index: 1;
+            min-height: 100dvh;
+            display: grid;
+            place-items: center;
+            padding: clamp(18px, 4vw, 52px);
+        }
+
+        .login-shell {
+            width: min(1080px, 100%);
+            min-height: 620px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(380px, .92fr);
             overflow: hidden;
-            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: rgba(5, 16, 35, .74);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
 
-        /* Arxa fon şəkli + blur */
-        body::before{
-            content:"";
-            position: fixed;
-            inset: 0;
-            background-image: url("https://raw.githubusercontent.com/AsadAsadov/Selnet/main/home.jpg");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            filter: blur(4px);
-            transform: scale(1.06);
-            z-index: -2;
-        }
-
-        /* Tünd overlay */
-        body::after{
-            content:"";
-            position: fixed;
-            inset: 0;
-            background: rgba(15,23,42,0.45);
-            z-index: -1;
-        }
-
-        .page-wrapper{
-            width: 100%;
+        .brand-panel {
+            position: relative;
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 390px;
-            border-radius: 26px;
+            justify-content: space-between;
+            padding: clamp(34px, 5vw, 64px);
             overflow: hidden;
-            background: var(--card-bg);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            border-right: 1px solid var(--line);
+            background:
+                linear-gradient(160deg, rgba(10, 34, 73, .96), rgba(5, 20, 46, .94)),
+                radial-gradient(circle at 20% 20%, rgba(56, 189, 248, .22), transparent 34%);
+        }
+
+        .brand-panel::after {
+            content: "";
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            right: -190px;
+            bottom: -210px;
+            border-radius: 50%;
+            border: 1px solid rgba(96, 165, 250, .22);
             box-shadow:
-                0 20px 60px rgba(0,0,0,0.35),
-                0 0 0 1px rgba(255,255,255,0.08);
-            animation: fadeIn 0.45s ease;
+                0 0 0 48px rgba(59, 130, 246, .035),
+                0 0 0 96px rgba(59, 130, 246, .025);
         }
 
-        @keyframes fadeIn{
-            from{
-                opacity:0;
-                transform:translateY(20px);
-            }
-            to{
-                opacity:1;
-                transform:translateY(0);
-            }
-        }
-
-        /* Yuxarı mavi hissə */
-        .card-header {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-            padding: 42px 20px 36px;
-            text-align: center;
+        .brand-logo {
             position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            min-height: 56px;
         }
 
-        .logo-container{
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        }
-
-        .logo-container img {
+        .brand-logo img {
+            display: block;
             width: 190px;
             max-width: 100%;
             height: auto;
             filter: brightness(0) invert(1);
         }
 
-        .card-body {
-            padding: 32px;
+        .brand-copy {
+            position: relative;
+            z-index: 1;
+            max-width: 520px;
+            margin: auto 0;
+            padding: 52px 0;
         }
 
-        .form-group {
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 18px;
-            position: relative;
+            color: #93c5fd;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
         }
+
+        .eyebrow::before {
+            content: "";
+            width: 22px;
+            height: 2px;
+            border-radius: 99px;
+            background: #60a5fa;
+        }
+
+        .brand-copy h1 {
+            margin: 0;
+            max-width: 480px;
+            font-size: clamp(34px, 5vw, 57px);
+            line-height: 1.04;
+            letter-spacing: -.045em;
+        }
+
+        .brand-copy p {
+            margin: 22px 0 0;
+            max-width: 440px;
+            color: #b6c4d8;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .feature-list {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 28px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border: 1px solid rgba(148, 163, 184, .16);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .045);
+            color: #d7e2f0;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .feature-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, .12);
+        }
+
+        .brand-footer {
+            position: relative;
+            z-index: 1;
+            color: #7286a5;
+            font-size: 12px;
+        }
+
+        .form-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(30px, 5vw, 62px);
+            background: linear-gradient(180deg, rgba(9, 24, 51, .86), rgba(6, 18, 40, .94));
+        }
+
+        .mobile-logo { display: none; }
+
+        .form-heading { margin-bottom: 32px; }
+
+        .form-heading h2 {
+            margin: 0;
+            font-size: clamp(27px, 3vw, 36px);
+            line-height: 1.15;
+            letter-spacing: -.035em;
+        }
+
+        .form-heading p {
+            margin: 11px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .error-msg {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding: 13px 14px;
+            border: 1px solid rgba(251, 113, 133, .35);
+            border-radius: 14px;
+            background: var(--danger-bg);
+            color: #fecdd3;
+            font-size: 13px;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .error-icon {
+            flex: 0 0 auto;
+            width: 18px;
+            height: 18px;
+            margin-top: 1px;
+        }
+
+        .login-form { display: grid; gap: 18px; }
+
+        .form-field { display: grid; gap: 8px; }
+
+        .form-field label {
+            color: #c9d5e5;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .035em;
+        }
+
+        .input-wrap { position: relative; }
 
         .input-icon {
             position: absolute;
             left: 15px;
             top: 50%;
+            width: 19px;
+            height: 19px;
             transform: translateY(-50%);
-            color: #94a3b8;
-            width: 18px;
+            color: #7f94b2;
             pointer-events: none;
         }
 
         .form-control {
             width: 100%;
-            padding: 14px 15px 14px 48px;
-            border: 1px solid var(--input-border);
-            border-radius: 14px;
-            font-size: 15px;
-            background: rgba(241,245,249,0.92);
+            min-height: 52px;
+            padding: 13px 46px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            outline: none;
+            background: rgba(255, 255, 255, .045);
             color: var(--text);
-            transition: 0.25s ease;
+            font: inherit;
+            font-size: 15px;
+            transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
         }
 
-        .form-control::placeholder{
-            color:#94a3b8;
-        }
+        .form-control::placeholder { color: #657a98; }
+
+        .form-control:hover { border-color: rgba(148, 163, 184, .32); }
 
         .form-control:focus {
-            outline: none;
-            border-color: var(--blue-soft);
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
+            border-color: var(--line-strong);
+            background: rgba(255, 255, 255, .065);
+            box-shadow: 0 0 0 4px var(--ring);
         }
 
-        /* Mavi button */
-        .btn-login {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-            border: none;
-            border-radius: 14px;
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
+        .password-toggle {
+            position: absolute;
+            right: 9px;
+            top: 50%;
+            width: 36px;
+            height: 36px;
+            transform: translateY(-50%);
+            display: inline-grid;
+            place-items: center;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #8398b6;
             cursor: pointer;
-            display: flex;
+        }
+
+        .password-toggle:hover {
+            background: rgba(255, 255, 255, .06);
+            color: #dbeafe;
+        }
+
+        .password-toggle svg { width: 18px; height: 18px; }
+
+        .btn-login {
+            position: relative;
+            width: 100%;
+            min-height: 52px;
+            margin-top: 4px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 8px;
-            transition: 0.25s ease;
-            box-shadow: 0 12px 24px rgba(37,99,235,0.28);
+            border: 1px solid rgba(147, 197, 253, .22);
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, #347cf5, #2664dc);
+            color: #fff;
+            font: inherit;
+            font-size: 15px;
+            font-weight: 850;
+            cursor: pointer;
+            box-shadow: 0 15px 34px rgba(37, 99, 235, .28);
+            transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
         }
 
         .btn-login:hover {
             transform: translateY(-1px);
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-            box-shadow: 0 16px 30px rgba(37,99,235,0.35);
+            background: linear-gradient(135deg, #3f86fa, #235dcc);
+            box-shadow: 0 18px 42px rgba(37, 99, 235, .36);
         }
 
-        .btn-login:active{
-            transform: scale(0.99);
+        .btn-login:active { transform: translateY(0); }
+
+        .btn-login:disabled { opacity: .72; cursor: wait; transform: none; }
+
+        .btn-icon { width: 18px; height: 18px; }
+
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, .38);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
         }
 
-        .error-msg {
-            background: rgba(254,242,242,0.95);
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            text-align: center;
-            margin-bottom: 16px;
-            border: 1px solid rgba(248,113,113,0.35);
-            font-weight: 600;
-        }
+        .btn-login.is-loading .btn-icon { display: none; }
+        .btn-login.is-loading .spinner { display: block; }
 
-        .footer-text {
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: var(--muted);
-            background: rgba(248,250,252,0.7);
-            border-top: 1px solid rgba(226,232,240,0.7);
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .copyright {
-            margin-top: 18px;
+        .form-footer {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+            color: #7286a5;
             text-align: center;
             font-size: 12px;
-            color: rgba(255,255,255,0.82);
-            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            line-height: 1.55;
         }
 
-        .copyright a {
-            color: #93c5fd;
-            text-decoration: none;
-            font-weight: 600;
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 820px) {
+            .login-page { padding: 14px; }
+
+            .login-shell {
+                width: min(480px, 100%);
+                min-height: auto;
+                grid-template-columns: 1fr;
+                border-radius: 24px;
+            }
+
+            .brand-panel { display: none; }
+
+            .form-panel { padding: 30px 24px 26px; }
+
+            .mobile-logo {
+                display: flex;
+                justify-content: flex-start;
+                margin-bottom: 34px;
+            }
+
+            .mobile-logo img {
+                width: 150px;
+                height: auto;
+                filter: brightness(0) invert(1);
+            }
         }
 
-        @media (max-width: 480px){
+        @media (max-width: 420px) {
+            .login-page { align-items: stretch; padding: 0; }
 
-            body{
-                padding:16px;
+            .login-shell {
+                min-height: 100dvh;
+                border: 0;
+                border-radius: 0;
             }
 
-            .login-card{
-                border-radius:22px;
-            }
+            .form-panel { padding: max(26px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom)); }
 
-            .card-header{
-                padding:34px 18px 30px;
-            }
+            .mobile-logo { margin-bottom: 40px; }
+        }
 
-            .logo-container img{
-                width:160px;
-            }
-
-            .card-body{
-                padding:24px 20px;
-            }
-
-            .form-control{
-                font-size:14px;
-                padding:13px 14px 13px 46px;
-            }
-
-            .btn-login{
-                padding:14px;
-                font-size:15px;
-            }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
         }
     </style>
 </head>
-
 <body>
+    <main class="login-page">
+        <section class="login-shell" aria-label="Selnet sisteminə giriş">
+            <aside class="brand-panel">
+                <div class="brand-logo">
+                    <img src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png" alt="Selnet">
+                </div>
 
-<div class="page-wrapper">
+                <div class="brand-copy">
+                    <span class="eyebrow">Daxili idarəetmə sistemi</span>
+                    <h1>Müştəri məlumatları bir mərkəzdə.</h1>
+                    <p>Müştəriləri tapın, yeni əməliyyat yaradın, problem və fəaliyyət tarixçəsini sürətli idarə edin.</p>
+                    <ul class="feature-list" aria-label="Sistem imkanları">
+                        <li><span class="feature-dot"></span>Sürətli axtarış</li>
+                        <li><span class="feature-dot"></span>Problem nəzarəti</li>
+                        <li><span class="feature-dot"></span>Fəaliyyət tarixçəsi</li>
+                    </ul>
+                </div>
 
-    <div class="login-card">
+                <div class="brand-footer">SELNET MMC · Müştəri idarəetmə platforması</div>
+            </aside>
 
-        <div class="card-header">
-            <div class="logo-container">
-                <img
-                    src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png"
-                    alt="Selnet Logo"
-                >
+            <div class="form-panel">
+                <div class="mobile-logo">
+                    <img src="https://raw.githubusercontent.com/AsadAsadov/Selnet/main/selnet.png" alt="Selnet">
+                </div>
+
+                <header class="form-heading">
+                    <h2>Xoş gəlmisiniz</h2>
+                    <p>İdarəetmə panelinə keçmək üçün hesab məlumatlarınızı daxil edin.</p>
+                </header>
+
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="error-msg" role="alert">
+                        <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <span><%= error %></span>
+                    </div>
+                <% } %>
+
+                <form method="POST" class="login-form" id="loginForm">
+                    <div class="form-field">
+                        <label for="username">İstifadəçi adı</label>
+                        <div class="input-wrap">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.118a7.5 7.5 0 0115 0A17.933 17.933 0 0112 21.75a17.933 17.933 0 01-7.5-1.632z" />
+                            </svg>
+                            <input class="form-control" id="username" name="username" type="text" placeholder="İstifadəçi adınızı yazın" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="password">Şifrə</label>
+                        <div class="input-wrap">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 10.5h10.5A2.25 2.25 0 0019.5 18.75v-6A2.25 2.25 0 0017.25 10.5H6.75A2.25 2.25 0 004.5 12.75v6A2.25 2.25 0 006.75 21z" />
+                            </svg>
+                            <input class="form-control" id="password" name="password" type="password" placeholder="Şifrənizi yazın" autocomplete="current-password" required>
+                            <button class="password-toggle" id="passwordToggle" type="button" aria-label="Şifrəni göstər" aria-pressed="false">
+                                <svg id="eyeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .638C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="btn-login" id="loginButton" type="submit">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                        <span class="spinner" aria-hidden="true"></span>
+                        <span id="loginButtonText">Daxil ol</span>
+                    </button>
+                </form>
+
+                <footer class="form-footer">© 2026 SELNET MMC. Bütün hüquqlar qorunur.</footer>
             </div>
-        </div>
+        </section>
+    </main>
 
-        <div class="card-body">
+    <script>
+        (function () {
+            const form = document.getElementById('loginForm');
+            const button = document.getElementById('loginButton');
+            const buttonText = document.getElementById('loginButtonText');
+            const password = document.getElementById('password');
+            const toggle = document.getElementById('passwordToggle');
 
-            <% if (typeof error !== 'undefined' && error) { %>
-                <div class="error-msg">
-                    <%= error %>
-                </div>
-            <% } %>
+            toggle.addEventListener('click', function () {
+                const show = password.type === 'password';
+                password.type = show ? 'text' : 'password';
+                toggle.setAttribute('aria-pressed', String(show));
+                toggle.setAttribute('aria-label', show ? 'Şifrəni gizlət' : 'Şifrəni göstər');
+            });
 
-            <form method="POST">
-
-                <div class="form-group">
-                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                        </path>
-                    </svg>
-
-                    <input
-                        class="form-control"
-                        placeholder="İstifadəçi adı"
-                        type="text"
-                        name="username"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                        </path>
-                    </svg>
-
-                    <input
-                        class="form-control"
-                        placeholder="Şifrə"
-                        type="password"
-                        name="password"
-                        required
-                    >
-                </div>
-
-                <button class="btn-login" type="submit">
-
-                    <svg style="width:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
-                        </path>
-                    </svg>
-
-                    Daxil ol
-                </button>
-
-            </form>
-
-        </div>
-
-        <div class="footer-text">
-            SELNET MMC
-        </div>
-
-    </div>
-
-    <div class="copyright">
-        © 2026
-        <a href="#">Müştəri axtarış sistemi</a>.
-        Bütün hüquqlar qorunur.
-    </div>
-
-</div>
-
+            form.addEventListener('submit', function () {
+                button.disabled = true;
+                button.classList.add('is-loading');
+                buttonText.textContent = 'Yoxlanılır...';
+            });
+        }());
+    </script>
 </body>
 </html>
